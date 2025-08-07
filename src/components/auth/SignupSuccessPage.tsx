@@ -14,9 +14,13 @@ export function SignupSuccessPage({ onShowLogin }: SignupSuccessPageProps) {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <img 
-              src="/image/vrslogo.png" 
-              alt="VRS Logo" 
+               src="/vrslogo.png" 
+              alt="Vendor Request System Logo" 
               className="w-20 h-20 object-contain"
+              onError={(e) => {
+                console.log('Logo failed to load');
+                e.currentTarget.style.display = 'none';
+              }}
             />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
@@ -64,6 +68,13 @@ export function SignupSuccessPage({ onShowLogin }: SignupSuccessPageProps) {
             </p>
           </div>
         </Card>
+
+        {/* Footer */}
+        <div className="text-center mt-6">
+          <p className="text-sm text-gray-500">
+            © 2024 Vendor Request System. All rights reserved.
+          </p>
+        </div>
       </div>
     </div>
   );

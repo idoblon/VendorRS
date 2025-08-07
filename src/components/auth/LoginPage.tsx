@@ -12,25 +12,56 @@ interface LoginPageProps {
 export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.VENDOR);
   const [isLoading, setIsLoading] = useState(false);
 
-  const demoUser = {
-    id: 'user-1',
-    name: 'Demo User',
-    email: 'demo@example.com',
-    role: UserRole.VENDOR,
-    businessName: 'Demo Business',
-    panNumber: 'ABCDE1234F',
-    bankDetails: {
-      accountNumber: '1234567890',
-      ifscCode: 'HDFC0001234',
-      bankName: 'HDFC Bank'
-    },
-    address: 'Demo Address',
-    gstNumber: '27ABCDE1234F1Z5',
-    status: VendorStatus.APPROVED,
-    joinedDate: '2024-01-15',
-    phone: '+91 9876543210'
+  const getDemoUser = (role: UserRole) => {
+    const baseUser = {
+      id: 'user-1',
+      email: 'demo@example.com',
+      phone: '+91 9876543210'
+    };
+
+    switch (role) {
+      case UserRole.VENDOR:
+        return {
+          ...baseUser,
+          name: 'Demo Vendor',
+          role: UserRole.VENDOR,
+          businessName: 'Tech Solutions Pvt Ltd',
+          panNumber: 'ABCDE1234F',
+          bankDetails: {
+            accountNumber: '1234567890',
+            ifscCode: 'HDFC0001234',
+            bankName: 'HDFC Bank'
+          },
+          address: '123 Business Park, Tech City',
+          gstNumber: '27ABCDE1234F1Z5',
+          status: VendorStatus.APPROVED,
+          joinedDate: '2024-01-15'
+        };
+      case UserRole.CENTER:
+        return {
+          ...baseUser,
+          name: 'Demo Center Manager',
+          role: UserRole.CENTER,
+          centerName: 'Delhi Distribution Center',
+          location: 'New Delhi, India',
+          contactPerson: 'John Doe'
+        };
+      case UserRole.ADMIN:
+        return {
+          ...baseUser,
+          name: 'Demo Admin',
+          role: UserRole.ADMIN
+        };
+      default:
+        return {
+          ...baseUser,
+          name: 'Demo User',
+          role: UserRole.VENDOR
+        };
+    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -39,36 +70,49 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
     
     // Simulate API call
     setTimeout(() => {
-      onLogin(demoUser);
+      const demoUser = getDemoUser(selectedRole);
+      onLogin(demoUser as User);
       setIsLoading(false);
     }, 1000);
+  };
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    console.log('Logo failed to load, using fallback');
+    const target = e.currentTarget;
+    target.style.display = 'none';
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
+          <div className="flex items-center justify-center">
             <img 
-              src="/image/vrslogo.png" 
-              alt="VRS Logo" 
+              src="/vrslogo.png" 
+              alt="Vendor Request System Logo" 
               className="w-20 h-20 object-contain"
+              onError={handleImageError}
             />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Vendor Request System
-          </h1>
-          <p className="text-lg text-gray-600">
-            Streamline vendor relationships and order management
-          </p>
         </div>
 
         <Card className="p-8 shadow-xl border-0 bg-white/95 backdrop-blur-sm">
           <form onSubmit={handleLogin} className="space-y-6">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-semibold text-gray-900">Sign In</h3>
-              <p className="text-sm text-gray-600 mt-2">
-                Enter your credentials to access the system
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Login As (Demo Mode)
+              </label>
+              <select
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value as UserRole)}
+                className="w-full px-4 py-3 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-all"
+              >
+                <option value={UserRole.VENDOR}>🏢 Vendor Dashboard</option>
+                <option value={UserRole.CENTER}>🏬 Distribution Center Dashboard</option>
+                <option value={UserRole.ADMIN}>👨‍💼 Admin Dashboard</option>
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Select which dashboard you want to access
               </p>
             </div>
 
@@ -81,7 +125,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-all"
-                placeholder="Enter your email"
+                placeholder="Enter any email (demo mode)"
                 required
               />
             </div>
@@ -95,9 +139,16 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-all"
-                placeholder="Enter your password"
+                placeholder="Enter any password (demo mode)"
                 required
               />
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-800">
+                <strong>Demo Mode:</strong> You can enter any email/password. 
+                Use the dropdown above to switch between different dashboard types.
+              </p>
             </div>
 
             <Button
@@ -106,7 +157,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
               isLoading={isLoading}
               icon={LogIn}
             >
-              Sign In
+              Sign In as {selectedRole === UserRole.VENDOR ? 'Vendor' : selectedRole === UserRole.CENTER ? 'Center' : 'Admin'}
             </Button>
           </form>
 
@@ -124,6 +175,13 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
             </div>
           )}
         </Card>
+
+        {/* Footer */}
+        <div className="text-center mt-6">
+          <p className="text-sm text-gray-500">
+            © 2024 Vendor Request System. All rights reserved.
+          </p>
+        </div>
       </div>
     </div>
   );
