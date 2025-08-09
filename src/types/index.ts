@@ -28,10 +28,10 @@ export enum ProductStatus {
 }
 
 export enum VendorStatus {
-  PENDING = 'pending',
-  APPROVED = 'approved',
-  REJECTED = 'rejected',
-  SUSPENDED = 'suspended'
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  SUSPENDED = 'SUSPENDED'
 }
 
 export interface User {
@@ -50,13 +50,27 @@ export interface Vendor extends User {
   panNumber: string;
   bankDetails: {
     accountNumber: string;
-    ifscCode: string;
+    ifscCode?: string;
     bankName: string;
+    branch?: string;
+    holderName: string;
   };
   address: string;
+  district: string;
   gstNumber?: string;
   status: VendorStatus;
   joinedDate: string;
+  contactPersons?: Array<{
+    name: string;
+    phone: string;
+    isPrimary?: boolean;
+  }>;
+  documents?: Array<{
+    filename: string;
+    originalName: string;
+    path: string;
+    uploadDate: string;
+  }>;
 }
 
 export interface Center extends User {

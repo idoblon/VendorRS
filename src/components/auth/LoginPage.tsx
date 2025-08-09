@@ -1,85 +1,67 @@
-import React, { useState } from 'react';
-import { LogIn } from 'lucide-react';
-import { User, UserRole, VendorStatus } from '../../types';
-import { Button } from '../ui/Button';
-import { Card } from '../ui/Card';
+import React, { useState } from "react";
+import { LogIn } from "lucide-react";
+import { User } from "../../types";
+import { Button } from "../ui/Button";
+import { Card } from "../ui/Card";
+import axiosInstance from "../../utils/axios";
 
 interface LoginPageProps {
-  onLogin: (user: User) => void;
+  onLogin: (user: User, token: string) => void;
   onShowSignup?: () => void;
 }
 
 export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.VENDOR);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  const getDemoUser = (role: UserRole) => {
-    const baseUser = {
-      id: 'user-1',
-      email: 'demo@example.com',
-      phone: '+91 9876543210'
-    };
-
-    switch (role) {
-      case UserRole.VENDOR:
-        return {
-          ...baseUser,
-          name: 'Demo Vendor',
-          role: UserRole.VENDOR,
-          businessName: 'Tech Solutions Pvt Ltd',
-          panNumber: 'ABCDE1234F',
-          bankDetails: {
-            accountNumber: '1234567890',
-            ifscCode: 'HDFC0001234',
-            bankName: 'HDFC Bank'
-          },
-          address: '123 Business Park, Tech City',
-          gstNumber: '27ABCDE1234F1Z5',
-          status: VendorStatus.APPROVED,
-          joinedDate: '2024-01-15'
-        };
-      case UserRole.CENTER:
-        return {
-          ...baseUser,
-          name: 'Demo Center Manager',
-          role: UserRole.CENTER,
-          centerName: 'Delhi Distribution Center',
-          location: 'New Delhi, India',
-          contactPerson: 'John Doe'
-        };
-      case UserRole.ADMIN:
-        return {
-          ...baseUser,
-          name: 'Demo Admin',
-          role: UserRole.ADMIN
-        };
-      default:
-        return {
-          ...baseUser,
-          name: 'Demo User',
-          role: UserRole.VENDOR
-        };
-    }
-  };
+  const [error, setError] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      const demoUser = getDemoUser(selectedRole);
-      onLogin(demoUser as User);
+    setError("");
+
+    try {
+      // const response = await fetch('http://localhost:3000/api/auth/login', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json'
+      //   },
+      //   body: JSON.stringify({ email, password })
+      // });
+
+      const response = await axiosInstance.post("/api/auth/login", {
+        email,
+        password,
+      });
+
+      const data = response.data;
+
+      if (response.status === 200 && data.success) {
+        // Ensure role is lowercase to match UserRole enum
+        if (data.data.user && data.data.user.role) {
+          data.data.user.role = data.data.user.role.toLowerCase();
+        }
+        onLogin(data.data.user, data.data.token);
+      } else {
+        setError(
+          data.message || "Login failed. Please check your credentials."
+        );
+      }
+    } catch (err) {
+      setError("An error occurred during login. Please try again.");
+      console.error("Login error:", err);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    console.log('Logo failed to load, using fallback');
+  const handleImageError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
+    console.log("Logo failed to load, using fallback");
     const target = e.currentTarget;
-    target.style.display = 'none';
+    target.style.display = "none";
   };
 
   return (
@@ -87,9 +69,9 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center">
-            <img 
-              src="/vrslogo.png" 
-              alt="Vendor Request System Logo" 
+            <img
+              src="/vrslogo.png"
+              alt="Vendor Request System Logo"
               className="w-20 h-20 object-contain"
               onError={handleImageError}
             />
@@ -100,24 +82,6 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Login As (Demo Mode)
-              </label>
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value as UserRole)}
-                className="w-full px-4 py-3 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-all"
-              >
-                <option value={UserRole.VENDOR}>🏢 Vendor Dashboard</option>
-                <option value={UserRole.CENTER}>🏬 Distribution Center Dashboard</option>
-                <option value={UserRole.ADMIN}>👨‍💼 Admin Dashboard</option>
-              </select>
-              <p className="text-xs text-gray-500 mt-1">
-                Select which dashboard you want to access
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
               </label>
               <input
@@ -125,7 +89,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-all"
-                placeholder="Enter any email (demo mode)"
+                placeholder="Enter your email"
                 required
               />
             </div>
@@ -139,17 +103,16 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-all"
-                placeholder="Enter any password (demo mode)"
+                placeholder="Enter your password"
                 required
               />
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-800">
-                <strong>Demo Mode:</strong> You can enter any email/password. 
-                Use the dropdown above to switch between different dashboard types.
-              </p>
-            </div>
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+            )}
 
             <Button
               type="submit"
@@ -157,23 +120,21 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
               isLoading={isLoading}
               icon={LogIn}
             >
-              Sign In as {selectedRole === UserRole.VENDOR ? 'Vendor' : selectedRole === UserRole.CENTER ? 'Center' : 'Admin'}
+              Sign In
             </Button>
           </form>
 
-          {onShowSignup && (
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Don't have an account?{' '}
-                <button
-                  onClick={onShowSignup}
-                  className="text-orange-600 hover:text-orange-500 font-medium transition-colors"
-                >
-                  Sign up here
-                </button>
-              </p>
-            </div>
-          )}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{" "}
+              <button
+                onClick={() => onShowSignup && onShowSignup()}
+                className="font-medium text-orange-600 hover:text-orange-500 cursor-pointer transition-colors"
+              >
+                Sign up here
+              </button>
+            </p>
+          </div>
         </Card>
 
         {/* Footer */}

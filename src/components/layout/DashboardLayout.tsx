@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Menu, X, Bell, User, LogOut, Search, ChevronDown } from 'lucide-react';
-import { User as UserType } from '../../types';
-import { Button } from '../ui/Button';
+import React, { useState } from "react";
+import { Menu, X, User, LogOut, Search, ChevronDown } from "lucide-react";
+import { User as UserType } from "../../types";
+import { Button } from "../ui/Button";
+import { NotificationPanel } from "../ui/NotificationPanel";
 
 interface DashboardLayoutProps {
   user: UserType;
@@ -10,7 +11,12 @@ interface DashboardLayoutProps {
   onLogout: () => void;
 }
 
-export function DashboardLayout({ user, children, sidebar, onLogout }: DashboardLayoutProps) {
+export function DashboardLayout({
+  user,
+  children,
+  sidebar,
+  onLogout,
+}: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -18,7 +24,7 @@ export function DashboardLayout({ user, children, sidebar, onLogout }: Dashboard
     <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
@@ -26,20 +32,23 @@ export function DashboardLayout({ user, children, sidebar, onLogout }: Dashboard
 
       {/* Main Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-[256px_1fr] grid-rows-[auto_1fr] lg:grid-rows-1 min-h-screen">
-        
         {/* Sidebar */}
-        <div className={`
+        <div
+          className={`
           fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 
           transform transition-transform duration-200 ease-in-out 
           lg:relative lg:translate-x-0 lg:z-auto lg:w-auto
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        `}>
+          ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }
+        `}
+        >
           {/* Sidebar Header */}
           <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 bg-white">
             <div className="flex items-center space-x-3">
-              <img 
-                src="/image/vrslogo.png" 
-                alt="VRS Logo" 
+              <img
+                src="/image/vrslogo.png"
+                alt="VRS Logo"
                 className="w-8 h-8 object-contain"
               />
               <h1 className="text-xl font-bold text-gray-900">VRS</h1>
@@ -53,31 +62,20 @@ export function DashboardLayout({ user, children, sidebar, onLogout }: Dashboard
           </div>
 
           {/* Sidebar Navigation */}
-          <nav className="flex-1 px-4 py-6 overflow-y-auto">
-            {sidebar}
-          </nav>
-          
-          {/* Sidebar Footer with Logout */}
+          <nav className="flex-1 px-4 py-6 overflow-y-auto">{sidebar}</nav>
+
+          {/* Sidebar Footer */}
           <div className="border-t border-gray-200 bg-white">
             <div className="px-4 py-4">
-              <Button
-                variant="ghost"
-                onClick={onLogout}
-                icon={LogOut}
-                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 font-medium"
-              >
-                Logout
-              </Button>
+              {/* Logout button removed as requested */}
             </div>
           </div>
         </div>
 
         {/* Main Content Area */}
         <div className="flex flex-col min-h-screen lg:min-h-0">
-          
           {/* Header Bar */}
           <header className="bg-white border-b border-gray-200 px-4 lg:px-6 py-4 flex items-center justify-between">
-            
             {/* Left Section - Mobile Menu + Search */}
             <div className="flex items-center space-x-4">
               <button
@@ -86,7 +84,7 @@ export function DashboardLayout({ user, children, sidebar, onLogout }: Dashboard
               >
                 <Menu className="h-5 w-5" />
               </button>
-              
+
               {/* Search Bar */}
               <div className="relative hidden md:block">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -100,15 +98,9 @@ export function DashboardLayout({ user, children, sidebar, onLogout }: Dashboard
 
             {/* Right Section - Notifications + User Menu */}
             <div className="flex items-center space-x-3">
-              
               {/* Notifications */}
-              <button className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
-                  3
-                </span>
-              </button>
-              
+              <NotificationPanel />
+
               {/* User Menu */}
               <div className="relative">
                 <button
@@ -119,8 +111,12 @@ export function DashboardLayout({ user, children, sidebar, onLogout }: Dashboard
                     <User className="h-4 w-4 text-white" />
                   </div>
                   <div className="text-left hidden md:block">
-                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                    <p className="text-xs text-gray-600 capitalize">{user.role}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {user.name}
+                    </p>
+                    <p className="text-xs text-gray-600 capitalize">
+                      {user.role}
+                    </p>
                   </div>
                   <ChevronDown className="h-4 w-4 text-gray-400 hidden md:block" />
                 </button>
@@ -129,7 +125,9 @@ export function DashboardLayout({ user, children, sidebar, onLogout }: Dashboard
                 {userMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                     <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {user.name}
+                      </p>
                       <p className="text-xs text-gray-600">{user.email}</p>
                     </div>
                     <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -139,7 +137,7 @@ export function DashboardLayout({ user, children, sidebar, onLogout }: Dashboard
                       Account Preferences
                     </button>
                     <div className="border-t border-gray-100 mt-1">
-                      <button 
+                      <button
                         onClick={onLogout}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                       >
@@ -153,16 +151,14 @@ export function DashboardLayout({ user, children, sidebar, onLogout }: Dashboard
           </header>
 
           {/* Page Content */}
-          <main className="flex-1 p-6 overflow-y-auto">
-            {children}
-          </main>
+          <main className="flex-1 p-6 overflow-y-auto">{children}</main>
         </div>
       </div>
 
       {/* Click outside to close user menu */}
       {userMenuOpen && (
-        <div 
-          className="fixed inset-0 z-40" 
+        <div
+          className="fixed inset-0 z-40"
           onClick={() => setUserMenuOpen(false)}
         />
       )}

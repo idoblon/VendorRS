@@ -1,37 +1,83 @@
-import React, { useState, useEffect } from 'react';
-import { LoginPage } from './components/auth/LoginPage';
-import { SignupPage } from './components/auth/SignupPage';
-import { SignupSuccessPage } from './components/auth/SignupSuccessPage';
-import { VendorDashboard } from './components/dashboards/VendorDashboard';
-import { CenterDashboard } from './components/dashboards/CenterDashboard';
-import { AdminDashboard } from './components/dashboards/AdminDashboard';
-import { Toaster } from './components/ui/Toaster';
-import { User, UserRole } from './types';
+import React, { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { LoginPage } from "./components/auth/LoginPage";
+import { SignupPage } from "./components/auth/SignupPage";
+import { SignupSuccessPage } from "./components/auth/SignupSuccessPage";
+import { VendorDashboard } from "./components/dashboards/VendorDashboard";
+import { CenterDashboard } from "./components/dashboards/CenterDashboard";
+import { AdminDashboard } from "./components/dashboards/AdminDashboard";
+import { PaymentDemo } from "./components/payment/PaymentDemo";
+import { Toaster } from "./components/ui/Toaster";
+import { User, UserRole } from "./types";
 
-type AuthView = 'login' | 'signup' | 'signup-success';
+type AuthView = "login" | "signup" | "signup-success";
 
-function App() {
+const App = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [authView, setAuthView] = useState<AuthView>('login');
+  const [authView, setAuthView] = useState<AuthView>("login");
 
   useEffect(() => {
-    // Check for saved user session
-    const savedUser = localStorage.getItem('vrs_user');
-    if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
-    }
-    setIsLoading(false);
+    const verifyToken = async () => {
+      try {
+        // Check for saved token
+        const token = localStorage.getItem("vrs_token");
+        if (!token) {
+          setIsLoading(false);
+          return;
+        }
+
+        // Verify token with backend
+        const response = await fetch("/api/auth/verify-token", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          // Ensure role is lowercase to match UserRole enum
+          if (data.data.user && data.data.user.role) {
+            data.data.user.role = data.data.user.role.toLowerCase();
+          }
+          setCurrentUser(data.data.user);
+        } else {
+          // Token invalid, clear storage
+          localStorage.removeItem("vrs_token");
+          localStorage.removeItem("vrs_user");
+        }
+      } catch (error) {
+        console.error("Token verification error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    verifyToken();
   }, []);
 
-  const handleLogin = (user: User) => {
+  const handleLogin = (user: User, token: string) => {
+    // Ensure role is lowercase to match UserRole enum
+    if (user && user.role) {
+      user.role = user.role.toLowerCase() as UserRole;
+    }
     setCurrentUser(user);
-    localStorage.setItem('vrs_user', JSON.stringify(user));
+    localStorage.setItem("vrs_user", JSON.stringify(user));
+    localStorage.setItem("vrs_token", token);
+    // Reset auth view to login after successful authentication
+    setAuthView("login");
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
-    localStorage.removeItem('vrs_user');
+    localStorage.removeItem("vrs_user");
+    localStorage.removeItem("vrs_token");
   };
 
   if (isLoading) {
@@ -45,46 +91,57 @@ function App() {
   if (!currentUser) {
     const renderAuthView = () => {
       switch (authView) {
-        case 'login':
+        case "login":
           return (
-            <LoginPage 
-              onLogin={handleLogin} 
-              onShowSignup={() => setAuthView('signup')}
+            <LoginPage
+              onLogin={handleLogin}
+              onShowSignup={() => setAuthView("signup")}
             />
           );
-        case 'signup':
+        case "signup":
           return (
-            <SignupPage 
-              onShowLogin={() => setAuthView('login')}
-              onSignupSuccess={() => setAuthView('signup-success')}
+            <SignupPage
+              onShowLogin={() => setAuthView("login")}
+              onSignupSuccess={() => setAuthView("signup-success")}
             />
           );
-        case 'signup-success':
-          return (
-            <SignupSuccessPage 
-              onShowLogin={() => setAuthView('login')}
-            />
-          );
+        case "signup-success":
+          return <SignupSuccessPage onShowLogin={() => setAuthView("login")} />;
         default:
           return (
-            <LoginPage 
-              onLogin={handleLogin} 
-              onShowSignup={() => setAuthView('signup')}
+            <LoginPage
+              onLogin={handleLogin}
+              onShowSignup={() => setAuthView("signup")}
             />
           );
       }
     };
 
     return (
-      <>
-        {renderAuthView()}
-        <Toaster />
-      </>
+      <Router>
+        <Routes>
+          <Route path="/payment-demo" element={<PaymentDemo />} />
+          <Route
+            path="/*"
+            element={
+              <>
+                {renderAuthView()}
+                <Toaster />
+              </>
+            }
+          />
+        </Routes>
+      </Router>
     );
   }
 
   const renderDashboard = () => {
-    switch (currentUser.role) {
+    // Ensure role is lowercase to match UserRole enum
+    const userRole = currentUser.role.toLowerCase() as UserRole;
+
+    console.log("Current user role:", userRole);
+
+    switch (userRole) {
       case UserRole.VENDOR:
         return <VendorDashboard user={currentUser} onLogout={handleLogout} />;
       case UserRole.CENTER:
@@ -92,16 +149,27 @@ function App() {
       case UserRole.ADMIN:
         return <AdminDashboard user={currentUser} onLogout={handleLogout} />;
       default:
+        console.log("No matching role found, defaulting to login page");
         return <LoginPage onLogin={handleLogin} />;
     }
   };
 
   return (
-    <>
-      {renderDashboard()}
-      <Toaster />
-    </>
+    <Router>
+      <Routes>
+        <Route path="/payment-demo" element={<PaymentDemo />} />
+        <Route
+          path="/*"
+          element={
+            <>
+              {renderDashboard()}
+              <Toaster />
+            </>
+          }
+        />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;
