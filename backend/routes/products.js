@@ -3,6 +3,7 @@ const { authenticate, authorize, requireApproval } = require('../middleware/auth
 const { validateProduct, validateObjectId, validatePagination } = require('../middleware/validation');
 const Product = require('../models/Product');
 const DistributionCenter = require('../models/DistributionCenter');
+const mongoose = require('mongoose');
 
 const router = express.Router();
 
@@ -473,6 +474,34 @@ router.get('/vendor/:vendorId', authenticate, validateObjectId('vendorId'), vali
     res.status(500).json({
       success: false,
       message: 'Failed to fetch vendor products'
+    });
+  }
+});
+
+// get product based on center 
+// @route   GET /api/products/center/:centerId
+// @desc    Get products available at a specific center
+router.get('/center/:centerId', async (req, res) => {
+  try {
+    const centerObjectId = new mongoose.Types.ObjectId(req.params.centerId);
+
+    console.log(centerObjectId,":this isd c4enter od")
+    const products = await Product.find({
+      'availability.centerId': req.params.centerId,
+      isActive: true
+    })
+    .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: { products }
+    });
+
+  } catch (error) {
+    console.error('Get center products error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch center products' + error
     });
   }
 });

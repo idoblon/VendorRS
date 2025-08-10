@@ -1,45 +1,31 @@
 const express = require('express');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const Stripe = require('stripe')
 const { authenticate, authorize } = require('../middleware/auth');
 const Order = require('../models/Order');
 
 const router = express.Router();
-
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // @route   POST /api/payments/create-payment-intent
 // @desc    Create a payment intent for Stripe
 // @access  Private
-router.post('/create-payment-intent', authenticate, async (req, res) => {
+router.post("/create-payment-intent", async (req, res) => {
   try {
-    const { amount, currency = 'inr', orderId } = req.body;
+    const { amount, currency = 'inr' } = req.body; // amount in cents, e.g., 2500 for ₹25.00
 
-    if (!amount || amount <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Valid amount is required'
-      });
+    if (!amount || !currency) {
+      return res.status(400).json({ success: false, message: "Amount and currency required" });
     }
 
-    // Create a PaymentIntent with the order amount and currency
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Stripe requires amount in cents
+      amount: amount * 160,
       currency,
-      metadata: {
-        orderId: orderId || 'direct-payment',
-        userId: req.user._id.toString()
-      }
+      automatic_payment_methods: { enabled: true }, // supports card, wallets, etc.
     });
 
-    res.json({
-      success: true,
-      clientSecret: paymentIntent.client_secret
-    });
+    res.json({ success: true, clientSecret: paymentIntent.client_secret });
   } catch (error) {
-    console.error('Payment intent creation error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to create payment intent',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    console.error("Stripe PaymentIntent Error:", error);
+    res.status(500).json({ success: false, message: "Payment initialization failed" });
   }
 });
 

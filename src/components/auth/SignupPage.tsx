@@ -719,7 +719,7 @@ export function SignupPage({ onShowLogin, onSignupSuccess }: SignupPageProps) {
                 isLoading={isLoading}
                 icon={UserPlus}
                 className="px-8 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0"
-              >
+              > 
                 Submit Application
               </Button>
             </div>

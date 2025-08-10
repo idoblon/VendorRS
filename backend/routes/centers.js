@@ -38,7 +38,6 @@ router.get('/', authenticate, validatePagination, async (req, res) => {
     }
 
     const centers = await DistributionCenter.find(query)
-      .populate('createdBy', 'name email')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -464,6 +463,24 @@ router.get('/regions', authenticate, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch regions'
+    });
+  }
+});
+
+// get center based on category
+router.get('/category/:id', authenticate, async (req, res) => {
+  try {
+    console.log("Fetching centers for category ID:", req.params.id);
+    const centers = await DistributionCenter.find({ category: req.params.id, isActive: true });
+    res.json({
+      success: true,
+      data: centers
+    });
+  } catch (error) {
+    console.error('Get centers by category error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch centers by category'
     });
   }
 });

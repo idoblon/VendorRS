@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema({
   orderNumber: {
     type: String,
-    required: true,
     unique: true
   },
   centerId: {
@@ -201,7 +200,7 @@ orderSchema.pre('save', function(next) {
 // Index for efficient queries
 orderSchema.index({ centerId: 1, status: 1 });
 orderSchema.index({ vendorId: 1, status: 1 });
-orderSchema.index({ orderNumber: 1 });
+// orderSchema.index({ orderNumber: 1 });
 orderSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Order', orderSchema);

@@ -20,6 +20,7 @@ const messageRoutes = require('./routes/messages');
 const adminRoutes = require('./routes/admin');
 const paymentRoutes = require('./routes/payments');
 const notificationRoutes = require('./routes/notifications');
+const category = require('./routes/category'); // Importing the category route
 
 // Import socket handlers
 const socketHandler = require('./socket/socketHandler');
@@ -101,6 +102,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/categories', category); // Registering the category route
 
 // Socket.IO connection handling
 socketHandler(io);
@@ -178,7 +180,6 @@ const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
   console.log(`
-🚀 VRS Backend Server Started Successfully!
 📍 Server running on port ${PORT}
 🌍 Environment: ${process.env.NODE_ENV}
 🔗 Health check: http://localhost:${PORT}/health

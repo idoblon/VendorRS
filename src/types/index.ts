@@ -35,6 +35,7 @@ export enum VendorStatus {
 }
 
 export interface User {
+  _id:string
   id: string;
   name: string;
   email: string;
@@ -46,6 +47,7 @@ export interface User {
 
 export interface Vendor extends User {
   role: UserRole.VENDOR;
+  _id:string
   businessName: string;
   panNumber: string;
   bankDetails: {

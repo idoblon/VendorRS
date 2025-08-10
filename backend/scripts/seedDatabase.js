@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const DistributionCenter = require("../models/DistributionCenter");
 const Product = require("../models/Product");
+const Category = require("../models/Category");
 
 const connectDB = async () => {
   console.log(process.env.MONGODB_URI, "this is the uri");
@@ -32,6 +33,7 @@ const seedDatabase = async () => {
     await User.deleteMany({});
     await DistributionCenter.deleteMany({});
     await Product.deleteMany({});
+    await Category.deleteMany({});
     console.log("🧹 Cleared existing data");
 
     // Create Admin User with secure credentials
@@ -46,6 +48,22 @@ const seedDatabase = async () => {
     });
     console.log("👨‍💼 Created admin user");
 
+     // seed category
+    const sampleCategories = [
+      { name: "Furniture" },
+      { name: "Electronics" },
+      { name: "Clothing" },
+      { name: "Footwear" },
+      { name: "Accessories" },
+      { name: "Books" },
+      { name: "Sports" },
+      { name: "Home & Garden" },
+      { name: "Automotive" },
+      { name: "Health & Beauty" }
+    ];
+
+    const categories = await Category.insertMany(sampleCategories);
+    console.log(`📦 Created ${sampleCategories.length} sample categories`);
     // Create Distribution Centers (15 pre-established centers)
     const distributionCenters = [
       {
@@ -82,6 +100,7 @@ const seedDatabase = async () => {
         services: ["Storage", "Packaging", "Distribution", "Quality Check"],
         status: "active",
         establishedDate: new Date("2023-01-15"),
+        category: categories.find(c => c.name === "Furniture")._id,
         coordinates: { latitude: 28.6139, longitude: 77.209 },
         createdBy: admin._id,
       },
@@ -125,6 +144,7 @@ const seedDatabase = async () => {
         ],
         status: "active",
         establishedDate: new Date("2023-02-20"),
+        category: categories.find(c => c.name === "Electronics")._id,
         coordinates: { latitude: 19.076, longitude: 72.8777 },
         createdBy: admin._id,
       },
@@ -155,6 +175,7 @@ const seedDatabase = async () => {
         services: ["Storage", "Distribution", "Quality Check"],
         status: "maintenance",
         establishedDate: new Date("2023-03-10"),
+        category: categories.find(c => c.name === "Furniture")._id,
         coordinates: { latitude: 12.9716, longitude: 77.5946 },
         createdBy: admin._id,
       },
@@ -192,6 +213,7 @@ const seedDatabase = async () => {
         services: ["Storage", "Packaging", "Distribution"],
         status: "active",
         establishedDate: new Date("2023-04-05"),
+        category: categories.find(c => c.name === "Clothing")._id,
         coordinates: { latitude: 13.0827, longitude: 80.2707 },
         createdBy: admin._id,
       },
@@ -222,6 +244,7 @@ const seedDatabase = async () => {
         services: ["Storage", "Distribution"],
         status: "inactive",
         establishedDate: new Date("2023-05-12"),
+        category: categories.find(c => c.name === "Furniture")._id,
         coordinates: { latitude: 22.5726, longitude: 88.3639 },
         createdBy: admin._id,
       },
@@ -259,6 +282,7 @@ const seedDatabase = async () => {
         services: ["Storage", "Packaging", "Distribution", "Quality Check"],
         status: "active",
         establishedDate: new Date("2023-06-01"),
+        category: categories.find(c => c.name === "Clothing")._id,
         coordinates: { latitude: 17.385, longitude: 78.4867 },
         createdBy: admin._id,
       },
@@ -289,6 +313,7 @@ const seedDatabase = async () => {
         services: ["Storage", "Distribution", "Returns Processing"],
         status: "active",
         establishedDate: new Date("2023-07-15"),
+        category: categories.find(c => c.name === "Furniture")._id,
         coordinates: { latitude: 18.5204, longitude: 73.8567 },
         createdBy: admin._id,
       },
@@ -326,6 +351,7 @@ const seedDatabase = async () => {
         services: ["Storage", "Packaging", "Distribution"],
         status: "active",
         establishedDate: new Date("2023-08-10"),
+        category: categories.find(c => c.name === "Furniture")._id,
         coordinates: { latitude: 23.0225, longitude: 72.5714 },
         createdBy: admin._id,
       },
@@ -356,6 +382,7 @@ const seedDatabase = async () => {
         services: ["Storage", "Distribution"],
         status: "active",
         establishedDate: new Date("2023-09-05"),
+        category: categories.find(c => c.name === "Electronics")._id,
         coordinates: { latitude: 26.9124, longitude: 75.7873 },
         createdBy: admin._id,
       },
@@ -393,6 +420,7 @@ const seedDatabase = async () => {
         services: ["Storage", "Packaging", "Distribution", "Quality Check"],
         status: "active",
         establishedDate: new Date("2023-10-01"),
+        category: categories.find(c => c.name === "Health & Beauty")._id,
         coordinates: { latitude: 26.8467, longitude: 80.9462 },
         createdBy: admin._id,
       },
@@ -423,6 +451,7 @@ const seedDatabase = async () => {
         services: ["Storage", "Distribution"],
         status: "active",
         establishedDate: new Date("2023-11-15"),
+        category: categories.find(c => c.name === "Electronics")._id,
         coordinates: { latitude: 20.2961, longitude: 85.8245 },
         createdBy: admin._id,
       },
@@ -460,6 +489,7 @@ const seedDatabase = async () => {
         services: ["Storage", "Packaging", "Distribution"],
         status: "active",
         establishedDate: new Date("2023-12-01"),
+        category: categories.find(c => c.name === "Furniture")._id,
         coordinates: { latitude: 22.7196, longitude: 75.8577 },
         createdBy: admin._id,
       },
@@ -490,6 +520,7 @@ const seedDatabase = async () => {
         services: ["Storage", "Distribution", "Quality Check"],
         status: "active",
         establishedDate: new Date("2024-01-10"),
+        category: categories.find(c => c.name === "Furniture")._id,
         coordinates: { latitude: 30.7333, longitude: 76.7794 },
         createdBy: admin._id,
       },
@@ -520,6 +551,7 @@ const seedDatabase = async () => {
         services: ["Storage", "Distribution"],
         status: "active",
         establishedDate: new Date("2024-02-01"),
+        category: categories.find(c => c.name === "Clothing")._id,
         coordinates: { latitude: 26.1445, longitude: 91.7362 },
         createdBy: admin._id,
       },
@@ -562,6 +594,7 @@ const seedDatabase = async () => {
         ],
         status: "active",
         establishedDate: new Date("2024-02-15"),
+        category: categories.find(c => c.name === "Clothing")._id,
         coordinates: { latitude: 9.9312, longitude: 76.2673 },
         createdBy: admin._id,
       },
@@ -854,6 +887,8 @@ const seedDatabase = async () => {
 
     await Product.insertMany(sampleProducts);
     console.log(`📦 Created ${sampleProducts.length} sample products`);
+
+   
 
     console.log(`
 🎉 Database seeding completed successfully!

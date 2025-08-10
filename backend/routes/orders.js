@@ -603,4 +603,162 @@ router.get('/stats/overview', authenticate, async (req, res) => {
   }
 });
 
+
+// vendor product order
+router.post('/vendor/:vendorId/order', authenticate, async (req, res) => {
+  try {
+    const { centerId, items, paymentMethod, shippingMethod, discount,vendorId } = req.body;
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Order must include at least one item'
+      });
+    }
+
+    // Validate each item and fetch product details
+    let validItems = [];
+    for (const item of items) {
+      const { productId, quantity } = item;
+      if (!productId || !quantity || quantity <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Each item must include a valid productId and quantity > 0'
+        });
+      }
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: `Product not found: ${productId}`
+        });
+      }
+      validItems.push({
+        productId: product._id,
+        productName: product.name,
+        quantity,
+        unitPrice: product.price,
+        totalPrice: product.price * quantity,
+        specifications: item.specifications || {}
+      });
+    }
+
+    // Calculate subtotal
+    const subtotal = validItems.reduce((sum, item) => sum + item.totalPrice, 0);
+
+    // Set default tax rate and calculate tax amount
+    const taxRate = 18; // or get from config
+    const taxAmount = (subtotal * taxRate) / 100;
+
+    // Set shipping cost from shippingMethod or 0
+    const shippingCost = shippingMethod?.cost || 0;
+
+    // Calculate discount amount
+    let discountAmount = 0;
+    if (discount) {
+      if (discount.type === 'percentage') {
+        discountAmount = (subtotal * discount.value) / 100;
+      } else if (discount.type === 'fixed') {
+        discountAmount = discount.value;
+      }
+    }
+
+    // Calculate total amount
+    const totalAmount = subtotal + taxAmount + shippingCost - discountAmount;
+
+    // Create the order object
+    const order = new Order({
+      centerId,
+      vendorId,
+      items: validItems,
+      orderSummary: {
+        subtotal,
+        tax: { rate: taxRate, amount: taxAmount },
+        shipping: {
+          method: shippingMethod?.method || '',
+          cost: shippingCost
+        },
+        discount: {
+          type: discount?.type || undefined,
+          value: discount?.value || 0,
+          amount: discountAmount
+        },
+        totalAmount
+      },
+      payment: {
+        method: paymentMethod,
+        status: 'COMPLETED',
+        paidAmount: 0
+      },
+      status: 'PENDING',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    await order.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Order placed successfully',
+      data: order
+    });
+  } catch (error) {
+    console.error('Place order error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to place order',
+      error: error.message
+    });
+  }
+});
+
+
+// get vendor orders
+router.get('/vendor/:vendorId/orders', authenticate, async (req, res) => {
+  const { vendorId } = req.params;
+
+  try {
+    const orders = await Order.find({ vendorId });
+    res.status(200).json({
+      success: true,
+      data: orders
+    });
+  } catch (error) {
+    console.error('Get vendor orders error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch vendor orders',
+      error: error.message
+    });
+  }
+});
+
+router.get("/analytics/:vendorId", async (req, res) => {
+  const { vendorId } = req.params;
+
+  // get order fomr order table 
+  const orders = await Order.find({ vendorId });
+  // Fetch orders for the specific vendor
+
+  const totalOrdersPlaced = orders.length;
+
+  const totalAmountSpent = orders.reduce((sum, order) => sum + order.orderSummary.totalAmount, 0);
+
+  const totalProductOrders = orders.reduce(
+    (sum, order) =>
+      sum + order.items.reduce((itemSum, item) => itemSum + item.quantity, 0),
+    0
+  );
+  const format = [
+    { name: 'Total Orders Placed', value: totalOrdersPlaced },
+    { name: 'Total Amount Spent', value: totalAmountSpent },
+    { name: 'Total Products Ordered', value: totalProductOrders }
+  ];
+
+  res.json({
+    success: true,
+    data: format
+  });
+});
+
 module.exports = router;

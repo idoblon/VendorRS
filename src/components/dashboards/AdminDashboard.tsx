@@ -28,6 +28,7 @@ import { Button } from "../ui/Button";
 import { User, Vendor, VendorStatus } from "../../types";
 import { toast } from "../ui/Toaster";
 import axiosInstance from "../../utils/axios";
+import DistributedCenter from "../center/dashbaord/distrubutedCenter";
 
 interface AdminDashboardProps {
   user: User;
@@ -60,149 +61,7 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [actionNotes, setActionNotes] = useState("");
 
-  // Mock data for distribution centers (pre-established by admin)
-  const mockCenters: DistributionCenter[] = [
-    {
-      id: "center-1",
-      name: "Kapan Distribution Center",
-      location: "Kathmandu",
-      address: "Kapan, Baluwakhani",
-      contactPerson: "Rajesh Kumar",
-      email: "center1@example.com",
-      phone: "+977 9876543210",
-      status: "active",
-      capacity: 1000,
-      currentOrders: 245,
-      establishedDate: "2023-01-15",
-      region: "Nepal",
-    },
-    {
-      id: "center-2",
-      name: "Lalitpur Distribution Center",
-      location: "Lalitpur",
-      address: "Lalitpur, Lagankhel",
-      contactPerson: "Priya Sharma",
-      email: "mumbai@vrs.com",
-      phone: "+977 9876543211",
-      status: "active",
-      capacity: 1200,
-      currentOrders: 189,
-      establishedDate: "2023-02-20",
-      region: "Central Nepal",
-    },
-    {
-      id: "center-3",
-      name: "Dang Tech Hub",
-      location: "Dang",
-      address: "Dang, Roksol",
-      contactPerson: "Amit Shahi",
-      email: "dangtechhub@vrs.com",
-      phone: "+977 9876543212",
-      status: "maintenance",
-      capacity: 800,
-      currentOrders: 67,
-      establishedDate: "2023-03-10",
-      region: "Western Nepal",
-    },
-    {
-      id: "center-4",
-      name: "Jhapa Operations",
-      location: "Jhapa",
-      address: "Jhapa, Birtamod",
-      contactPerson: "Lakshmi Adhikari",
-      email: "opeationjhapa@vrs.com",
-      phone: "+977 9876543213",
-      status: "active",
-      capacity: 900,
-      currentOrders: 156,
-      establishedDate: "2023-04-05",
-      region: "East Neapl",
-    },
-    {
-      id: "center-5",
-      name: "Illam Tea",
-      location: "Illam",
-      address: "Illam, Kanyam",
-      contactPerson: "Prem Rai",
-      email: "illamtea@vrs.com",
-      phone: "+977 9876543214",
-      status: "inactive",
-      capacity: 600,
-      currentOrders: 0,
-      establishedDate: "2023-05-12",
-      region: "East Nepal",
-    },
-    {
-      id: "center-6",
-      name: "Bhaktapur Distribution Center",
-      location: "Bhaktapur",
-      address: "Bhaktapur, Jochey",
-      contactPerson: "Prem Rai",
-      email: "bktpur@vrs.com",
-      phone: "+977 9876543214",
-      status: "active",
-      capacity: 600,
-      currentOrders: 0,
-      establishedDate: "2023-05-12",
-      region: "Central Nepal",
-    },
-    {
-      id: "center-7",
-      name: "Gulmi Coffee",
-      location: "Gulim",
-      address: "Gulmi, Resunga",
-      contactPerson: "Hirak Raj",
-      email: "gulmicoffee@vrs.com",
-      phone: "+977 9876543214",
-      status: "active",
-      capacity: 600,
-      currentOrders: 0,
-      establishedDate: "2023-05-12",
-      region: "Western Nepal",
-    },
-    {
-      id: "center-8",
-      name: "Pokhara Electronics",
-      location: "Pokhara",
-      address: "Pokhara, Lakeside",
-      contactPerson: "Rajesh Kumar",
-      email: "pokhara@vrs.com",
-      phone: "+977 9876543214",
-      status: "active",
-      capacity: 600,
-      currentOrders: 0,
-      establishedDate: "2023-05-12",
-      region: "Western Nepal",
-    },
-    {
-      id: "center-9",
-      name: "Biratnagar Electronics",
-      location: "Biratnagar",
-      address: "Biratnagar, Birtamod",
-      contactPerson: "Rajesh Kumar",
-      email: "biratnagar@vrs.com",
-      phone: "+977 9876543214",
-      status: "active",
-      capacity: 600,
-      currentOrders: 0,
-      establishedDate: "2023-05-12",
-      region: "East Nepal",
-    },
-    {
-      id: "center-10",
-      name: "Dharan Loktantra",
-      location: "Dharan",
-      address: "Dharan, Gurkhachowk",
-      contactPerson: "Seti Rai",
-      email: "loktantra@vrs.com",
-      phone: "+977 9876543214",
-      status: "active",
-      capacity: 600,
-      currentOrders: 0,
-      establishedDate: "2023-05-12",
-      region: "East Nepal",
-    },
-  ];
+ 
 
   // Mock data removed - using real API data instead
 
@@ -613,63 +472,7 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
               </Card>
 
               {/* Distribution Center Status */}
-              <Card className="bg-gradient-to-br from-white to-green-50/50 border-green-200 shadow-lg">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-slate-900">
-                    Distribution Centers
-                  </h2>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setActiveTab("centers")}
-                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                  >
-                    Manage All
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  {mockCenters.slice(0, 3).map((center) => (
-                    <div
-                      key={center.id}
-                      className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div
-                          className={`w-3 h-3 rounded-full ${
-                            center.status === "active"
-                              ? "bg-emerald-400"
-                              : center.status === "maintenance"
-                              ? "bg-amber-400"
-                              : "bg-red-400"
-                          }`}
-                        ></div>
-                        <div>
-                          <p className="font-medium text-slate-900">
-                            {center.name}
-                          </p>
-                          <p className="text-sm text-slate-600">
-                            {center.location}
-                          </p>
-                          <p className="text-sm text-slate-500">
-                            {center.currentOrders}/{center.capacity} orders
-                          </p>
-                        </div>
-                      </div>
-                      <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          center.status === "active"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : center.status === "maintenance"
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {center.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </Card>
+              <DistributedCenter />
             </div>
 
             {/* System Health & Quick Actions */}
@@ -772,166 +575,7 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                 Add New Center
               </Button>
             </div>
-
-            {/* Centers Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {mockCenters.map((center) => (
-                <Card
-                  key={center.id}
-                  className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-green-50/50 border-green-200"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900">
-                        {center.name}
-                      </h3>
-                      <p className="text-sm text-slate-600 flex items-center mt-1">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        {center.location}
-                      </p>
-                    </div>
-                    <span
-                      className={`px-3 py-1 text-sm font-medium rounded-full ${
-                        center.status === "active"
-                          ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                          : center.status === "maintenance"
-                          ? "bg-amber-100 text-amber-800 border border-amber-200"
-                          : "bg-red-100 text-red-800 border border-red-200"
-                      }`}
-                    >
-                      {center.status}
-                    </span>
-                  </div>
-
-                  <div className="space-y-3 mb-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-slate-500">Contact Person</p>
-                        <p className="font-medium text-slate-900">
-                          {center.contactPerson}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-slate-500">Region</p>
-                        <p className="font-medium text-slate-900">
-                          {center.region}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-4 text-sm text-slate-600">
-                      <div className="flex items-center">
-                        <Mail className="h-4 w-4 mr-1" />
-                        {center.email}
-                      </div>
-                      <div className="flex items-center">
-                        <Phone className="h-4 w-4 mr-1" />
-                        {center.phone}
-                      </div>
-                    </div>
-
-                    <div className="bg-gradient-to-r from-slate-50 to-gray-50 p-3 rounded-lg border border-slate-200">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium text-slate-700">
-                          Capacity Utilization
-                        </span>
-                        <span className="text-sm font-bold text-slate-900">
-                          {center.currentOrders}/{center.capacity}
-                        </span>
-                      </div>
-                      <div className="w-full bg-slate-200 rounded-full h-2">
-                        <div
-                          className="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full"
-                          style={{
-                            width: `${
-                              (center.currentOrders / center.capacity) * 100
-                            }%`,
-                          }}
-                        ></div>
-                      </div>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {Math.round(
-                          (center.currentOrders / center.capacity) * 100
-                        )}
-                        % utilized
-                      </p>
-                    </div>
-
-                    <div className="text-sm text-slate-600">
-                      <p className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        Established: {center.establishedDate}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex space-x-2">
-                    {center.status === "inactive" && (
-                      <Button
-                        size="sm"
-                        onClick={() =>
-                          handleCenterAction(center.id, "activate")
-                        }
-                        className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 border-0"
-                      >
-                        Activate
-                      </Button>
-                    )}
-                    {center.status === "active" && (
-                      <>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() =>
-                            handleCenterAction(center.id, "maintenance")
-                          }
-                          className="bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:from-amber-600 hover:to-orange-700 border-0"
-                        >
-                          Maintenance
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() =>
-                            handleCenterAction(center.id, "deactivate")
-                          }
-                          className="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 border-0"
-                        >
-                          Deactivate
-                        </Button>
-                      </>
-                    )}
-                    {center.status === "maintenance" && (
-                      <Button
-                        size="sm"
-                        onClick={() =>
-                          handleCenterAction(center.id, "activate")
-                        }
-                        className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 border-0"
-                      >
-                        Reactivate
-                      </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      icon={Edit}
-                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      icon={Eye}
-                      className="text-slate-600 hover:text-slate-700 hover:bg-slate-50"
-                    >
-                      Details
-                    </Button>
-                  </div>
-                </Card>
-              ))}
-            </div>
+            <DistributedCenter />
           </div>
         );
 
@@ -1456,7 +1100,8 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
     action: "approve" | "reject" | "suspend" | "reactivate"
   ) => {
     if (selectedVendor) {
-      handleVendorAction(selectedVendor.id, action, actionNotes);
+      console.log(selectedVendor);
+      handleVendorAction(selectedVendor._id, action, actionNotes);
       closeVendorModal();
 
       // Refresh vendors list after action
@@ -1587,9 +1232,9 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                   <div className="space-y-3">
                     <div>
                       <p className="text-sm text-slate-500">PAN Number</p>
-                      <p className="font-medium text-slate-900">
-                        {selectedVendor.panNumber}
-                      </p>
+                      {/* <p className="font-medium text-slate-900">
+                        {selectedVendor.Distribution Centers}
+                      </p> */}
                     </div>
                   </div>
                 </div>

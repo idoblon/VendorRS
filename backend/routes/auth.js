@@ -6,6 +6,7 @@ const {
   validateUserLogin,
 } = require("../middleware/validation");
 const User = require("../models/User");
+const { sendMail } = require("../service/send-mail");
 
 const router = express.Router();
 
@@ -83,18 +84,20 @@ router.post("/register", validateUserRegistration, async (req, res) => {
     // Create notification for admin if a new vendor registers
     if (role === "VENDOR") {
       try {
-        const Notification = require('../models/Notification');
+        const Notification = require("../models/Notification");
         await Notification.notifyAdmins({
-          type: 'VENDOR_APPLICATION',
-          title: 'New Vendor Application',
+          type: "VENDOR_APPLICATION",
+          title: "New Vendor Application",
           message: `${businessName} (${name}) has submitted a vendor application for approval.`,
           relatedId: user._id,
-          onModel: 'Users'
+          onModel: "Users",
         });
-        console.log('Admin notification created for new vendor application');
       } catch (notificationError) {
-        console.error('Failed to create admin notification:', notificationError);
-        // Continue with the registration process even if notification fails
+        return res.status(500).json({
+          success: false,
+          message: "Failed to create admin notification",
+          error: notificationError.message,
+        });
       }
     }
 
@@ -137,7 +140,6 @@ router.post("/login", validateUserLogin, async (req, res) => {
     }
     // Check password
     const isPasswordValid = await user.comparePassword(password);
-    console.log(isPasswordValid);
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
@@ -175,7 +177,6 @@ router.post("/login", validateUserLogin, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Login error:", error);
     res.status(500).json({
       success: false,
       message: "Login failed",
@@ -220,7 +221,6 @@ router.post("/forgot-password", async (req, res) => {
       demo: true,
     });
   } catch (error) {
-    console.error("Forgot password error:", error);
     res.status(500).json({
       success: false,
       message: "Failed to process password reset request",
@@ -290,7 +290,6 @@ router.get("/verify-token", async (req, res) => {
       });
     }
 
-    console.error("Token verification error:", error);
     res.status(500).json({
       success: false,
       message: "Token verification failed",

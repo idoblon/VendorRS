@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
+    "dev": "nodemon server.js --host 0.0.0.0",
     "seed": "node scripts/seedDatabase.js"
   },
   "dependencies": {

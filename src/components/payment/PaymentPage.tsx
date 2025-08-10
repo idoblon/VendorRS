@@ -73,12 +73,7 @@ export function PaymentPage({ amount, orderId, onBack, onComplete }: PaymentPage
                   </div>
                 )}
               </div>
-              
-              <StripePayment 
-                amount={amount} 
-                onSuccess={handlePaymentSuccess} 
-                onError={handlePaymentError} 
-              />
+
             </>
           )}
 

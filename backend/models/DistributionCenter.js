@@ -77,6 +77,11 @@ const distributionCenterSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+    required: true
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
