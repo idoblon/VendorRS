@@ -13,6 +13,7 @@ interface LoginPageProps {
 export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState(""); // NEW state for role
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -22,23 +23,15 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
     setError("");
 
     try {
-      // const response = await fetch('http://localhost:3000/api/auth/login', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json'
-      //   },
-      //   body: JSON.stringify({ email, password })
-      // });
-
       const response = await axiosInstance.post("/api/auth/login", {
         email,
         password,
+        role, // send role with request
       });
 
       const data = response.data;
 
       if (response.status === 200 && data.success) {
-        // Ensure role is lowercase to match UserRole enum
         if (data.data.user && data.data.user.role) {
           data.data.user.role = data.data.user.role.toLowerCase();
         }
@@ -60,13 +53,19 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
     e: React.SyntheticEvent<HTMLImageElement, Event>
   ) => {
     console.log("Logo failed to load, using fallback");
-    const target = e.currentTarget;
-    target.style.display = "none";
+    e.currentTarget.style.display = "none";
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Heading */}
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">
+            Welcome to Vendor Request System
+          </h1>
+        </div>
+
         <div className="text-center mb-8">
           <div className="flex items-center justify-center">
             <img
@@ -80,6 +79,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
 
         <Card className="p-8 shadow-xl border-0 bg-white/95 backdrop-blur-sm">
           <form onSubmit={handleLogin} className="space-y-6">
+            {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
@@ -94,6 +94,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
               />
             </div>
 
+            {/* Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Password
@@ -108,12 +109,32 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
               />
             </div>
 
+            {/* Role Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Role
+              </label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full px-4 py-3 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-all"
+                required
+              >
+                <option value="">-- Choose Role --</option>
+                <option value="admin">Admin</option>
+                <option value="vendor">Vendor</option>
+                <option value="center">Center</option>
+              </select>
+            </div>
+
+            {/* Error */}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                 <p className="text-sm text-red-800">{error}</p>
               </div>
             )}
 
+            {/* Submit */}
             <Button
               type="submit"
               className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0 py-3 text-base font-medium"
@@ -124,6 +145,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
             </Button>
           </form>
 
+          {/* Sign Up Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{" "}

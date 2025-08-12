@@ -3,17 +3,18 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from "react-router-dom";
 import { LoginPage } from "./components/auth/LoginPage";
-import { SignupPage } from "./components/auth/SignupPage";
-import { SignupSuccessPage } from "./components/auth/SignupSuccessPage";
+import SignupFlow  from "./components/auth/SignupFlow";
 import { VendorDashboard } from "./components/dashboards/VendorDashboard";
 import { CenterDashboard } from "./components/dashboards/CenterDashboard";
 import { AdminDashboard } from "./components/dashboards/AdminDashboard";
 import { PaymentDemo } from "./components/payment/PaymentDemo";
 import { Toaster } from "./components/ui/Toaster";
 import { User, UserRole } from "./types";
+
+// New SignupSuccessPage import (you need to create this component as shown earlier)
+import SignupSuccessPage from "./components/auth/SignupSuccessPage";
 
 type AuthView = "login" | "signup" | "signup-success";
 
@@ -89,6 +90,7 @@ const App = () => {
   }
 
   if (!currentUser) {
+    // Render auth views (login/signup/signup-success)
     const renderAuthView = () => {
       switch (authView) {
         case "login":
@@ -100,13 +102,17 @@ const App = () => {
           );
         case "signup":
           return (
-            <SignupPage
+            <SignupFlow
               onShowLogin={() => setAuthView("login")}
               onSignupSuccess={() => setAuthView("signup-success")}
             />
           );
         case "signup-success":
-          return <SignupSuccessPage onShowLogin={() => setAuthView("login")} />;
+          return (
+            <SignupSuccessPage
+              onContinue={() => setAuthView("login")}
+            />
+          );
         default:
           return (
             <LoginPage
@@ -135,8 +141,8 @@ const App = () => {
     );
   }
 
+  // User is logged in → show dashboard based on role
   const renderDashboard = () => {
-    // Ensure role is lowercase to match UserRole enum
     const userRole = currentUser.role.toLowerCase() as UserRole;
 
     console.log("Current user role:", userRole);
