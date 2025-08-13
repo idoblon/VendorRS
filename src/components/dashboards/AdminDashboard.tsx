@@ -1,550 +1,424 @@
-import React, { useState, useEffect } from "react";
-import {
-  LayoutDashboard,
-  Users,
-  Building,
-  ShoppingCart,
-  CreditCard,
-  BarChart3,
-  TrendingUp,
-  DollarSign,
-  Plus,
-  Edit,
-  MapPin,
-  Phone,
-  Mail,
-  Calendar,
-  Activity,
-  Database,
-  Server,
-  Wifi,
-  Shield,
-  Search,
-  Eye,
-} from "lucide-react";
-import { DashboardLayout } from "../layout/DashboardLayout";
-import { Card } from "../ui/Card";
-import { Button } from "../ui/Button";
-import { User, Vendor, VendorStatus } from "../../types";
-import { toast } from "../ui/Toaster";
-import axiosInstance from "../../utils/axios";
-import DistributedCenter from "../center/dashbaord/distrubutedCenter";
+"use client"
+
+import { useState, useEffect } from "react"
+import { Users, Building, BarChart3, Search, Eye, FileText } from "lucide-react"
+import { DashboardLayout } from "./../layout/DashboardLayout"
+import { Card } from "./../ui/Card"
+import { Button } from "./../ui/Button"
+import { type User, type Vendor, VendorStatus } from "../../types/index"
+import { ApplicationsComponent } from "./ApplicationsComponent"
 
 interface AdminDashboardProps {
-  user: User;
-  onLogout: () => void;
+  user: User
+  onLogout: () => void
 }
 
 interface DistributionCenter {
-  id: string;
-  name: string;
-  location: string;
-  address: string;
-  contactPerson: string;
-  email: string;
-  phone: string;
-  status: "active" | "inactive" | "maintenance";
-  capacity: number;
-  currentOrders: number;
-  establishedDate: string;
-  region: string;
+  id: string
+  name: string
+  location: string
+  address: string
+  contactPerson: string
+  email: string
+  phone: string
+  status: "active" | "inactive" | "maintenance"
+  capacity: number
+  currentOrders: number
+  establishedDate: string
+  region: string
+}
+
+interface CenterFormData {
+  name: string
+  code: string
+  address: string
+  capacity: string
+  status: string
+  manager: string
 }
 
 export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showVendorModal, setShowVendorModal] = useState(false);
-  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
-  const [actionNotes, setActionNotes] = useState("");
+  const [activeTab, setActiveTab] = useState("overview")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filterStatus, setFilterStatus] = useState("all")
+  const [vendors, setVendors] = useState<Vendor[]>([])
 
- 
+  const [centerForm, setCenterForm] = useState<CenterFormData>({
+    name: "",
+    code: "",
+    address: "",
+    capacity: "",
+    status: "active",
+    manager: "",
+  })
 
-  // Mock data removed - using real API data instead
+  const [centers, setCenters] = useState<DistributionCenter[]>([
+    {
+      id: "1",
+      name: "Downtown Hub",
+      location: "New York, NY",
+      address: "123 Main St, New York, NY 10001",
+      contactPerson: "John Smith",
+      email: "john@downtown.com",
+      phone: "+1-555-0123",
+      status: "active",
+      capacity: 15000,
+      currentOrders: 245,
+      establishedDate: "2020-01-15",
+      region: "Northeast",
+    },
+    {
+      id: "2",
+      name: "West Coast Center",
+      location: "Los Angeles, CA",
+      address: "456 Pacific Ave, Los Angeles, CA 90210",
+      contactPerson: "Sarah Johnson",
+      email: "sarah@westcoast.com",
+      phone: "+1-555-0456",
+      status: "active",
+      capacity: 20000,
+      currentOrders: 189,
+      establishedDate: "2019-06-20",
+      region: "West",
+    },
+    {
+      id: "3",
+      name: "Central Distribution",
+      location: "Chicago, IL",
+      address: "789 Industrial Blvd, Chicago, IL 60601",
+      contactPerson: "Mike Davis",
+      email: "mike@central.com",
+      phone: "+1-555-0789",
+      status: "maintenance",
+      capacity: 18000,
+      currentOrders: 0,
+      establishedDate: "2021-03-10",
+      region: "Central",
+    },
+  ])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [showVendorModal, setShowVendorModal] = useState(false)
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null)
+  const [actionNotes, setActionNotes] = useState("")
 
-  // Mock data removed - using real API data instead
+  const handleCenterFormChange = (field: keyof CenterFormData, value: string) => {
+    setCenterForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+  }
+
+  const handleCenterFormSubmit = () => {
+    // Validate form
+    if (!centerForm.name || !centerForm.code || !centerForm.address) {
+      console.log("Please fill in all required fields")
+      return
+    }
+
+    // Create new center
+    const newCenter: DistributionCenter = {
+      id: Date.now().toString(),
+      name: centerForm.name,
+      location: centerForm.address.split(",")[0] || centerForm.address,
+      address: centerForm.address,
+      contactPerson: centerForm.manager,
+      email: `${centerForm.code.toLowerCase()}@company.com`,
+      phone: "+1-555-0000",
+      status: centerForm.status as "active" | "inactive" | "maintenance",
+      capacity: Number.parseInt(centerForm.capacity) || 0,
+      currentOrders: 0,
+      establishedDate: new Date().toISOString().split("T")[0],
+      region: "New",
+    }
+
+    setCenters((prev) => [...prev, newCenter])
+
+    // Reset form
+    setCenterForm({
+      name: "",
+      code: "",
+      address: "",
+      capacity: "",
+      status: "active",
+      manager: "",
+    })
+
+    console.log("Center created successfully")
+  }
+
+  // Mock API function to replace axios
+  const mockApiCall = async (url: string, method = "GET", data?: any) => {
+    // Simulate API delay
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    if (url.includes("/api/users/vendors")) {
+      return {
+        data: {
+          success: true,
+          data: {
+            vendors: [
+              {
+                id: "1",
+                _id: "1",
+                name: "John Doe",
+                businessName: "Doe Electronics",
+                email: "john@doeelectronics.com",
+                phone: "+91 9876543210",
+                address: "123 Business Street, Tech City",
+                district: "Central District",
+                panNumber: "ABCDE1234F",
+                gstNumber: "12ABCDE1234F1Z5",
+                status: VendorStatus.PENDING,
+                joinedDate: new Date().toISOString(),
+                bankDetails: {
+                  bankName: "State Bank of India",
+                  accountNumber: "1234567890",
+                  holderName: "John Doe",
+                },
+              },
+              {
+                id: "2",
+                _id: "2",
+                name: "Jane Smith",
+                businessName: "Smith Tech Solutions",
+                email: "jane@smithtech.com",
+                phone: "+91 9876543211",
+                address: "456 Innovation Drive, Tech Park",
+                district: "North District",
+                panNumber: "FGHIJ5678K",
+                gstNumber: "34FGHIJ5678K2A6",
+                status: VendorStatus.APPROVED,
+                joinedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                bankDetails: {
+                  bankName: "HDFC Bank",
+                  accountNumber: "0987654321",
+                  holderName: "Jane Smith",
+                },
+              },
+            ],
+          },
+        },
+      }
+    }
+
+    if (url.includes("/status")) {
+      return {
+        data: {
+          success: true,
+          message: "Status updated successfully",
+        },
+      }
+    }
+
+    return {
+      data: {
+        success: true,
+        data: {},
+      },
+    }
+  }
 
   // Fetch vendors from the backend
   const fetchVendors = async () => {
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true)
+    setError(null)
     try {
-      const response = await axiosInstance.get("/api/users/vendors");
+      const response = await mockApiCall("/api/users/vendors")
       if (response.data.success) {
-        setVendors(response.data.data.vendors);
+        setVendors(response.data.data.vendors)
       } else {
-        setError(response.data.message || "Failed to fetch vendors");
+        setError(response.data.message || "Failed to fetch vendors")
       }
     } catch (error) {
-      console.error("Error fetching vendors:", error);
-      setError(
-        error instanceof Error
-          ? error.message
-          : "An error occurred while fetching vendors"
-      );
+      console.error("Error fetching vendors:", error)
+      setError(error instanceof Error ? error.message : "An error occurred while fetching vendors")
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   // Load vendors when component mounts or when activeTab changes to vendors or dashboard
   useEffect(() => {
     if (activeTab === "vendors" || activeTab === "dashboard") {
-      fetchVendors();
+      fetchVendors()
     }
-  }, [activeTab]);
+  }, [activeTab])
 
   const handleVendorAction = async (
     vendorId: string,
     action: "approve" | "reject" | "suspend" | "reactivate",
-    notes?: string
+    notes?: string,
   ) => {
     const statusMap = {
       approve: "APPROVED",
       reject: "REJECTED",
       suspend: "SUSPENDED",
       reactivate: "APPROVED",
-    };
+    }
 
     const actionMessages = {
-      approve:
-        "Vendor approved successfully. A notification has been sent to the vendor.",
-      reject:
-        "Vendor application rejected. A notification has been sent to the vendor.",
-      suspend:
-        "Vendor account suspended. A notification has been sent to the vendor.",
-      reactivate:
-        "Vendor account reactivated. A notification has been sent to the vendor.",
-    };
+      approve: "Vendor approved successfully. A notification has been sent to the vendor.",
+      reject: "Vendor application rejected. A notification has been sent to the vendor.",
+      suspend: "Vendor account suspended. A notification has been sent to the vendor.",
+      reactivate: "Vendor account reactivated. A notification has been sent to the vendor.",
+    }
 
     try {
-      console.log('Making vendor status update request:', {
+      console.log("Making vendor status update request:", {
         vendorId,
         action,
         status: statusMap[action],
         notes: notes || "",
-      });
-      
+      })
+
       // Make API call to update vendor status
-      const response = await axiosInstance.put(
-        `/api/users/vendors/${vendorId}/status`,
-        {
-          status: statusMap[action],
-          notes: notes || "",
-        }
-      );
+      const response = await mockApiCall(`/api/users/vendors/${vendorId}/status`, "PUT", {
+        status: statusMap[action],
+        notes: notes || "",
+      })
 
       if (response.data.success) {
-        toast.success(actionMessages[action]);
+        console.log(actionMessages[action])
 
         // Refresh the vendor list after successful action
-        fetchVendors();
+        fetchVendors()
       } else {
-        toast.error(response.data.message || "Failed to update vendor status");
+        console.log(response.data.message || "Failed to update vendor status")
       }
     } catch (error) {
-      console.error("Error updating vendor status:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "An error occurred while updating vendor status"
-      );
+      console.error("Error updating vendor status:", error)
+      console.log(error instanceof Error ? error.message : "An error occurred while updating vendor status")
     }
-  };
+  }
 
-  const handleCenterAction = (
-    centerId: string,
-    action: "activate" | "deactivate" | "maintenance" | "delete"
-  ) => {
+  const handleCenterAction = (centerId: string, action: "activate" | "deactivate" | "maintenance" | "delete") => {
     const actionMessages = {
       activate: "Distribution center activated",
       deactivate: "Distribution center deactivated",
       maintenance: "Distribution center set to maintenance mode",
       delete: "Distribution center deleted",
-    };
+    }
 
-    toast.success(actionMessages[action]);
-  };
-
-  const stats = [
-    {
-      label: "Total Vendors",
-      value: "48",
-      icon: Building,
-      color: "blue",
-      change: "+12%",
-      description: "Active vendors",
-    },
-    {
-      label: "Distribution Centers",
-      value: "5",
-      icon: Users,
-      color: "green",
-      change: "+1",
-      description: "Operational centers",
-    },
-    {
-      label: "System Revenue",
-      value: "₹24.5M",
-      icon: DollarSign,
-      color: "yellow",
-      change: "+22%",
-      description: "Total processed",
-    },
-  ];
-
-  const sidebar = (
-    <div className="space-y-6">
-      {/* System Management */}
-      <div>
-        <h3 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-          System
-        </h3>
-        <div className="space-y-1">
-          {[
-            { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-            { id: "system-health", label: "System Health", icon: Activity },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
-                  activeTab === item.id
-                    ? "bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-r-2 border-blue-600"
-                    : "text-slate-600 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-slate-900"
-                }`}
-              >
-                <Icon className="h-5 w-5 mr-3" />
-                {item.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* User Management */}
-      <div>
-        <h3 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-          User Management
-        </h3>
-        <div className="space-y-1">
-          {[
-            { id: "vendors", label: "Vendors", icon: Building },
-            { id: "centers", label: "Distribution Centers", icon: Users },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
-                  activeTab === item.id
-                    ? "bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-r-2 border-blue-600"
-                    : "text-slate-600 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-slate-900"
-                }`}
-              >
-                <Icon className="h-5 w-5 mr-3" />
-                {item.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Business Operations */}
-      <div>
-        <h3 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-          Operations
-        </h3>
-        <div className="space-y-1">
-          {[
-            { id: "reports", label: "Reports & Analytics", icon: BarChart3 },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
-                  activeTab === item.id
-                    ? "bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-r-2 border-blue-600"
-                    : "text-slate-600 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-slate-900"
-                }`}
-              >
-                <Icon className="h-5 w-5 mr-3" />
-                {item.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
+    console.log(actionMessages[action])
+  }
 
   const renderContent = () => {
     switch (activeTab) {
-      case "dashboard":
+      case "overview":
         return (
-          <div className="space-y-6 bg-gradient-to-br from-blue-50/30 to-indigo-50/30 min-h-screen -m-6 p-6">
-            {/* Page Title */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 rounded-xl shadow-lg">
-              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-              <p className="text-blue-100 mt-2">
-                System overview and management console
-              </p>
-            </div>
-
-            {/* Enhanced Stats Cards */}
+          <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {stats.map((stat) => {
-                const Icon = stat.icon;
-                return (
-                  <Card
-                    key={stat.label}
-                    className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50/50 border-blue-200"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-slate-600">
-                          {stat.label}
-                        </p>
-                        <p className="text-2xl font-bold text-slate-900 mt-1">
-                          {stat.value}
-                        </p>
-                        <div className="flex items-center mt-2">
-                          <TrendingUp className="h-4 w-4 text-emerald-600" />
-                          <span className="text-sm font-medium ml-1 text-emerald-600">
-                            {stat.change}
-                          </span>
-                          <span className="text-sm text-slate-500 ml-1">
-                            {stat.description}
-                          </span>
-                        </div>
-                      </div>
-                      <div
-                        className={`p-3 rounded-full bg-gradient-to-br from-${stat.color}-100 to-${stat.color}-200`}
-                      >
-                        <Icon className={`h-6 w-6 text-${stat.color}-600`} />
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
+              <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                <div className="flex items-center">
+                  <div className="p-3 bg-blue-500 rounded-lg">
+                    <Users className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-slate-600">Total Vendors</p>
+                    <p className="text-2xl font-bold text-slate-900">1,234</p>
+                    <p className="text-xs text-green-600">+12% from last month</p>
+                  </div>
+                </div>
+              </Card>
+              <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+                <div className="flex items-center">
+                  <div className="p-3 bg-green-500 rounded-lg">
+                    <Building className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-slate-600">Active Centers</p>
+                    <p className="text-2xl font-bold text-slate-900">56</p>
+                    <p className="text-xs text-green-600">+3 new this week</p>
+                  </div>
+                </div>
+              </Card>
+              <Card className="p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
+                <div className="flex items-center">
+                  <div className="p-3 bg-yellow-500 rounded-lg">
+                    <FileText className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-slate-600">Pending Applications</p>
+                    <p className="text-2xl font-bold text-slate-900">23</p>
+                    <p className="text-xs text-orange-600">Requires attention</p>
+                  </div>
+                </div>
+              </Card>
+              <Card className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+                <div className="flex items-center">
+                  <div className="p-3 bg-purple-500 rounded-lg">
+                    <BarChart3 className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-slate-600">Monthly Revenue</p>
+                    <p className="text-2xl font-bold text-slate-900">$45.2K</p>
+                    <p className="text-xs text-green-600">+8% growth</p>
+                  </div>
+                </div>
+              </Card>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Pending Vendor Approvals */}
-              <Card className="bg-gradient-to-br from-white to-amber-50/50 border-amber-200 shadow-lg">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-slate-900">
-                    Pending Vendor Approvals
-                  </h2>
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">Recent Activity</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm text-slate-600">New vendor application approved</span>
+                    <span className="text-xs text-slate-400 ml-auto">2 hours ago</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span className="text-sm text-slate-600">Center maintenance scheduled</span>
+                    <span className="text-xs text-slate-400 ml-auto">4 hours ago</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                    <span className="text-sm text-slate-600">Payment processing updated</span>
+                    <span className="text-xs text-slate-400 ml-auto">1 day ago</span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
+                <div className="space-y-3">
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setActiveTab("vendors")}
-                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                    onClick={() => setActiveTab("applications")}
+                    className="w-full justify-start bg-blue-50 text-blue-700 hover:bg-blue-100"
                   >
-                    View All
+                    <FileText className="h-4 w-4 mr-2" />
+                    Review Pending Applications
+                  </Button>
+                  <Button
+                    onClick={() => setActiveTab("vendors")}
+                    className="w-full justify-start bg-green-50 text-green-700 hover:bg-green-100"
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    Manage Vendors
+                  </Button>
+                  <Button
+                    onClick={() => setActiveTab("centers")}
+                    className="w-full justify-start bg-purple-50 text-purple-700 hover:bg-purple-100"
+                  >
+                    <Building className="h-4 w-4 mr-2" />
+                    View Centers
                   </Button>
                 </div>
-                <div className="space-y-4">
-                  {isLoading ? (
-                    <div className="text-center py-4">
-                      <p className="text-gray-500">Loading vendors...</p>
-                    </div>
-                  ) : error ? (
-                    <div className="text-center py-4">
-                      <p className="text-red-500">{error}</p>
-                    </div>
-                  ) : vendors.filter((v) => v.status === VendorStatus.PENDING)
-                      .length === 0 ? (
-                    <div className="text-center py-4">
-                      <p className="text-gray-500">
-                        No pending vendor applications
-                      </p>
-                    </div>
-                  ) : (
-                    vendors
-                      .filter((v) => v.status === VendorStatus.PENDING)
-                      .map((vendor) => (
-                        <Card
-                          key={vendor.id}
-                          className="hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-4"
-                        >
-                          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                            <div className="space-y-3 flex-1">
-                              <div>
-                                <h3 className="text-lg font-semibold text-slate-900">
-                                  {vendor.businessName}
-                                </h3>
-                                <p className="text-sm text-slate-600 flex items-center mt-1">
-                                  <Building className="h-4 w-4 mr-1" />
-                                  {vendor.name}
-                                </p>
-                              </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                  <p className="text-slate-500">
-                                    Contact Information
-                                  </p>
-                                  <p className="font-medium text-slate-900">
-                                    {vendor.email}
-                                  </p>
-                                  <p className="font-medium text-slate-900">
-                                    {vendor.phone}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-slate-500">
-                                    Business Details
-                                  </p>
-                                  <p className="font-medium text-slate-900">
-                                    PAN: {vendor.panNumber}
-                                  </p>
-                                  <p className="font-medium text-slate-900">
-                                    GST: {vendor.gstNumber}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div>
-                                <p className="text-slate-500">Address</p>
-                                <p className="font-medium text-slate-900">
-                                  {vendor.address}
-                                </p>
-                              </div>
-
-                              <div>
-                                <p className="text-slate-500">Bank Details</p>
-                                <p className="font-medium text-slate-900">
-                                  {vendor.bankDetails?.bankName || 'Not provided'}
-                                </p>
-                              </div>
-
-                              <div>
-                                <p className="text-slate-500">
-                                  Application Date
-                                </p>
-                                <p className="font-medium text-slate-900">
-                                  {new Date(
-                                    vendor.joinedDate
-                                  ).toLocaleDateString()}
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="flex md:flex-col space-x-2 md:space-x-0 md:space-y-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => openVendorModal(vendor)}
-                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 flex items-center"
-                              >
-                                <Eye className="h-4 w-4 mr-1" />
-                                View Details
-                              </Button>
-                              <span
-                                className={`px-3 py-1 text-sm font-medium rounded-full ${
-                                  vendor.status === VendorStatus.APPROVED
-                                    ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                                    : vendor.status === VendorStatus.PENDING
-                                    ? "bg-amber-100 text-amber-800 border border-amber-200"
-                                    : vendor.status === VendorStatus.SUSPENDED
-                                    ? "bg-gray-100 text-gray-800 border border-gray-200"
-                                    : "bg-red-100 text-red-800 border border-red-200"
-                                }`}
-                              >
-                                {vendor.status}
-                              </span>
-                            </div>
-                          </div>
-                        </Card>
-                      ))
-                  )}
-                </div>
               </Card>
-
-              {/* Distribution Center Status */}
-              <DistributedCenter />
-            </div>
-
-            {/* System Health & Quick Actions */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="bg-gradient-to-br from-white to-slate-50 border-slate-200 shadow-lg">
-                <h2 className="text-lg font-semibold text-slate-900 mb-4">
-                  System Health
-                </h2>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg border border-emerald-200">
-                    <div className="flex items-center space-x-3">
-                      <Database className="h-5 w-5 text-emerald-600" />
-                      <span className="text-sm font-medium text-slate-900">
-                        Database
-                      </span>
-                    </div>
-                    <span className="text-sm font-medium text-emerald-600">
-                      Healthy
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg border border-emerald-200">
-                    <div className="flex items-center space-x-3">
-                      <Server className="h-5 w-5 text-emerald-600" />
-                      <span className="text-sm font-medium text-slate-900">
-                        API Server
-                      </span>
-                    </div>
-                    <span className="text-sm font-medium text-emerald-600">
-                      Running
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg border border-amber-200">
-                    <div className="flex items-center space-x-3">
-                      <Shield className="h-5 w-5 text-amber-600" />
-                      <span className="text-sm font-medium text-slate-900">
-                        Payment Gateway
-                      </span>
-                    </div>
-                    <span className="text-sm font-medium text-amber-600">
-                      Warning
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg border border-emerald-200">
-                    <div className="flex items-center space-x-3">
-                      <Wifi className="h-5 w-5 text-emerald-600" />
-                      <span className="text-sm font-medium text-slate-900">
-                        Network
-                      </span>
-                    </div>
-                    <span className="text-sm font-medium text-emerald-600">
-                      Stable
-                    </span>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Quick Actions card removed as requested */}
             </div>
           </div>
-        );
+        )
 
       case "centers":
         return (
           <div className="space-y-6 bg-gradient-to-br from-green-50/30 to-emerald-50/30 min-h-screen -m-6 p-6">
             <div className="bg-gradient-to-r from-green-600 to-emerald-700 text-white p-6 rounded-xl shadow-lg">
-              <h1 className="text-3xl font-bold">Distribution Centers</h1>
-              <p className="text-green-100 mt-2">
-                Manage pre-established distribution centers
-              </p>
+              <h1 className="text-3xl font-bold">Centers</h1>
+              <p className="text-green-100 mt-2">Manage your centers and locations</p>
             </div>
 
-            {/* Center Management Actions */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="relative">
@@ -563,208 +437,87 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 >
                   <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="maintenance">Maintenance</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
                 </select>
               </div>
-              <Button
-                icon={Plus}
-                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 border-0"
-              >
-                Add New Center
-              </Button>
-            </div>
-            <DistributedCenter />
-          </div>
-        );
-
-      case "system-health":
-        return (
-          <div className="space-y-6 bg-gradient-to-br from-slate-50/30 to-gray-50/30 min-h-screen -m-6 p-6">
-            <div className="bg-gradient-to-r from-slate-600 to-gray-700 text-white p-6 rounded-xl shadow-lg">
-              <h1 className="text-3xl font-bold">System Health</h1>
-              <p className="text-slate-100 mt-2">
-                Monitor system performance and infrastructure
-              </p>
             </div>
 
-            {/* System Status Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                {
-                  name: "Database",
-                  status: "healthy",
-                  uptime: "99.9%",
-                  icon: Database,
-                  color: "emerald",
-                },
-                {
-                  name: "API Server",
-                  status: "running",
-                  uptime: "99.8%",
-                  icon: Server,
-                  color: "blue",
-                },
-                {
-                  name: "Payment Gateway",
-                  status: "warning",
-                  uptime: "98.5%",
-                  icon: Shield,
-                  color: "amber",
-                },
-                {
-                  name: "Network",
-                  status: "stable",
-                  uptime: "99.7%",
-                  icon: Wifi,
-                  color: "green",
-                },
-              ].map((service) => {
-                const Icon = service.icon;
-                return (
+            <Card className="bg-gradient-to-br from-white to-green-50/50 border-green-200 shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-slate-900">All Centers</h2>
+              </div>
+              <div className="space-y-4">
+                {centers.map((center) => (
                   <Card
-                    key={service.name}
-                    className="hover:shadow-lg transition-all duration-300"
+                    key={center.id}
+                    className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-green-50/50 border-green-200 p-4"
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <div
-                        className={`p-2 rounded-full bg-${service.color}-100`}
-                      >
-                        <Icon className={`h-5 w-5 text-${service.color}-600`} />
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                      <div className="space-y-3 flex-1">
+                        <div>
+                          <h3 className="text-lg font-semibold text-slate-900">{center.name}</h3>
+                          <p className="text-sm text-slate-600 flex items-center mt-1">
+                            <Building className="h-4 w-4 mr-1" />
+                            {center.location}
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <span className="text-slate-500">Manager:</span>
+                            <p className="font-medium text-slate-900">{center.contactPerson}</p>
+                          </div>
+                          <div>
+                            <span className="text-slate-500">Capacity:</span>
+                            <p className="font-medium text-slate-900">{center.capacity.toLocaleString()} sq ft</p>
+                          </div>
+                          <div>
+                            <span className="text-slate-500">Current Orders:</span>
+                            <p className="font-medium text-slate-900">{center.currentOrders}</p>
+                          </div>
+                          <div>
+                            <span className="text-slate-500">Status:</span>
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                                center.status === "active"
+                                  ? "bg-green-100 text-green-800"
+                                  : center.status === "inactive"
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-yellow-100 text-yellow-800"
+                              }`}
+                            >
+                              {center.status.charAt(0).toUpperCase() + center.status.slice(1)}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          service.status === "healthy" ||
-                          service.status === "running" ||
-                          service.status === "stable"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : "bg-amber-100 text-amber-800"
-                        }`}
-                      >
-                        {service.status}
-                      </span>
-                    </div>
-                    <h3 className="font-semibold text-slate-900">
-                      {service.name}
-                    </h3>
-                    <p className="text-sm text-slate-600">
-                      Uptime: {service.uptime}
-                    </p>
-                  </Card>
-                );
-              })}
-            </div>
-
-            {/* Detailed System Metrics */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                  Performance Metrics
-                </h3>
-                <div className="space-y-4">
-                  {[
-                    { metric: "Response Time", value: "245ms", status: "good" },
-                    { metric: "CPU Usage", value: "34%", status: "good" },
-                    { metric: "Memory Usage", value: "67%", status: "warning" },
-                    { metric: "Disk Usage", value: "23%", status: "good" },
-                    { metric: "Active Users", value: "1,247", status: "good" },
-                    { metric: "Error Rate", value: "0.02%", status: "good" },
-                  ].map((item) => (
-                    <div
-                      key={item.metric}
-                      className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
-                    >
-                      <span className="text-sm font-medium text-slate-700">
-                        {item.metric}
-                      </span>
                       <div className="flex items-center space-x-2">
-                        <span className="font-bold text-slate-900">
-                          {item.value}
-                        </span>
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            item.status === "good"
-                              ? "bg-emerald-400"
-                              : "bg-amber-400"
-                          }`}
-                        ></div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-green-300 text-green-700 hover:bg-green-50 bg-transparent"
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View Details
+                        </Button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </Card>
-
-              <Card>
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                  Recent System Events
-                </h3>
-                <div className="space-y-3">
-                  {[
-                    {
-                      time: "10:30 AM",
-                      event: "Database backup completed",
-                      type: "success",
-                    },
-                    {
-                      time: "09:45 AM",
-                      event: "Payment gateway maintenance started",
-                      type: "warning",
-                    },
-                    {
-                      time: "09:15 AM",
-                      event: "New vendor registration: Kumar Electronics",
-                      type: "info",
-                    },
-                    {
-                      time: "08:30 AM",
-                      event: "System health check passed",
-                      type: "success",
-                    },
-                    {
-                      time: "08:00 AM",
-                      event: "Daily report generated",
-                      type: "info",
-                    },
-                  ].map((event, index) => (
-                    <div
-                      key={index}
-                      className="flex items-start space-x-3 p-3 bg-slate-50 rounded-lg"
-                    >
-                      <div
-                        className={`w-2 h-2 rounded-full mt-2 ${
-                          event.type === "success"
-                            ? "bg-emerald-400"
-                            : event.type === "warning"
-                            ? "bg-amber-400"
-                            : "bg-blue-400"
-                        }`}
-                      ></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-slate-900">
-                          {event.event}
-                        </p>
-                        <p className="text-xs text-slate-500">{event.time}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </div>
+                  </Card>
+                ))}
+              </div>
+            </Card>
           </div>
-        );
+        )
 
       case "vendors":
         return (
           <div className="space-y-6 bg-gradient-to-br from-amber-50/30 to-orange-50/30 min-h-screen -m-6 p-6">
             <div className="bg-gradient-to-r from-amber-600 to-orange-700 text-white p-6 rounded-xl shadow-lg">
               <h1 className="text-3xl font-bold">Vendor Management</h1>
-              <p className="text-amber-100 mt-2">
-                Review and manage vendor applications and accounts
-              </p>
+              <p className="text-amber-100 mt-2">Review and manage vendor applications and accounts</p>
             </div>
 
-            {/* Vendor Management Actions */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="relative">
@@ -786,140 +539,14 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                   <option value="PENDING">Pending</option>
                   <option value="APPROVED">Approved</option>
                   <option value="REJECTED">Rejected</option>
-                  <option value="SUSPENDED">Suspended</option>
                 </select>
               </div>
             </div>
 
-            {/* Pending Applications Section */}
-            <Card className="bg-gradient-to-br from-white to-amber-50/50 border-amber-200 shadow-lg mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-slate-900">
-                  Pending Vendor Applications
-                </h2>
-              </div>
-              <div className="space-y-4">
-                {isLoading ? (
-                  <div className="text-center py-4">
-                    <p className="text-gray-500">Loading vendors...</p>
-                  </div>
-                ) : error ? (
-                  <div className="text-center py-4">
-                    <p className="text-red-500">{error}</p>
-                  </div>
-                ) : vendors.filter((v) => v.status === VendorStatus.PENDING)
-                    .length === 0 ? (
-                  <div className="text-center py-4">
-                    <p className="text-gray-500">
-                      No pending vendor applications
-                    </p>
-                  </div>
-                ) : (
-                  vendors
-                    .filter((v) => v.status === VendorStatus.PENDING)
-                    .map((vendor) => (
-                      <Card
-                        key={vendor.id}
-                        className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-amber-50/50 border-amber-200 p-4"
-                      >
-                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                          <div className="space-y-3 flex-1">
-                            <div>
-                              <h3 className="text-lg font-semibold text-slate-900">
-                                {vendor.businessName}
-                              </h3>
-                              <p className="text-sm text-slate-600 flex items-center mt-1">
-                                <Building className="h-4 w-4 mr-1" />
-                                {vendor.name}
-                              </p>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <p className="text-slate-500">
-                                  Contact Information
-                                </p>
-                                <p className="font-medium text-slate-900">
-                                  {vendor.email}
-                                </p>
-                                <p className="font-medium text-slate-900">
-                                  {vendor.phone}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-slate-500">
-                                  Business Details
-                                </p>
-                                <p className="font-medium text-slate-900">
-                                  PAN: {vendor.panNumber}
-                                </p>
-                                <p className="font-medium text-slate-900">
-                                  GST: {vendor.gstNumber}
-                                </p>
-                              </div>
-                            </div>
-
-                            <div>
-                              <p className="text-slate-500">Address</p>
-                              <p className="font-medium text-slate-900">
-                                {vendor.address}
-                              </p>
-                            </div>
-
-                            <div>
-                              <p className="text-slate-500">Bank Details</p>
-                              <p className="font-medium text-slate-900">
-                                {vendor.bankDetails?.bankName || 'Not provided'}
-                              </p>
-                            </div>
-
-                            <div>
-                              <p className="text-slate-500">Application Date</p>
-                              <p className="font-medium text-slate-900">
-                                {new Date(
-                                  vendor.joinedDate
-                                ).toLocaleDateString()}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex md:flex-col space-x-2 md:space-x-0 md:space-y-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => openVendorModal(vendor)}
-                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 flex items-center"
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              View Details
-                            </Button>
-                            <span
-                              className={`px-3 py-1 text-sm font-medium rounded-full ${
-                                vendor.status === VendorStatus.APPROVED
-                                  ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                                  : vendor.status === VendorStatus.PENDING
-                                  ? "bg-amber-100 text-amber-800 border border-amber-200"
-                                  : vendor.status === VendorStatus.SUSPENDED
-                                  ? "bg-gray-100 text-gray-800 border border-gray-200"
-                                  : "bg-red-100 text-red-800 border border-red-200"
-                              }`}
-                            >
-                              {vendor.status}
-                            </span>
-                          </div>
-                        </div>
-                      </Card>
-                    ))
-                )}
-              </div>
-            </Card>
-
             {/* All Vendors Section */}
             <Card className="bg-gradient-to-br from-white to-blue-50/50 border-blue-200 shadow-lg">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-slate-900">
-                  All Vendors
-                </h2>
+                <h2 className="text-lg font-semibold text-slate-900">All Vendors</h2>
               </div>
               <div className="space-y-4">
                 {isLoading ? (
@@ -931,36 +558,24 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                     <p className="text-red-500">{error}</p>
                   </div>
                 ) : vendors
-                    .filter(
-                      (v) => filterStatus === "all" || v.status === filterStatus
-                    )
+                    .filter((v) => filterStatus === "all" || v.status === filterStatus)
                     .filter(
                       (v) =>
-                        v.businessName
-                          .toLowerCase()
-                          .includes(searchTerm.toLowerCase()) ||
-                        v.name
-                          .toLowerCase()
-                          .includes(searchTerm.toLowerCase()) ||
-                        v.email.toLowerCase().includes(searchTerm.toLowerCase())
+                        v.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        v.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        v.email.toLowerCase().includes(searchTerm.toLowerCase()),
                     ).length === 0 ? (
                   <div className="text-center py-4">
                     <p className="text-gray-500">No vendors found</p>
                   </div>
                 ) : (
                   vendors
-                    .filter(
-                      (v) => filterStatus === "all" || v.status === filterStatus
-                    )
+                    .filter((v) => filterStatus === "all" || v.status === filterStatus)
                     .filter(
                       (v) =>
-                        v.businessName
-                          .toLowerCase()
-                          .includes(searchTerm.toLowerCase()) ||
-                        v.name
-                          .toLowerCase()
-                          .includes(searchTerm.toLowerCase()) ||
-                        v.email.toLowerCase().includes(searchTerm.toLowerCase())
+                        v.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        v.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        v.email.toLowerCase().includes(searchTerm.toLowerCase()),
                     )
                     .map((vendor) => (
                       <Card
@@ -969,19 +584,17 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                           vendor.status === VendorStatus.APPROVED
                             ? "bg-gradient-to-br from-white to-green-50/50 border-green-200"
                             : vendor.status === VendorStatus.REJECTED
-                            ? "bg-gradient-to-br from-white to-red-50/50 border-red-200"
-                            : vendor.status === VendorStatus.SUSPENDED
-                            ? "bg-gradient-to-br from-white to-gray-50/50 border-gray-200"
-                            : "bg-gradient-to-br from-white to-amber-50/50 border-amber-200"
+                              ? "bg-gradient-to-br from-white to-red-50/50 border-red-200"
+                              : vendor.status === VendorStatus.SUSPENDED
+                                ? "bg-gradient-to-br from-white to-gray-50/50 border-gray-200"
+                                : "bg-gradient-to-br from-white to-amber-50/50 border-amber-200"
                         }`}
                       >
                         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                           <div className="space-y-3 flex-1">
                             <div className="flex justify-between">
                               <div>
-                                <h3 className="text-lg font-semibold text-slate-900">
-                                  {vendor.businessName}
-                                </h3>
+                                <h3 className="text-lg font-semibold text-slate-900">{vendor.businessName}</h3>
                                 <p className="text-sm text-slate-600 flex items-center mt-1">
                                   <Building className="h-4 w-4 mr-1" />
                                   {vendor.name}
@@ -992,10 +605,10 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                                   vendor.status === VendorStatus.APPROVED
                                     ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
                                     : vendor.status === VendorStatus.PENDING
-                                    ? "bg-amber-100 text-amber-800 border border-amber-200"
-                                    : vendor.status === VendorStatus.SUSPENDED
-                                    ? "bg-gray-100 text-gray-800 border border-gray-200"
-                                    : "bg-red-100 text-red-800 border border-red-200"
+                                      ? "bg-amber-100 text-amber-800 border border-amber-200"
+                                      : vendor.status === VendorStatus.SUSPENDED
+                                        ? "bg-gray-100 text-gray-800 border border-gray-200"
+                                        : "bg-red-100 text-red-800 border border-red-200"
                                 }`}
                               >
                                 {vendor.status}
@@ -1004,42 +617,26 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                               <div>
-                                <p className="text-slate-500">
-                                  Contact Information
-                                </p>
-                                <p className="font-medium text-slate-900">
-                                  {vendor.email}
-                                </p>
-                                <p className="font-medium text-slate-900">
-                                  {vendor.phone}
-                                </p>
+                                <p className="text-slate-500">Contact Information</p>
+                                <p className="font-medium text-slate-900">{vendor.email}</p>
+                                <p className="font-medium text-slate-900">{vendor.phone}</p>
                               </div>
                               <div>
-                                <p className="text-slate-500">
-                                  Business Details
-                                </p>
-                                <p className="font-medium text-slate-900">
-                                  PAN: {vendor.panNumber}
-                                </p>
-                                <p className="font-medium text-slate-900">
-                                  GST: {vendor.gstNumber}
-                                </p>
+                                <p className="text-slate-500">Business Details</p>
+                                <p className="font-medium text-slate-900">PAN: {vendor.panNumber}</p>
+                                <p className="font-medium text-slate-900">GST: {vendor.gstNumber}</p>
                               </div>
                             </div>
 
                             <div>
                               <p className="text-slate-500">Address</p>
-                              <p className="font-medium text-slate-900">
-                                {vendor.address}
-                              </p>
+                              <p className="font-medium text-slate-900">{vendor.address}</p>
                             </div>
 
                             <div>
                               <p className="text-slate-500">Joined Date</p>
                               <p className="font-medium text-slate-900">
-                                {new Date(
-                                  vendor.joinedDate
-                                ).toLocaleDateString()}
+                                {new Date(vendor.joinedDate).toLocaleDateString()}
                               </p>
                             </div>
                           </div>
@@ -1062,57 +659,51 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
               </div>
             </Card>
           </div>
-        );
+        )
+
+      case "applications":
+        return <ApplicationsComponent />
 
       // Default case for other tabs
       default:
         return (
-          <Card className="bg-gradient-to-br from-white to-blue-50/50 border-blue-200 shadow-lg">
-            <div className="text-center py-8">
-              <h3 className="text-lg font-medium text-slate-900 mb-2">
-                Feature Coming Soon
-              </h3>
-              <p className="text-slate-600">
-                This section is under development.
-              </p>
-            </div>
-          </Card>
-        );
+          <div className="text-center py-8">
+            <p className="text-gray-500">Select a section from the sidebar</p>
+          </div>
+        )
     }
-  };
+  }
 
   // Function to open vendor detail modal
   const openVendorModal = (vendor: Vendor) => {
-    setSelectedVendor(vendor);
-    setActionNotes("");
-    setShowVendorModal(true);
-  };
+    setSelectedVendor(vendor)
+    setActionNotes("")
+    setShowVendorModal(true)
+  }
 
   // Function to close vendor detail modal
   const closeVendorModal = () => {
-    setShowVendorModal(false);
-    setSelectedVendor(null);
-    setActionNotes("");
-  };
+    setShowVendorModal(false)
+    setSelectedVendor(null)
+    setActionNotes("")
+  }
 
   // Function to handle vendor action with notes
-  const handleVendorActionWithNotes = (
-    action: "approve" | "reject" | "suspend" | "reactivate"
-  ) => {
+  const handleVendorActionWithNotes = (action: "approve" | "reject" | "suspend" | "reactivate") => {
     if (selectedVendor) {
-      console.log(selectedVendor);
-      handleVendorAction(selectedVendor._id, action, actionNotes);
-      closeVendorModal();
+      console.log(selectedVendor)
+      handleVendorAction(selectedVendor._id, action, actionNotes)
+      closeVendorModal()
 
       // Refresh vendors list after action
       setTimeout(() => {
-        fetchVendors();
-      }, 1000);
+        fetchVendors()
+      }, 1000)
     }
-  };
+  }
 
   return (
-    <DashboardLayout user={user} sidebar={sidebar} onLogout={onLogout}>
+    <DashboardLayout activeSection={activeTab} onSectionChange={setActiveTab}>
       {renderContent()}
 
       {/* Vendor Detail Modal */}
@@ -1121,25 +712,10 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
           <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-orange-50">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-slate-900">
-                  Vendor Application Details
-                </h3>
-                <button
-                  onClick={closeVendorModal}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+                <h3 className="text-xl font-semibold text-slate-900">Vendor Application Details</h3>
+                <button onClick={closeVendorModal} className="text-gray-400 hover:text-gray-600">
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
@@ -1148,21 +724,15 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
             <div className="p-6 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">
-                    Business Information
-                  </h4>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Business Information</h4>
                   <div className="space-y-3">
                     <div>
                       <p className="text-sm text-slate-500">Business Name</p>
-                      <p className="font-medium text-slate-900">
-                        {selectedVendor.businessName}
-                      </p>
+                      <p className="font-medium text-slate-900">{selectedVendor.businessName}</p>
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">Owner/Manager</p>
-                      <p className="font-medium text-slate-900">
-                        {selectedVendor.name}
-                      </p>
+                      <p className="font-medium text-slate-900">{selectedVendor.name}</p>
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">Status</p>
@@ -1171,10 +741,10 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                           selectedVendor.status === VendorStatus.APPROVED
                             ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
                             : selectedVendor.status === VendorStatus.PENDING
-                            ? "bg-amber-100 text-amber-800 border border-amber-200"
-                            : selectedVendor.status === VendorStatus.SUSPENDED
-                            ? "bg-gray-100 text-gray-800 border border-gray-200"
-                            : "bg-red-100 text-red-800 border border-red-200"
+                              ? "bg-amber-100 text-amber-800 border border-amber-200"
+                              : selectedVendor.status === VendorStatus.SUSPENDED
+                                ? "bg-gray-100 text-gray-800 border border-gray-200"
+                                : "bg-red-100 text-red-800 border border-red-200"
                         }`}
                       >
                         {selectedVendor.status}
@@ -1183,42 +753,30 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                     <div>
                       <p className="text-sm text-slate-500">Application Date</p>
                       <p className="font-medium text-slate-900">
-                        {new Date(
-                          selectedVendor.joinedDate
-                        ).toLocaleDateString()}
+                        {new Date(selectedVendor.joinedDate).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">
-                    Contact Information
-                  </h4>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Contact Information</h4>
                   <div className="space-y-3">
                     <div>
                       <p className="text-sm text-slate-500">Email</p>
-                      <p className="font-medium text-slate-900">
-                        {selectedVendor.email}
-                      </p>
+                      <p className="font-medium text-slate-900">{selectedVendor.email}</p>
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">Phone</p>
-                      <p className="font-medium text-slate-900">
-                        {selectedVendor.phone}
-                      </p>
+                      <p className="font-medium text-slate-900">{selectedVendor.phone}</p>
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">Address</p>
-                      <p className="font-medium text-slate-900">
-                        {selectedVendor.address}
-                      </p>
+                      <p className="font-medium text-slate-900">{selectedVendor.address}</p>
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">District</p>
-                      <p className="font-medium text-slate-900">
-                        {selectedVendor.district}
-                      </p>
+                      <p className="font-medium text-slate-900">{selectedVendor.district}</p>
                     </div>
                   </div>
                 </div>
@@ -1226,47 +784,35 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">
-                    Business Details
-                  </h4>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Business Details</h4>
                   <div className="space-y-3">
                     <div>
                       <p className="text-sm text-slate-500">PAN Number</p>
-                      {/* <p className="font-medium text-slate-900">
-                        {selectedVendor.Distribution Centers}
-                      </p> */}
+                      <p className="font-medium text-slate-900">{selectedVendor.panNumber}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">GST Number</p>
+                      <p className="font-medium text-slate-900">{selectedVendor.gstNumber}</p>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">
-                    Bank Details
-                  </h4>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Bank Details</h4>
                   <div className="space-y-3">
                     {selectedVendor.bankDetails ? (
                       <>
                         <div>
                           <p className="text-sm text-slate-500">Bank Name</p>
-                          <p className="font-medium text-slate-900">
-                            {selectedVendor.bankDetails.bankName}
-                          </p>
+                          <p className="font-medium text-slate-900">{selectedVendor.bankDetails.bankName}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-slate-500">
-                            Account Number
-                          </p>
-                          <p className="font-medium text-slate-900">
-                            {selectedVendor.bankDetails.accountNumber}
-                          </p>
+                          <p className="text-sm text-slate-500">Account Number</p>
+                          <p className="font-medium text-slate-900">{selectedVendor.bankDetails.accountNumber}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-slate-500">
-                            Account Holder
-                          </p>
-                          <p className="font-medium text-slate-900">
-                            {selectedVendor.bankDetails.holderName}
-                          </p>
+                          <p className="text-sm text-slate-500">Account Holder</p>
+                          <p className="font-medium text-slate-900">{selectedVendor.bankDetails.holderName}</p>
                         </div>
                       </>
                     ) : (
@@ -1278,15 +824,10 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
 
               {selectedVendor.status === VendorStatus.PENDING && (
                 <div className="mt-6">
-                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">
-                    Application Decision
-                  </h4>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Application Decision</h4>
                   <div className="space-y-4">
                     <div>
-                      <label
-                        htmlFor="notes"
-                        className="block text-sm font-medium text-slate-700 mb-1"
-                      >
+                      <label htmlFor="notes" className="block text-sm font-medium text-slate-700 mb-1">
                         Notes (will be included in notification to vendor)
                       </label>
                       <textarea
@@ -1319,15 +860,10 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
 
               {selectedVendor.status === VendorStatus.APPROVED && (
                 <div className="mt-6">
-                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">
-                    Account Actions
-                  </h4>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Account Actions</h4>
                   <div className="space-y-4">
                     <div>
-                      <label
-                        htmlFor="notes"
-                        className="block text-sm font-medium text-slate-700 mb-1"
-                      >
+                      <label htmlFor="notes" className="block text-sm font-medium text-slate-700 mb-1">
                         Notes (will be included in notification to vendor)
                       </label>
                       <textarea
@@ -1354,15 +890,10 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
 
               {selectedVendor.status === VendorStatus.SUSPENDED && (
                 <div className="mt-6">
-                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">
-                    Account Actions
-                  </h4>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Account Actions</h4>
                   <div className="space-y-4">
                     <div>
-                      <label
-                        htmlFor="notes"
-                        className="block text-sm font-medium text-slate-700 mb-1"
-                      >
+                      <label htmlFor="notes" className="block text-sm font-medium text-slate-700 mb-1">
                         Notes (will be included in notification to vendor)
                       </label>
                       <textarea
@@ -1376,9 +907,7 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                     </div>
                     <div className="flex justify-end">
                       <Button
-                        onClick={() =>
-                          handleVendorActionWithNotes("reactivate")
-                        }
+                        onClick={() => handleVendorActionWithNotes("reactivate")}
                         className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 border-0"
                       >
                         Reactivate Account
@@ -1392,5 +921,5 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
         </div>
       )}
     </DashboardLayout>
-  );
+  )
 }
