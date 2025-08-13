@@ -247,7 +247,6 @@ export default function VendorSignupPage({
     const newErrors: string[] = [];
 
     if (!formData.vendorName.trim()) newErrors.push("Vendor name is required");
-    if (!formData.vendorRole) newErrors.push("Vendor role is required");
     if (!formData.email.trim()) newErrors.push("Email is required");
     if (!formData.phoneNumber.trim() || formData.phoneNumber === "+977")
       newErrors.push("Phone number is required");
@@ -553,37 +552,6 @@ export default function VendorSignupPage({
                     className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
                   />
                 </div>
-
-                <div>
-                  <label className="block text-gray-700 font-medium mb-1">
-                    Vendor Role *
-                  </label>
-                  <select
-                    value={formData.vendorRole}
-                    onChange={(e) =>
-                      handleInputChange("vendorRole", e.target.value)
-                    }
-                    required
-                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
-                  >
-                    <option value="">Select vendor role</option>
-                    {vendorRoles.map((role) => (
-                      <option key={role.value} value={role.value}>
-                        {role.label}
-                      </option>
-                    ))}
-                  </select>
-                  {formData.vendorRole && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      {
-                        vendorRoles.find(
-                          (role) => role.value === formData.vendorRole
-                        )?.description
-                      }
-                    </p>
-                  )}
-                </div>
-
                 <div>
                   <label className="block text-gray-700 font-medium mb-1">
                     Email Address *

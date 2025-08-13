@@ -1,501 +1,814 @@
-import React, { useState } from 'react';
-import { 
-  LayoutDashboard, 
-  Search, 
-  ShoppingCart, 
-  CreditCard, 
-  MessageSquare,
-  Filter,
-  Star,
-  Plus,
-  Minus,
-  Package
-} from 'lucide-react';
-import { DashboardLayout } from '../layout/DashboardLayout';
-import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
-import { User, Order, Product, OrderStatus } from '../../types';
-import { toast } from '../ui/Toaster';
+"use client";
 
-interface CenterDashboardProps {
-  user: User;
-  onLogout: () => void;
+import { useState } from "react";
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  CreditCard,
+  Plus,
+  Edit,
+  Eye,
+  TrendingUp,
+  Users,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  User,
+  LogOut,
+  ChevronDown,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "../../ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  stock: number;
+  status: "available" | "out_of_stock" | "discontinued";
+  images: string[];
+  createdDate: string;
+  updatedDate: string;
 }
 
-export function CenterDashboard({ user, onLogout }: CenterDashboardProps) {
-  const [activeTab, setActiveTab] = useState('marketplace');
-  const [cart, setCart] = useState<{[key: string]: number}>({});
+interface IncomingOrder {
+  id: string;
+  vendorId: string;
+  centerId: string;
+  items: Array<{
+    productId: string;
+    productName: string;
+    quantity: number;
+    price: number;
+    total: number;
+  }>;
+  totalAmount: number;
+  status: "pending" | "confirmed" | "processing" | "shipped" | "delivered";
+  requestedDeliveryDate: string;
+  createdDate: string;
+  updatedDate: string;
+  vendor: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+  };
+}
 
-  // Mock data
+export default function CenterDashboard() {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+
+  // Mock data - Center's inventory with more demo items
   const mockProducts: Product[] = [
     {
-      id: 'prod-1',
-      vendorId: 'vendor-1',
-      name: 'Wireless Headphones',
-      description: 'Premium quality wireless headphones with noise cancellation',
-      price: 2500,
-      category: 'Electronics',
+      id: "prod-1",
+      name: "Bowl of Steamed Rice",
+      description: "Fresh steamed rice, perfect for meals",
+      price: 150,
+      category: "Food",
       stock: 50,
-      status: 'available' as any,
-      images: ['https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg'],
-      createdDate: '2024-01-15',
-      updatedDate: '2024-01-20'
+      status: "available",
+      images: ["/bowl-of-steamed-rice.png"],
+      createdDate: "2024-01-15",
+      updatedDate: "2024-01-20",
     },
     {
-      id: 'prod-2',
-      vendorId: 'vendor-1',
-      name: 'Bluetooth Speaker',
-      description: 'Portable bluetooth speaker with excellent sound quality',
-      price: 1500,
-      category: 'Electronics',
+      id: "prod-2",
+      name: "Assorted Vegetables",
+      description: "Fresh mixed vegetables for healthy cooking",
+      price: 200,
+      category: "Food",
       stock: 25,
-      status: 'available' as any,
-      images: ['https://images.pexels.com/photos/1649771/pexels-photo-1649771.jpeg'],
-      createdDate: '2024-01-10',
-      updatedDate: '2024-01-18'
+      status: "available",
+      images: ["/assorted-vegetables.png"],
+      createdDate: "2024-01-10",
+      updatedDate: "2024-01-18",
     },
     {
-      id: 'prod-3',
-      vendorId: 'vendor-2',
-      name: 'Office Chair',
-      description: 'Ergonomic office chair with lumbar support',
-      price: 8500,
-      category: 'Furniture',
+      id: "prod-3",
+      name: "Assorted Spices",
+      description: "Premium quality spices for authentic flavors",
+      price: 300,
+      category: "Food",
       stock: 15,
-      status: 'available' as any,
-      images: ['https://images.pexels.com/photos/1181433/pexels-photo-1181433.jpeg'],
-      createdDate: '2024-01-12',
-      updatedDate: '2024-01-19'
+      status: "available",
+      images: ["/assorted-spices.png"],
+      createdDate: "2024-01-12",
+      updatedDate: "2024-01-19",
     },
     {
-      id: 'prod-4',
-      vendorId: 'vendor-2',
-      name: 'Desk Lamp',
-      description: 'Adjustable LED desk lamp with USB charging port',
-      price: 1200,
-      category: 'Furniture',
+      id: "prod-4",
+      name: "Turmeric Powder",
+      description: "Pure organic turmeric powder for cooking and health",
+      price: 180,
+      category: "Spices",
       stock: 30,
-      status: 'available' as any,
-      images: ['https://images.pexels.com/photos/1112598/pexels-photo-1112598.jpeg'],
-      createdDate: '2024-01-08',
-      updatedDate: '2024-01-16'
-    }
-  ];
-
-  const mockOrders: Order[] = [
-    {
-      id: 'ORD-001',
-      centerId: user.id,
-      vendorId: 'vendor-1',
-      items: [
-        { productId: 'prod-1', productName: 'Wireless Headphones', quantity: 2, price: 2500, total: 5000 }
-      ],
-      totalAmount: 5000,
-      status: OrderStatus.PENDING,
-      deliveryDate: '2024-01-25',
-      createdDate: '2024-01-20',
-      updatedDate: '2024-01-20',
-      vendor: { id: 'vendor-1', name: 'Kumar Electronics', email: 'vendor@demo.com' } as any
+      status: "available",
+      images: ["/turmeric-powder.png"],
+      createdDate: "2024-01-14",
+      updatedDate: "2024-01-21",
     },
     {
-      id: 'ORD-002',
-      centerId: user.id,
-      vendorId: 'vendor-2',
-      items: [
-        { productId: 'prod-3', productName: 'Office Chair', quantity: 1, price: 8500, total: 8500 }
-      ],
-      totalAmount: 8500,
-      status: OrderStatus.CONFIRMED,
-      deliveryDate: '2024-01-24',
-      createdDate: '2024-01-18',
-      updatedDate: '2024-01-19',
-      vendor: { id: 'vendor-2', name: 'Office Solutions', email: 'office@demo.com' } as any
-    }
+      id: "prod-5",
+      name: "Green Cardamom",
+      description: "Premium quality green cardamom pods",
+      price: 450,
+      category: "Spices",
+      stock: 20,
+      status: "available",
+      images: ["/green-cardamom.png"],
+      createdDate: "2024-01-16",
+      updatedDate: "2024-01-22",
+    },
+    {
+      id: "prod-6",
+      name: "Cinnamon Bark",
+      description: "Authentic Ceylon cinnamon bark sticks",
+      price: 320,
+      category: "Electronics",
+      stock: 18,
+      status: "available",
+      images: ["/cinnamon-bark.png"],
+      createdDate: "2024-01-13",
+      updatedDate: "2024-01-20",
+    },
+    {
+      id: "prod-7",
+      name: "Black Pepper",
+      description: "Whole black peppercorns for seasoning",
+      price: 280,
+      category: "Spices",
+      stock: 25,
+      status: "available",
+      images: ["/black-pepper-pile.png"],
+      createdDate: "2024-01-17",
+      updatedDate: "2024-01-23",
+    },
+    {
+      id: "prod-8",
+      name: "Cumin Seeds",
+      description: "Aromatic cumin seeds for cooking",
+      price: 220,
+      category: "Spices",
+      stock: 35,
+      status: "available",
+      images: ["/cumin-seeds.png"],
+      createdDate: "2024-01-11",
+      updatedDate: "2024-01-19",
+    },
+    {
+      id: "prod-9",
+      name: "Portable Power Bank",
+      description: "10000mAh portable power bank with fast charging",
+      price: 2500,
+      category: "Electronics",
+      stock: 12,
+      status: "available",
+      images: ["/portable-power-bank.png"],
+      createdDate: "2024-01-18",
+      updatedDate: "2024-01-24",
+    },
+    {
+      id: "prod-10",
+      name: "Smartwatch",
+      description: "Fitness tracking smartwatch with heart rate monitor",
+      price: 8500,
+      category: "Electronics",
+      stock: 8,
+      status: "available",
+      images: ["/smartwatch-lifestyle.png"],
+      createdDate: "2024-01-19",
+      updatedDate: "2024-01-25",
+    },
+    {
+      id: "prod-11",
+      name: "Herbal Tea Blend",
+      description: "Organic herbal tea blend with natural ingredients",
+      price: 350,
+      category: "Beverages",
+      stock: 40,
+      status: "available",
+      images: ["/herbal-tea.png"],
+      createdDate: "2024-01-15",
+      updatedDate: "2024-01-21",
+    },
+    {
+      id: "prod-12",
+      name: "Handwoven Basket",
+      description: "Traditional handwoven bamboo basket",
+      price: 1200,
+      category: "Handicrafts",
+      stock: 15,
+      status: "available",
+      images: ["/woven-bamboo-basket.png"],
+      createdDate: "2024-01-12",
+      updatedDate: "2024-01-18",
+    },
+    {
+      id: "prod-13",
+      name: "Organic Honey",
+      description: "Pure organic honey from mountain regions",
+      price: 650,
+      category: "Food",
+      stock: 22,
+      status: "available",
+      images: ["/golden-honey-jar.png"],
+      createdDate: "2024-01-20",
+      updatedDate: "2024-01-26",
+    },
+    {
+      id: "prod-14",
+      name: "Wooden Cutting Board",
+      description: "Handcrafted wooden cutting board for kitchen use",
+      price: 850,
+      category: "Handicrafts",
+      stock: 18,
+      status: "available",
+      images: ["/wooden-cutting-board.png"],
+      createdDate: "2024-01-14",
+      updatedDate: "2024-01-20",
+    },
+    {
+      id: "prod-15",
+      name: "Green Tea",
+      description: "Premium quality green tea leaves",
+      price: 420,
+      category: "Beverages",
+      stock: 28,
+      status: "available",
+      images: ["/cup-of-green-tea.png"],
+      createdDate: "2024-01-16",
+      updatedDate: "2024-01-22",
+    },
   ];
 
-  const addToCart = (productId: string) => {
-    setCart(prev => ({
-      ...prev,
-      [productId]: (prev[productId] || 0) + 1
-    }));
-    toast.success('Product added to cart');
+  // Mock data - Incoming orders from vendors
+  const mockIncomingOrders: IncomingOrder[] = [
+    {
+      id: "ORD-001",
+      vendorId: "vendor-1",
+      centerId: "center-1",
+      items: [
+        {
+          productId: "prod-1",
+          productName: "Bowl of Steamed Rice",
+          quantity: 10,
+          price: 150,
+          total: 1500,
+        },
+        {
+          productId: "prod-2",
+          productName: "Assorted Vegetables",
+          quantity: 5,
+          price: 200,
+          total: 1000,
+        },
+      ],
+      totalAmount: 2500,
+      status: "pending",
+      requestedDeliveryDate: "2024-01-25",
+      createdDate: "2024-01-20",
+      updatedDate: "2024-01-20",
+      vendor: {
+        id: "vendor-1",
+        name: "Fresh Foods Restaurant",
+        email: "orders@freshfoods.com",
+        phone: "+977-9841234567",
+      },
+    },
+    {
+      id: "ORD-002",
+      vendorId: "vendor-2",
+      centerId: "center-1",
+      items: [
+        {
+          productId: "prod-3",
+          productName: "Assorted Spices",
+          quantity: 3,
+          price: 300,
+          total: 900,
+        },
+      ],
+      totalAmount: 900,
+      status: "confirmed",
+      requestedDeliveryDate: "2024-01-24",
+      createdDate: "2024-01-18",
+      updatedDate: "2024-01-19",
+      vendor: {
+        id: "vendor-2",
+        name: "Spice Corner Cafe",
+        email: "supply@spicecorner.com",
+        phone: "+977-9851234567",
+      },
+    },
+    {
+      id: "ORD-003",
+      vendorId: "vendor-3",
+      centerId: "center-1",
+      items: [
+        {
+          productId: "prod-1",
+          productName: "Bowl of Steamed Rice",
+          quantity: 20,
+          price: 150,
+          total: 3000,
+        },
+      ],
+      totalAmount: 3000,
+      status: "processing",
+      requestedDeliveryDate: "2024-01-26",
+      createdDate: "2024-01-19",
+      updatedDate: "2024-01-21",
+      vendor: {
+        id: "vendor-3",
+        name: "Mountain View Hotel",
+        email: "procurement@mountainview.com",
+        phone: "+977-9861234567",
+      },
+    },
+  ];
+
+  const updateOrderStatus = (
+    orderId: string,
+    newStatus: IncomingOrder["status"]
+  ) => {
+    // In real app, this would update the order status via API
+    console.log(`Updating order ${orderId} to status: ${newStatus}`);
   };
 
-  const removeFromCart = (productId: string) => {
-    setCart(prev => {
-      const newCart = { ...prev };
-      if (newCart[productId] > 1) {
-        newCart[productId]--;
-      } else {
-        delete newCart[productId];
-      }
-      return newCart;
-    });
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "secondary";
+      case "confirmed":
+        return "default";
+      case "processing":
+        return "secondary";
+      case "shipped":
+        return "default";
+      case "delivered":
+        return "default";
+      default:
+        return "secondary";
+    }
   };
 
-  const cartItems = Object.keys(cart).length;
-  const cartTotal = Object.entries(cart).reduce((total, [productId, quantity]) => {
-    const product = mockProducts.find(p => p.id === productId);
-    return total + (product ? product.price * quantity : 0);
-  }, 0);
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "pending":
+        return <Clock className="h-4 w-4" />;
+      case "confirmed":
+        return <CheckCircle className="h-4 w-4" />;
+      case "processing":
+        return <Package className="h-4 w-4" />;
+      case "shipped":
+        return <TrendingUp className="h-4 w-4" />;
+      case "delivered":
+        return <CheckCircle className="h-4 w-4" />;
+      default:
+        return <AlertCircle className="h-4 w-4" />;
+    }
+  };
 
-  const sidebar = (
-    <div className="space-y-1">
-      {[
-        { id: 'marketplace', label: 'Marketplace', icon: Search },
-        { id: 'cart', label: `Cart (${cartItems})`, icon: ShoppingCart },
-        { id: 'orders', label: 'My Orders', icon: Package },
-        { id: 'payments', label: 'Payments', icon: CreditCard },
-        { id: 'messages', label: 'Messages', icon: MessageSquare }
-      ].map((item) => {
-        const Icon = item.icon;
-        return (
-          <button
-            key={item.id}
-            onClick={() => setActiveTab(item.id)}
-            className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-              activeTab === item.id
-                ? 'bg-blue-100 text-blue-700'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-            }`}
-          >
-            <Icon className="h-5 w-5 mr-3" />
-            {item.label}
-          </button>
-        );
-      })}
-    </div>
+  // Calculate overview stats
+  const totalRevenue = mockIncomingOrders.reduce(
+    (sum, order) => sum + order.totalAmount,
+    0
   );
+  const pendingOrders = mockIncomingOrders.filter(
+    (order) => order.status === "pending"
+  ).length;
+  const totalProducts = mockProducts.length;
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'marketplace':
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Marketplace</h1>
-                <p className="text-gray-600 mt-1">Discover products from verified vendors</p>
-              </div>
-              <div className="flex items-center space-x-4">
-                <Button variant="secondary" icon={Filter}>
-                  Filter
-                </Button>
-                <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  <option>All Categories</option>
-                  <option>Electronics</option>
-                  <option>Furniture</option>
-                  <option>Stationery</option>
-                </select>
-              </div>
+  const handleLogout = () => {
+    // In real app, this would handle logout logic
+    console.log("Logging out...");
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center">
+              <LayoutDashboard className="h-8 w-8 text-green-600 mr-3" />
+              <h1 className="text-2xl font-bold text-gray-900">
+                Center Dashboard
+              </h1>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockProducts.map((product) => (
-                <Card key={product.id}>
-                  <img 
-                    src={product.images[0]} 
-                    alt={product.name}
-                    className="w-full h-48 object-cover rounded-lg mb-4"
-                  />
-                  <div>
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-semibold text-gray-900">{product.name}</h3>
-                      <div className="flex items-center text-yellow-400">
-                        <Star className="h-4 w-4 fill-current" />
-                        <span className="text-sm text-gray-600 ml-1">4.5</span>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                  className="flex items-center gap-2"
+                >
+                  <User className="h-4 w-4" />
+                  Center Profile
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+                {showProfileDropdown && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border z-50">
+                    <div className="py-1">
+                      <div className="px-4 py-2 border-b">
+                        <p className="text-sm font-medium text-gray-900">
+                          Mountain Fresh Center
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          center@mountainfresh.com
+                        </p>
                       </div>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">{product.description}</p>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-lg font-bold text-gray-900">₹{product.price.toLocaleString()}</span>
-                      <span className="text-sm text-gray-600">Stock: {product.stock}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full">
-                        {product.category}
-                      </span>
-                      {cart[product.id] ? (
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeFromCart(product.id)}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="font-medium">{cart[product.id]}</span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => addToCart(product.id)}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button 
-                          size="sm" 
-                          onClick={() => addToCart(product.id)}
-                          icon={Plus}
-                        >
-                          Add to Cart
-                        </Button>
-                      )}
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Logout
+                      </button>
                     </div>
                   </div>
-                </Card>
-              ))}
+                )}
+              </div>
             </div>
           </div>
-        );
+        </div>
+      </div>
 
-      case 'cart':
-        const cartProductItems = Object.entries(cart).map(([productId, quantity]) => {
-          const product = mockProducts.find(p => p.id === productId);
-          return product ? { product, quantity } : null;
-        }).filter(Boolean);
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="inventory" className="flex items-center gap-2">
+              <Package className="h-4 w-4" />
+              Inventory
+            </TabsTrigger>
+            <TabsTrigger value="orders" className="flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4" />
+              Incoming Orders ({pendingOrders})
+            </TabsTrigger>
+            <TabsTrigger value="sales" className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              Sales
+            </TabsTrigger>
+          </TabsList>
 
-        return (
-          <div className="space-y-6">
+          <TabsContent value="overview" className="space-y-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Shopping Cart</h1>
-              <p className="text-gray-600 mt-1">{cartItems} items in your cart</p>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Business Overview
+              </h2>
+              <p className="text-gray-600 mt-1">
+                Monitor your center's performance and key metrics
+              </p>
             </div>
 
-            {cartProductItems.length === 0 ? (
-              <Card className="text-center py-12">
-                <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
-                <p className="text-gray-600 mb-4">Add some products from the marketplace</p>
-                <Button onClick={() => setActiveTab('marketplace')}>
-                  Browse Products
-                </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="text-center p-6">
+                  <CreditCard className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-600">
+                    Total Revenue
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    ₹{totalRevenue.toLocaleString()}
+                  </p>
+                </CardContent>
               </Card>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-4">
-                  {cartProductItems.map(({ product, quantity }) => (
-                    <Card key={product!.id}>
-                      <div className="flex items-center space-x-4">
-                        <img 
-                          src={product!.images[0]} 
-                          alt={product!.name}
-                          className="h-20 w-20 object-cover rounded-lg"
-                        />
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900">{product!.name}</h3>
-                          <p className="text-sm text-gray-600">{product!.description}</p>
-                          <p className="text-lg font-bold text-gray-900">₹{product!.price.toLocaleString()}</p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeFromCart(product!.id)}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="font-medium w-8 text-center">{quantity}</span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => addToCart(product!.id)}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
+              <Card>
+                <CardContent className="text-center p-6">
+                  <ShoppingCart className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-600">
+                    Pending Orders
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {pendingOrders}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="text-center p-6">
+                  <Package className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-600">
+                    Total Products
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {totalProducts}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="text-center p-6">
+                  <Users className="h-8 w-8 text-orange-600 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-600">
+                    Active Vendors
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">12</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Orders</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {mockIncomingOrders.slice(0, 3).map((order) => (
+                      <div
+                        key={order.id}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      >
+                        <div>
+                          <p className="font-medium">{order.id}</p>
+                          <p className="text-sm text-gray-600">
+                            {order.vendor.name}
+                          </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-gray-900">₹{(product!.price * quantity!).toLocaleString()}</p>
+                          <p className="font-medium">₹{order.totalAmount}</p>
+                          <Badge
+                            variant={getStatusColor(order.status)}
+                            className="text-xs"
+                          >
+                            {order.status}
+                          </Badge>
                         </div>
                       </div>
-                    </Card>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
-                <div>
-                  <Card>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Subtotal</span>
-                        <span className="font-medium">₹{cartTotal.toLocaleString()}</span>
+          <TabsContent value="inventory" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Inventory Management
+                </h2>
+                <p className="text-gray-600 mt-1">
+                  Manage your products and stock levels ({mockProducts.length}{" "}
+                  items)
+                </p>
+              </div>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Product
+              </Button>
+            </div>
+
+            {mockProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">No products available</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {mockProducts.map((product) => (
+                  <Card
+                    key={product.id}
+                    className="hover:shadow-lg transition-shadow"
+                  >
+                    <CardContent className="p-4">
+                      <div className="aspect-square mb-4 bg-gray-100 rounded-lg overflow-hidden">
+                        <img
+                          src={
+                            product.images[0] ||
+                            "/placeholder.svg?height=200&width=200"
+                          }
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src =
+                              "/placeholder.svg?height=200&width=200";
+                          }}
+                        />
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Shipping</span>
-                        <span className="font-medium">₹500</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Tax (18%)</span>
-                        <span className="font-medium">₹{Math.round(cartTotal * 0.18).toLocaleString()}</span>
-                      </div>
-                      <div className="border-t pt-3">
-                        <div className="flex justify-between">
-                          <span className="text-lg font-semibold">Total</span>
-                          <span className="text-lg font-bold">₹{(cartTotal + 500 + Math.round(cartTotal * 0.18)).toLocaleString()}</span>
+                      <div className="space-y-2">
+                        <div className="flex items-start justify-between">
+                          <h3 className="font-semibold text-gray-900 text-sm leading-tight">
+                            {product.name}
+                          </h3>
+                          <Badge
+                            variant={
+                              product.stock < 10 ? "destructive" : "secondary"
+                            }
+                            className="text-xs"
+                          >
+                            {product.status}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-gray-600 line-clamp-2">
+                          {product.description}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-lg font-bold text-green-600">
+                            ₹{product.price}
+                          </span>
+                          <span
+                            className={`text-xs font-medium ${
+                              product.stock < 10
+                                ? "text-red-600"
+                                : "text-gray-600"
+                            }`}
+                          >
+                            Stock: {product.stock}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between pt-2">
+                          <Badge variant="outline" className="text-xs">
+                            {product.category}
+                          </Badge>
+                          <div className="flex space-x-1">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 w-8 p-0 bg-transparent"
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 w-8 p-0 bg-transparent"
+                            >
+                              <Eye className="h-3 w-3" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <Button 
-                      className="w-full mt-6"
-                      onClick={() => {
-                        toast.success('Order placed successfully!');
-                        setCart({});
-                        setActiveTab('orders');
-                      }}
-                    >
-                      Place Order
-                    </Button>
+                    </CardContent>
                   </Card>
-                </div>
+                ))}
               </div>
             )}
-          </div>
-        );
+          </TabsContent>
 
-      case 'orders':
-        return (
-          <div className="space-y-6">
+          <TabsContent value="orders" className="space-y-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">My Orders</h1>
-              <p className="text-gray-600 mt-1">Track your order status and history</p>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Incoming Orders
+              </h2>
+              <p className="text-gray-600 mt-1">Manage orders from vendors</p>
             </div>
 
             <div className="space-y-4">
-              {mockOrders.map((order) => (
+              {mockIncomingOrders.map((order) => (
                 <Card key={order.id}>
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{order.id}</h3>
-                      <p className="text-sm text-gray-600">Vendor: {order.vendor?.name}</p>
-                    </div>
-                    <span className={`px-3 py-1 text-sm font-medium rounded-full ${
-                      order.status === OrderStatus.PENDING ? 'bg-yellow-100 text-yellow-800' :
-                      order.status === OrderStatus.CONFIRMED ? 'bg-blue-100 text-blue-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
-                      {order.status}
-                    </span>
-                  </div>
-
-                  <div className="space-y-2 mb-4">
-                    {order.items.map((item, index) => (
-                      <div key={index} className="flex justify-between text-sm">
-                        <span>{item.productName} × {item.quantity}</span>
-                        <span>₹{item.total.toLocaleString()}</span>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">
+                          {order.id}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          From: {order.vendor.name}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Contact: {order.vendor.phone}
+                        </p>
                       </div>
-                    ))}
-                    <div className="border-t pt-2">
-                      <div className="flex justify-between font-medium">
-                        <span>Total Amount</span>
-                        <span>₹{order.totalAmount.toLocaleString()}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-600">
-                      <p>Expected Delivery: {order.deliveryDate}</p>
-                      <p>Order Date: {order.createdDate}</p>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button variant="secondary" size="sm">
-                        Track Order
-                      </Button>
-                      {order.status === OrderStatus.CONFIRMED && (
-                        <Button 
-                          size="sm"
-                          onClick={() => toast.success('Payment initiated successfully')}
+                      <div className="text-right">
+                        <Badge
+                          variant={getStatusColor(order.status)}
+                          className="mb-2"
                         >
-                          Make Payment
-                        </Button>
-                      )}
+                          {getStatusIcon(order.status)}
+                          <span className="ml-1">{order.status}</span>
+                        </Badge>
+                        <p className="text-lg font-bold text-gray-900">
+                          ₹{order.totalAmount}
+                        </p>
+                      </div>
                     </div>
-                  </div>
+
+                    <div className="space-y-2 mb-4">
+                      {order.items.map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex justify-between text-sm bg-gray-50 p-2 rounded"
+                        >
+                          <span>
+                            {item.productName} × {item.quantity}
+                          </span>
+                          <span>₹{item.total}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-gray-600">
+                        <p>Requested Delivery: {order.requestedDeliveryDate}</p>
+                        <p>Order Date: {order.createdDate}</p>
+                      </div>
+                      <div className="flex space-x-2">
+                        {order.status === "pending" && (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                updateOrderStatus(order.id, "confirmed")
+                              }
+                            >
+                              Confirm Order
+                            </Button>
+                            <Button variant="destructive" size="sm">
+                              Decline
+                            </Button>
+                          </>
+                        )}
+                        {order.status === "confirmed" && (
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              updateOrderStatus(order.id, "processing")
+                            }
+                          >
+                            Start Processing
+                          </Button>
+                        )}
+                        {order.status === "processing" && (
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              updateOrderStatus(order.id, "shipped")
+                            }
+                          >
+                            Mark as Shipped
+                          </Button>
+                        )}
+                        <Button variant="outline" size="sm">
+                          Contact Vendor
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
                 </Card>
               ))}
             </div>
-          </div>
-        );
+          </TabsContent>
 
-      case 'payments':
-        return (
-          <div className="space-y-6">
+          <TabsContent value="sales" className="space-y-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
-              <p className="text-gray-600 mt-1">Manage your payment methods and history</p>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Sales Analytics
+              </h2>
+              <p className="text-gray-600 mt-1">
+                Track your sales performance and revenue
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card>
-                <div className="text-center">
-                  <CreditCard className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-gray-600">Total Spent</p>
-                  <p className="text-2xl font-bold text-gray-900">₹24,500</p>
-                </div>
+                <CardContent className="text-center p-6">
+                  <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-600">
+                    This Month
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    ₹{totalRevenue.toLocaleString()}
+                  </p>
+                </CardContent>
               </Card>
               <Card>
-                <div className="text-center">
-                  <Package className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-gray-600">Paid Orders</p>
+                <CardContent className="text-center p-6">
+                  <Users className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-600">
+                    Active Vendors
+                  </p>
                   <p className="text-2xl font-bold text-gray-900">12</p>
-                </div>
+                </CardContent>
               </Card>
               <Card>
-                <div className="text-center">
-                  <ShoppingCart className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-gray-600">Pending</p>
-                  <p className="text-2xl font-bold text-gray-900">₹5,000</p>
-                </div>
+                <CardContent className="text-center p-6">
+                  <Package className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-600">
+                    Orders Fulfilled
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">45</p>
+                </CardContent>
               </Card>
             </div>
-
-            <Card>
-              <div className="mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Payment History</h2>
-              </div>
-              <div className="space-y-4">
-                {[
-                  { id: 'PAY-001', order: 'ORD-001', amount: 5000, status: 'completed', date: '2024-01-20', method: 'UPI' },
-                  { id: 'PAY-002', order: 'ORD-002', amount: 8500, status: 'pending', date: '2024-01-19', method: 'Bank Transfer' },
-                  { id: 'PAY-003', order: 'ORD-003', amount: 3200, status: 'completed', date: '2024-01-18', method: 'Credit Card' }
-                ].map((payment) => (
-                  <div key={payment.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-gray-900">{payment.id}</p>
-                      <p className="text-sm text-gray-600">Order: {payment.order}</p>
-                      <p className="text-sm text-gray-600">{payment.method} • {payment.date}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium text-gray-900">₹{payment.amount.toLocaleString()}</p>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        payment.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {payment.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-        );
-
-      default:
-        return (
-          <Card>
-            <div className="text-center py-8">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Feature Coming Soon</h3>
-              <p className="text-gray-600">This section is under development.</p>
-            </div>
-          </Card>
-        );
-    }
-  };
-
-  return (
-    <DashboardLayout user={user} sidebar={sidebar} onLogout={onLogout}>
-      {renderContent()}
-    </DashboardLayout>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
   );
 }

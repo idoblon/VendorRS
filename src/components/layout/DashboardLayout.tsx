@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Menu, X, User, LogOut, Search, ChevronDown } from "lucide-react";
 import { User as UserType } from "../../types";
 import { Button } from "../ui/Button";
-import { NotificationPanel } from "../ui/NotificationPanel";
+import { NotificationsComponent } from "../ui/NotificationsComponent";
 import axiosInstance from "../../utils/axios";
 
 interface DashboardLayoutProps {
@@ -85,13 +85,12 @@ export function DashboardLayout({
               >
                 <Menu className="h-5 w-5" />
               </button>
-
             </div>
 
             {/* Right Section - Notifications + User Menu */}
             <div className="flex items-center space-x-3">
               {/* Notifications */}
-              <NotificationPanel />
+              <NotificationsComponent />
 
               {/* User Menu */}
               <div className="relative">

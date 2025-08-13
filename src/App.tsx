@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { LoginPage } from "./components/auth/LoginPage";
-import SignupFlow  from "./components/auth/SignupFlow";
+import SignupFlow from "./components/auth/SignupFlow";
 import { VendorDashboard } from "./components/dashboards/VendorDashboard";
 import { CenterDashboard } from "./components/dashboards/CenterDashboard";
 import { AdminDashboard } from "./components/dashboards/AdminDashboard";
 import { PaymentDemo } from "./components/payment/PaymentDemo";
 import { Toaster } from "./components/ui/Toaster";
-import { User, UserRole } from "./types";
-
-// New SignupSuccessPage import (you need to create this component as shown earlier)
+import { User } from "./types/index";
 import SignupSuccessPage from "./components/auth/SignupSuccessPage";
+
+// Define UserRole type locally based on the User interface
+type UserRole = User["role"]; // This will be "admin" | "vendor" | "user"
 
 type AuthView = "login" | "signup" | "signup-success";
 
@@ -26,14 +23,12 @@ const App = () => {
   useEffect(() => {
     const verifyToken = async () => {
       try {
-        // Check for saved token
         const token = localStorage.getItem("vrs_token");
         if (!token) {
           setIsLoading(false);
           return;
         }
 
-        // Verify token with backend
         const response = await fetch("/api/auth/verify-token", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -43,13 +38,13 @@ const App = () => {
         const data = await response.json();
 
         if (response.ok && data.success) {
-          // Ensure role is lowercase to match UserRole enum
-          if (data.data.user && data.data.user.role) {
-            data.data.user.role = data.data.user.role.toLowerCase();
+          // Normalize role to lowercase to match our type
+          const user = data.data.user;
+          if (user?.role) {
+            user.role = user.role.toLowerCase() as UserRole;
           }
-          setCurrentUser(data.data.user);
+          setCurrentUser(user);
         } else {
-          // Token invalid, clear storage
           localStorage.removeItem("vrs_token");
           localStorage.removeItem("vrs_user");
         }
@@ -64,14 +59,13 @@ const App = () => {
   }, []);
 
   const handleLogin = (user: User, token: string) => {
-    // Ensure role is lowercase to match UserRole enum
-    if (user && user.role) {
+    // Ensure role matches our type
+    if (user?.role) {
       user.role = user.role.toLowerCase() as UserRole;
     }
     setCurrentUser(user);
     localStorage.setItem("vrs_user", JSON.stringify(user));
     localStorage.setItem("vrs_token", token);
-    // Reset auth view to login after successful authentication
     setAuthView("login");
   };
 
@@ -90,7 +84,6 @@ const App = () => {
   }
 
   if (!currentUser) {
-    // Render auth views (login/signup/signup-success)
     const renderAuthView = () => {
       switch (authView) {
         case "login":
@@ -108,11 +101,7 @@ const App = () => {
             />
           );
         case "signup-success":
-          return (
-            <SignupSuccessPage
-              onContinue={() => setAuthView("login")}
-            />
-          );
+          return <SignupSuccessPage onContinue={() => setAuthView("login")} />;
         default:
           return (
             <LoginPage
@@ -141,21 +130,22 @@ const App = () => {
     );
   }
 
-  // User is logged in → show dashboard based on role
   const renderDashboard = () => {
-    const userRole = currentUser.role.toLowerCase() as UserRole;
-
-    console.log("Current user role:", userRole);
+    // Type-safe role access
+    const userRole = currentUser.role;
 
     switch (userRole) {
-      case UserRole.VENDOR:
-        return <VendorDashboard user={currentUser} onLogout={handleLogout} />;
-      case UserRole.CENTER:
-        return <CenterDashboard user={currentUser} onLogout={handleLogout} />;
-      case UserRole.ADMIN:
+      case "admin":
         return <AdminDashboard user={currentUser} onLogout={handleLogout} />;
+      case "vendor":
+        return <VendorDashboard user={currentUser} onLogout={handleLogout} />;
+      case "user": // Assuming 'user' represents center role
+        return <CenterDashboard user={currentUser} onLogout={handleLogout} />;
       default:
-        console.log("No matching role found, defaulting to login page");
+        // This should never happen due to type checking
+        const exhaustiveCheck: never = userRole;
+        console.error("Invalid user role:", userRole);
+        handleLogout();
         return <LoginPage onLogin={handleLogin} />;
     }
   };
