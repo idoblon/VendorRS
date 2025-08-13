@@ -1,0 +1,104 @@
+{
+  "provinces": [
+    { "id": "1", "displayName": "Province 1" },
+    { "id": "2", "displayName": "Madhesh Province" },
+    { "id": "3", "displayName": "Bagmati Province" },
+    { "id": "4", "displayName": "Gandaki Province" },
+    { "id": "5", "displayName": "Lumbini Province" },
+    { "id": "6", "displayName": "Karnali Province" },
+    { "id": "7", "displayName": "Sudurpashchim Province" }
+  ],
+  "districts": {
+    "1": [
+      { "id": "1", "displayName": "Bhojpur" },
+      { "id": "2", "displayName": "Dhankuta" },
+      { "id": "3", "displayName": "Ilam" },
+      { "id": "4", "displayName": "Jhapa" },
+      { "id": "5", "displayName": "Khotang" },
+      { "id": "6", "displayName": "Morang" },
+      { "id": "7", "displayName": "Okhaldhunga" },
+      { "id": "8", "displayName": "Panchthar" },
+      { "id": "9", "displayName": "Sankhuwasabha" },
+      { "id": "10", "displayName": "Solukhumbu" },
+      { "id": "11", "displayName": "Sunsari" },
+      { "id": "12", "displayName": "Taplejung" },
+      { "id": "13", "displayName": "Terhathum" },
+      { "id": "14", "displayName": "Udayapur" }
+    ],
+    "2": [
+      { "id": "15", "displayName": "Parsa" },
+      { "id": "16", "displayName": "Bara" },
+      { "id": "17", "displayName": "Rautahat" },
+      { "id": "18", "displayName": "Sarlahi" },
+      { "id": "19", "displayName": "Mahottari" },
+      { "id": "20", "displayName": "Dhanusha" },
+      { "id": "21", "displayName": "Siraha" },
+      { "id": "22", "displayName": "Saptari" }
+    ],
+    "3": [
+      { "id": "23", "displayName": "Sindhuli" },
+      { "id": "24", "displayName": "Ramechhap" },
+      { "id": "25", "displayName": "Dolakha" },
+      { "id": "26", "displayName": "Bhaktapur" },
+      { "id": "27", "displayName": "Dhading" },
+      { "id": "28", "displayName": "Kathmandu" },
+      { "id": "29", "displayName": "Kavrepalanchok" },
+      { "id": "30", "displayName": "Lalitpur" },
+      { "id": "31", "displayName": "Nuwakot" },
+      { "id": "32", "displayName": "Rasuwa" },
+      { "id": "33", "displayName": "Sindhupalchok" },
+      { "id": "34", "displayName": "Chitwan" },
+      { "id": "35", "displayName": "Makwanpur" }
+    ],
+    "4": [
+      { "id": "36", "displayName": "Baglung" },
+      { "id": "37", "displayName": "Gorkha" },
+      { "id": "38", "displayName": "Kaski" },
+      { "id": "39", "displayName": "Lamjung" },
+      { "id": "40", "displayName": "Manang" },
+      { "id": "41", "displayName": "Mustang" },
+      { "id": "42", "displayName": "Myagdi" },
+      { "id": "43", "displayName": "Nawalpur" },
+      { "id": "44", "displayName": "Parbat" },
+      { "id": "45", "displayName": "Syangja" },
+      { "id": "46", "displayName": "Tanahun" }
+    ],
+    "5": [
+      { "id": "47", "displayName": "Kapilvastu" },
+      { "id": "48", "displayName": "Parasi" },
+      { "id": "49", "displayName": "Rupandehi" },
+      { "id": "50", "displayName": "Arghakhanchi" },
+      { "id": "51", "displayName": "Gulmi" },
+      { "id": "52", "displayName": "Palpa" },
+      { "id": "53", "displayName": "Dang" },
+      { "id": "54", "displayName": "Pyuthan" },
+      { "id": "55", "displayName": "Rolpa" },
+      { "id": "56", "displayName": "Eastern Rukum" },
+      { "id": "57", "displayName": "Banke" },
+      { "id": "58", "displayName": "Bardiya" }
+    ],
+    "6": [
+      { "id": "59", "displayName": "Western Rukum" },
+      { "id": "60", "displayName": "Salyan" },
+      { "id": "61", "displayName": "Dolpa" },
+      { "id": "62", "displayName": "Humla" },
+      { "id": "63", "displayName": "Jumla" },
+      { "id": "64", "displayName": "Kalikot" },
+      { "id": "65", "displayName": "Mugu" },
+      { "id": "66", "displayName": "Surkhet" },
+      { "id": "67", "displayName": "Dailekh" },
+      { "id": "68", "displayName": "Jajarkot" }
+    ],
+    "7": [
+      { "id": "69", "displayName": "Kailali" },
+      { "id": "70", "displayName": "Achham" },
+      { "id": "71", "displayName": "Doti" },
+      { "id": "72", "displayName": "Bajhang" },
+      { "id": "73", "displayName": "Bajura" },
+      { "id": "74", "displayName": "Kanchanpur" },
+      { "id": "75", "displayName": "Dadeldhura" },
+      { "id": "76", "displayName": "Baitadi" },
+      { "id": "77", "displayName": "Darchula" }
+    ]
+  }
+}
