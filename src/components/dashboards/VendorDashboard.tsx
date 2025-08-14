@@ -1,6 +1,4 @@
-"use client"
-
-import { useState } from "react"
+import { useState } from "react";
 import {
   Package,
   ShoppingCart,
@@ -15,27 +13,30 @@ import {
   LogOut,
   X,
   CreditCard,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+} from "lucide-react";
+import { Button } from "../ui/Button";
+import { Card } from "../ui/Card";
 
 interface VendorDashboardProps {
-  vendorName?: string
-  onLogout?: () => void
+  vendorName?: string;
+  onLogout?: () => void;
 }
 
-export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogout }: VendorDashboardProps) {
-  const [activeTab, setActiveTab] = useState("marketplace")
-  const [cart, setCart] = useState<any[]>([])
-  const [showCart, setShowCart] = useState(false)
-  const [showNotifications, setShowNotifications] = useState(false)
-  const [showPayment, setShowPayment] = useState(false)
+export default function VendorDashboard({
+  vendorName = "ABC Trading Co.",
+  onLogout,
+}: VendorDashboardProps) {
+  const [activeTab, setActiveTab] = useState("marketplace");
+  const [cart, setCart] = useState<any[]>([]);
+  const [showCart, setShowCart] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
   const [paymentForm, setPaymentForm] = useState({
     cardNumber: "",
     expiryDate: "",
     cvv: "",
     cardholderName: "",
-  })
+  });
 
   const stats = [
     {
@@ -66,7 +67,7 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
       icon: Package,
       color: "text-purple-600",
     },
-  ]
+  ];
 
   const myOrders = [
     {
@@ -101,7 +102,7 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
       date: "2024-01-12",
       items: "Organic Wheat",
     },
-  ]
+  ];
 
   const centerProducts = [
     // Spices
@@ -440,68 +441,92 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
       image: "/placeholder.svg?height=150&width=200",
       category: "Beverages",
     },
-  ]
+  ];
 
   const notifications = [
-    { id: 1, message: "Order PO-001 has been delivered", time: "2 hours ago", read: false },
-    { id: 2, message: "New products available from Tech Hub Pokhara", time: "5 hours ago", read: false },
-    { id: 3, message: "Payment confirmed for Order PO-002", time: "1 day ago", read: true },
-    { id: 4, message: "Art Gallery Bhaktapur added new paintings", time: "2 days ago", read: true },
-  ]
+    {
+      id: 1,
+      message: "Order PO-001 has been delivered",
+      time: "2 hours ago",
+      read: false,
+    },
+    {
+      id: 2,
+      message: "New products available from Tech Hub Pokhara",
+      time: "5 hours ago",
+      read: false,
+    },
+    {
+      id: 3,
+      message: "Payment confirmed for Order PO-002",
+      time: "1 day ago",
+      read: true,
+    },
+    {
+      id: 4,
+      message: "Art Gallery Bhaktapur added new paintings",
+      time: "2 days ago",
+      read: true,
+    },
+  ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Delivered":
-        return "text-green-600 bg-green-100"
+        return "text-green-600 bg-green-100";
       case "In Transit":
-        return "text-blue-600 bg-blue-100"
+        return "text-blue-600 bg-blue-100";
       case "Processing":
-        return "text-yellow-600 bg-yellow-100"
+        return "text-yellow-600 bg-yellow-100";
       case "Confirmed":
-        return "text-purple-600 bg-purple-100"
+        return "text-purple-600 bg-purple-100";
       default:
-        return "text-gray-600 bg-gray-100"
+        return "text-gray-600 bg-gray-100";
     }
-  }
+  };
 
   const addToCart = (product: any) => {
-    setCart([...cart, { ...product, quantity: 1 }])
-  }
+    setCart([...cart, { ...product, quantity: 1 }]);
+  };
 
   const removeFromCart = (productId: string) => {
-    setCart(cart.filter((item) => item.id !== productId))
-  }
+    setCart(cart.filter((item) => item.id !== productId));
+  };
 
   const updateCartQuantity = (productId: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(productId)
-      return
+      removeFromCart(productId);
+      return;
     }
-    setCart(cart.map((item) => (item.id === productId ? { ...item, quantity } : item)))
-  }
+    setCart(
+      cart.map((item) => (item.id === productId ? { ...item, quantity } : item))
+    );
+  };
 
   const getCartTotal = () => {
     return cart.reduce((total, item) => {
-      const price = Number.parseInt(item.price.replace("रू ", "").replace(",", "").split("/")[0])
-      return total + price * item.quantity
-    }, 0)
-  }
+      const price = Number.parseInt(
+        item.price.replace("रू ", "").replace(",", "").split("/")[0]
+      );
+      return total + price * item.quantity;
+    }, 0);
+  };
 
   const getCartSubtotal = () => {
-    return getCartTotal()
-  }
+    return getCartTotal();
+  };
 
   const getTax = () => {
-    return Math.round(getCartSubtotal() * 0.13) // 13% VAT in Nepal
-  }
+    return Math.round(getCartSubtotal() * 0.13); // 13% VAT in Nepal
+  };
 
   const getShipping = () => {
-    return getCartSubtotal() > 5000 ? 0 : 200 // Free shipping over रू 5000
-  }
+    return getCartSubtotal() > 5000 ? 0 : 200; // Free shipping over रू 5000
+  };
 
   const getFinalTotal = () => {
-    return getCartSubtotal() + getTax() + getShipping()
-  }
+    return getCartSubtotal() + getTax() + getShipping();
+  };
 
   const renderCartModal = () => (
     <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -526,7 +551,10 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
           <div className="p-12 text-center bg-white">
             <ShoppingCart className="h-16 w-16 mx-auto text-gray-300 mb-4" />
             <p className="text-gray-500 text-lg mb-4">Your cart is empty</p>
-            <Button onClick={() => setShowCart(false)} className="bg-orange-600 hover:bg-orange-700">
+            <Button
+              onClick={() => setShowCart(false)}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
               Continue Shopping
             </Button>
           </div>
@@ -546,18 +574,24 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
                       className="w-16 h-16 object-cover rounded-lg border border-gray-100"
                     />
                     <div className="flex-1 bg-white">
-                      <h4 className="font-semibold text-gray-900">{item.name}</h4>
+                      <h4 className="font-semibold text-gray-900">
+                        {item.name}
+                      </h4>
                       <p className="text-sm text-gray-600 flex items-center mt-1">
                         <MapPin className="h-3 w-3 mr-1" />
                         {item.center}
                       </p>
-                      <p className="text-sm font-medium text-orange-600">{item.price}</p>
+                      <p className="text-sm font-medium text-orange-600">
+                        {item.price}
+                      </p>
                     </div>
                     <div className="flex items-center space-x-2 bg-white">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
+                        onClick={() =>
+                          updateCartQuantity(item.id, item.quantity - 1)
+                        }
                         className="h-8 w-8 p-0 border-gray-300 hover:border-orange-400 hover:bg-orange-50 bg-white"
                       >
                         -
@@ -568,7 +602,9 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
+                        onClick={() =>
+                          updateCartQuantity(item.id, item.quantity + 1)
+                        }
                         className="h-8 w-8 p-0 border-gray-300 hover:border-orange-400 hover:bg-orange-50 bg-white"
                       >
                         +
@@ -578,7 +614,12 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
                       <p className="font-semibold text-gray-900">
                         रू{" "}
                         {(
-                          Number.parseInt(item.price.replace("रू ", "").replace(",", "").split("/")[0]) * item.quantity
+                          Number.parseInt(
+                            item.price
+                              .replace("रू ", "")
+                              .replace(",", "")
+                              .split("/")[0]
+                          ) * item.quantity
                         ).toLocaleString()}
                       </p>
                       <Button
@@ -611,7 +652,9 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
                 <div className="space-y-2">
                   <div className="flex justify-between items-center py-2 px-3 bg-white rounded-md border border-gray-100">
                     <span className="text-gray-800 font-medium">Subtotal:</span>
-                    <span className="font-bold text-gray-900">रू {getCartSubtotal().toLocaleString()}</span>
+                    <span className="font-bold text-gray-900">
+                      रू {getCartSubtotal().toLocaleString()}
+                    </span>
                   </div>
 
                   <div className="flex justify-between items-center py-2 px-3 bg-white rounded-md border border-gray-100">
@@ -621,7 +664,9 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
                         Tax
                       </span>
                     </span>
-                    <span className="font-bold text-gray-900">रू {getTax().toLocaleString()}</span>
+                    <span className="font-bold text-gray-900">
+                      रू {getTax().toLocaleString()}
+                    </span>
                   </div>
 
                   <div className="flex justify-between items-center py-2 px-3 bg-white rounded-md border border-gray-100">
@@ -633,19 +678,27 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
                         </span>
                       )}
                     </span>
-                    <span className={`font-bold ${getShipping() === 0 ? "text-green-600" : "text-gray-900"}`}>
+                    <span
+                      className={`font-bold ${
+                        getShipping() === 0 ? "text-green-600" : "text-gray-900"
+                      }`}
+                    >
                       {getShipping() === 0 ? "FREE" : `रू ${getShipping()}`}
                     </span>
                   </div>
 
                   <div className="bg-gradient-to-r from-orange-100 to-red-100 rounded-lg p-3 border-2 border-orange-300 shadow-sm">
                     <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-gray-900">Total:</span>
+                      <span className="text-lg font-bold text-gray-900">
+                        Total:
+                      </span>
                       <div className="text-right">
                         <span className="text-xl font-bold text-orange-600 block">
                           रू {getFinalTotal().toLocaleString()}
                         </span>
-                        <span className="text-xs font-medium text-gray-600">NPR</span>
+                        <span className="text-xs font-medium text-gray-600">
+                          NPR
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -663,8 +716,8 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
                 <Button
                   className="flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-semibold shadow-lg"
                   onClick={() => {
-                    setShowCart(false)
-                    setShowPayment(true)
+                    setShowCart(false);
+                    setShowPayment(true);
                   }}
                 >
                   Proceed to Payment
@@ -675,14 +728,18 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
         )}
       </div>
     </div>
-  )
+  );
 
   const renderNotifications = () => (
     <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border z-50">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Notifications</h3>
-          <Button variant="outline" size="sm" onClick={() => setShowNotifications(false)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowNotifications(false)}
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -691,7 +748,9 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
           {notifications.map((notification) => (
             <div
               key={notification.id}
-              className={`p-3 rounded-lg border ${notification.read ? "bg-gray-50" : "bg-blue-50"}`}
+              className={`p-3 rounded-lg border ${
+                notification.read ? "bg-gray-50" : "bg-blue-50"
+              }`}
             >
               <p className="text-sm">{notification.message}</p>
               <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
@@ -700,7 +759,7 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
         </div>
       </div>
     </div>
-  )
+  );
 
   const renderPaymentModal = () => (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -723,7 +782,9 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
 
         {/* Order Summary */}
         <div className="p-4 bg-gray-50 border-b">
-          <div className="text-sm font-medium text-gray-700 mb-3">Order Summary</div>
+          <div className="text-sm font-medium text-gray-700 mb-3">
+            Order Summary
+          </div>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>Subtotal:</span>
@@ -735,13 +796,19 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
             </div>
             <div className="flex justify-between text-sm">
               <span>Shipping:</span>
-              <span className={getShipping() === 0 ? "text-green-600 font-medium" : ""}>
+              <span
+                className={
+                  getShipping() === 0 ? "text-green-600 font-medium" : ""
+                }
+              >
                 {getShipping() === 0 ? "FREE" : `रू ${getShipping()}`}
               </span>
             </div>
             <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-200">
               <span>Total:</span>
-              <span className="text-blue-600">रू {getFinalTotal().toLocaleString()} NPR</span>
+              <span className="text-blue-600">
+                रू {getFinalTotal().toLocaleString()} NPR
+              </span>
             </div>
           </div>
         </div>
@@ -751,14 +818,18 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
           <div className="flex items-center mb-4">
             <div className="flex items-center bg-blue-50 px-3 py-1 rounded-full">
               <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              <span className="text-xs font-medium text-blue-700">Secured by Stripe</span>
+              <span className="text-xs font-medium text-blue-700">
+                Secured by Stripe
+              </span>
             </div>
           </div>
 
           <form className="space-y-4">
             {/* Card Number */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Card Number
+              </label>
               <div className="relative">
                 <input
                   type="text"
@@ -768,9 +839,9 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
                     const value = e.target.value
                       .replace(/\s/g, "")
                       .replace(/(.{4})/g, "$1 ")
-                      .trim()
+                      .trim();
                     if (value.length <= 19) {
-                      setPaymentForm({ ...paymentForm, cardNumber: value })
+                      setPaymentForm({ ...paymentForm, cardNumber: value });
                     }
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -782,33 +853,38 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
             {/* Expiry and CVV */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Expiry Date
+                </label>
                 <input
                   type="text"
                   placeholder="MM/YY"
                   value={paymentForm.expiryDate}
                   onChange={(e) => {
-                    let value = e.target.value.replace(/\D/g, "")
+                    let value = e.target.value.replace(/\D/g, "");
                     if (value.length >= 2) {
-                      value = value.substring(0, 2) + "/" + value.substring(2, 4)
+                      value =
+                        value.substring(0, 2) + "/" + value.substring(2, 4);
                     }
                     if (value.length <= 5) {
-                      setPaymentForm({ ...paymentForm, expiryDate: value })
+                      setPaymentForm({ ...paymentForm, expiryDate: value });
                     }
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  CVV
+                </label>
                 <input
                   type="text"
                   placeholder="123"
                   value={paymentForm.cvv}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "")
+                    const value = e.target.value.replace(/\D/g, "");
                     if (value.length <= 3) {
-                      setPaymentForm({ ...paymentForm, cvv: value })
+                      setPaymentForm({ ...paymentForm, cvv: value });
                     }
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -818,12 +894,19 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
 
             {/* Cardholder Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Cardholder Name
+              </label>
               <input
                 type="text"
                 placeholder="John Doe"
                 value={paymentForm.cardholderName}
-                onChange={(e) => setPaymentForm({ ...paymentForm, cardholderName: e.target.value })}
+                onChange={(e) =>
+                  setPaymentForm({
+                    ...paymentForm,
+                    cardholderName: e.target.value,
+                  })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -831,20 +914,25 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
             {/* Pay Button */}
             <Button
               onClick={(e) => {
-                e.preventDefault()
+                e.preventDefault();
                 if (
                   !paymentForm.cardNumber ||
                   !paymentForm.expiryDate ||
                   !paymentForm.cvv ||
                   !paymentForm.cardholderName
                 ) {
-                  alert("Please fill in all payment details")
-                  return
+                  alert("Please fill in all payment details");
+                  return;
                 }
-                alert("Payment processed successfully!")
-                setShowPayment(false)
-                setCart([])
-                setPaymentForm({ cardNumber: "", expiryDate: "", cvv: "", cardholderName: "" })
+                alert("Payment processed successfully!");
+                setShowPayment(false);
+                setCart([]);
+                setPaymentForm({
+                  cardNumber: "",
+                  expiryDate: "",
+                  cvv: "",
+                  cardholderName: "",
+                });
               }}
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 rounded-lg font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200"
             >
@@ -860,7 +948,7 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
         </div>
       </div>
     </div>
-  )
+  );
 
   const renderMarketplace = () => (
     <div className="space-y-6">
@@ -870,7 +958,9 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
           <Card key={index} className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  {stat.title}
+                </p>
                 <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
                 <p className="text-sm text-green-600 flex items-center mt-1">
                   <TrendingUp className="h-4 w-4 mr-1" />
@@ -897,7 +987,10 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
       {/* Products from Centers */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {centerProducts.map((product) => (
-          <Card key={product.id} className="p-6 hover:shadow-lg transition-shadow">
+          <Card
+            key={product.id}
+            className="p-6 hover:shadow-lg transition-shadow"
+          >
             <div className="space-y-4">
               <img
                 src={product.image || "/placeholder.svg"}
@@ -918,14 +1011,24 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
                 <div className="flex items-center mt-2">
                   <div className="flex items-center">
                     <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                    <span className="text-sm text-gray-600 ml-1">{product.rating}</span>
+                    <span className="text-sm text-gray-600 ml-1">
+                      {product.rating}
+                    </span>
                   </div>
-                  <span className="text-sm text-gray-500 ml-4">{product.stock} available</span>
+                  <span className="text-sm text-gray-500 ml-4">
+                    {product.stock} available
+                  </span>
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-lg font-bold text-orange-600">{product.price}</span>
-                <Button onClick={() => addToCart(product)} className="bg-orange-600 hover:bg-orange-700" size="sm">
+                <span className="text-lg font-bold text-orange-600">
+                  {product.price}
+                </span>
+                <Button
+                  onClick={() => addToCart(product)}
+                  className="bg-orange-600 hover:bg-orange-700"
+                  size="sm"
+                >
                   <Plus className="h-4 w-4 mr-1" />
                   Add to Cart
                 </Button>
@@ -935,12 +1038,14 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
         ))}
       </div>
     </div>
-  )
+  );
 
   const renderOrders = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">My Purchase Orders</h3>
+        <h3 className="text-lg font-semibold text-gray-900">
+          My Purchase Orders
+        </h3>
         <Button className="bg-orange-600 hover:bg-orange-700">
           <Plus className="h-4 w-4 mr-2" />
           New Order
@@ -952,12 +1057,24 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
           <table className="w-full">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-2 text-sm font-medium text-gray-600">Order ID</th>
-                <th className="text-left py-2 text-sm font-medium text-gray-600">Center</th>
-                <th className="text-left py-2 text-sm font-medium text-gray-600">Items</th>
-                <th className="text-left py-2 text-sm font-medium text-gray-600">Amount</th>
-                <th className="text-left py-2 text-sm font-medium text-gray-600">Status</th>
-                <th className="text-left py-2 text-sm font-medium text-gray-600">Date</th>
+                <th className="text-left py-2 text-sm font-medium text-gray-600">
+                  Order ID
+                </th>
+                <th className="text-left py-2 text-sm font-medium text-gray-600">
+                  Center
+                </th>
+                <th className="text-left py-2 text-sm font-medium text-gray-600">
+                  Items
+                </th>
+                <th className="text-left py-2 text-sm font-medium text-gray-600">
+                  Amount
+                </th>
+                <th className="text-left py-2 text-sm font-medium text-gray-600">
+                  Status
+                </th>
+                <th className="text-left py-2 text-sm font-medium text-gray-600">
+                  Date
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -968,7 +1085,11 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
                   <td className="py-3 text-sm">{order.items}</td>
                   <td className="py-3 text-sm font-medium">{order.amount}</td>
                   <td className="py-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                        order.status
+                      )}`}
+                    >
                       {order.status}
                     </span>
                   </td>
@@ -980,7 +1101,7 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
         </div>
       </Card>
     </div>
-  )
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50">
@@ -994,10 +1115,12 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
                 alt="VRS Logo"
                 className="w-8 h-8 object-contain mr-3"
                 onError={(e) => {
-                  e.currentTarget.style.display = "none"
+                  e.currentTarget.style.display = "none";
                 }}
               />
-              <h1 className="text-xl font-bold text-gray-900">Vendor Dashboard</h1>
+              <h1 className="text-xl font-bold text-gray-900">
+                Vendor Dashboard
+              </h1>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -1019,7 +1142,12 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
               </div>
 
               <div className="relative">
-                <Button variant="outline" size="sm" onClick={() => setShowCart(true)} className="relative">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowCart(true)}
+                  className="relative"
+                >
                   <ShoppingCart className="h-4 w-4" />
                   {cart.length > 0 && (
                     <span className="absolute -top-2 -right-2 bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -1041,7 +1169,9 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
                       <p className="text-gray-500">vendor@example.com</p>
                     </div>
                     <button
-                      onClick={onLogout || (() => console.log("Logout clicked"))}
+                      onClick={
+                        onLogout || (() => console.log("Logout clicked"))
+                      }
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
@@ -1088,7 +1218,7 @@ export default function VendorDashboard({ vendorName = "ABC Trading Co.", onLogo
       {showCart && renderCartModal()}
       {showPayment && renderPaymentModal()}
     </div>
-  )
+  );
 }
 
-export { VendorDashboard }
+export { VendorDashboard };

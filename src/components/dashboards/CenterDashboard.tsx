@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import {
   LayoutDashboard,
@@ -18,10 +16,10 @@ import {
   LogOut,
   ChevronDown,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "../../ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
+import { Button } from "../ui/Button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./../ui/tabs";
+import { Badge } from "../ui/badge";
 
 interface Product {
   id: string;
@@ -48,7 +46,7 @@ interface IncomingOrder {
     total: number;
   }>;
   totalAmount: number;
-  status: "pending" | "confirmed" | "processing" | "shipped" | "delivered";
+  status: "pending" | "confirmed" | "shipped" | "delivered";
   requestedDeliveryDate: string;
   createdDate: string;
   updatedDate: string;
