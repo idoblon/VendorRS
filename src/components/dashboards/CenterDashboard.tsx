@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import {
   LayoutDashboard,
   Package,
@@ -61,6 +62,28 @@ interface IncomingOrder {
 export default function CenterDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  
+  // Mock center profile data
+  const centerProfile = {
+    name: "Kathmandu Distribution Center",
+    managerName: "Rajesh Sharma",
+    email: "center@example.com",
+    phone: "+977-9801234567",
+    address: "123 Distribution Street, Kathmandu",
+    district: "Kathmandu",
+    region: "Bagmati",
+    establishedDate: "2022-03-15",
+    status: "Active",
+    capacity: "5000 kg",
+    currentOrders: 28,
+    utilization: "75%",
+    documents: [
+      { name: "Registration Certificate", type: "PDF Document", id: "doc1" },
+      { name: "Facility Layout", type: "PDF Document", id: "doc2" },
+      { name: "Safety Compliance", type: "PDF Document", id: "doc3" }
+    ]
+  };
 
   // Mock data - Center's inventory with more demo items
   const mockProducts: Product[] = [
@@ -389,6 +412,219 @@ export default function CenterDashboard() {
     console.log("Logging out...");
   };
 
+  // Profile content
+  const renderProfileContent = () => (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>Center Profile</span>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowProfileModal(true)}
+            >
+              View Details
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-medium text-gray-700 mb-2">Center Information</h4>
+              <div className="space-y-2">
+                <p className="text-sm"><span className="text-gray-500">Center Name:</span> {centerProfile.name}</p>
+                <p className="text-sm"><span className="text-gray-500">Manager:</span> {centerProfile.managerName}</p>
+                <p className="text-sm"><span className="text-gray-500">Status:</span> 
+                  <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    {centerProfile.status}
+                  </span>
+                </p>
+                <p className="text-sm"><span className="text-gray-500">Established Date:</span> {centerProfile.establishedDate}</p>
+                <p className="text-sm"><span className="text-gray-500">Region:</span> {centerProfile.region}</p>
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-medium text-gray-700 mb-2">Contact Information</h4>
+              <div className="space-y-2">
+                <p className="text-sm"><span className="text-gray-500">Email:</span> {centerProfile.email}</p>
+                <p className="text-sm"><span className="text-gray-500">Phone:</span> {centerProfile.phone}</p>
+                <p className="text-sm"><span className="text-gray-500">Address:</span> {centerProfile.address}</p>
+                <p className="text-sm"><span className="text-gray-500">District:</span> {centerProfile.district}</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Operational Details</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-500">Storage Capacity</p>
+              <p className="text-xl font-semibold">{centerProfile.capacity}</p>
+            </div>
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-500">Current Orders</p>
+              <p className="text-xl font-semibold">{centerProfile.currentOrders}</p>
+            </div>
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-500">Utilization</p>
+              <p className="text-xl font-semibold">{centerProfile.utilization}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Uploaded Documents</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {centerProfile.documents && centerProfile.documents.length > 0 ? (
+            <div className="space-y-3">
+              {centerProfile.documents.map((doc) => (
+                <div key={doc.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div>
+                    <p className="font-medium">{doc.name}</p>
+                    <p className="text-sm text-gray-500">{doc.type}</p>
+                  </div>
+                  <Button variant="outline" size="sm">
+                    View
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500">No documents uploaded</p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+  
+  // Profile Modal
+  const renderProfileModal = () => {
+    if (!showProfileModal) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="p-6 border-b sticky top-0 bg-white z-10 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">Center Profile Details</h2>
+            <button
+              onClick={() => setShowProfileModal(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          
+          <div className="p-6 space-y-6">
+            {/* Center Information */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Center Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Center Name</p>
+                  <p className="font-medium">{centerProfile.name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Manager</p>
+                  <p className="font-medium">{centerProfile.managerName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Status</p>
+                  <p className="font-medium">
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      {centerProfile.status}
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Established Date</p>
+                  <p className="font-medium">{centerProfile.establishedDate}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Region</p>
+                  <p className="font-medium">{centerProfile.region}</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Contact Information */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Contact Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Email</p>
+                  <p className="font-medium">{centerProfile.email}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Phone</p>
+                  <p className="font-medium">{centerProfile.phone}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Address</p>
+                  <p className="font-medium">{centerProfile.address}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">District</p>
+                  <p className="font-medium">{centerProfile.district}</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Operational Details */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Operational Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Storage Capacity</p>
+                  <p className="font-medium">{centerProfile.capacity}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Current Orders</p>
+                  <p className="font-medium">{centerProfile.currentOrders}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Utilization</p>
+                  <p className="font-medium">{centerProfile.utilization}</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Document Viewer Section */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Uploaded Documents</h3>
+              {centerProfile.documents && centerProfile.documents.length > 0 ? (
+                <div className="space-y-3">
+                  {centerProfile.documents.map((doc) => (
+                    <div key={doc.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">{doc.name}</p>
+                        <p className="text-sm text-gray-500">{doc.type}</p>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        View
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500">No documents uploaded</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b">
@@ -444,7 +680,7 @@ export default function CenterDashboard() {
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               Overview
@@ -460,6 +696,10 @@ export default function CenterDashboard() {
             <TabsTrigger value="sales" className="flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
               Sales
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Profile
             </TabsTrigger>
           </TabsList>
 
@@ -764,6 +1004,7 @@ export default function CenterDashboard() {
           </TabsContent>
 
           <TabsContent value="sales" className="space-y-6">
+            {/* Sales content */}
             <div>
               <h2 className="text-2xl font-bold text-gray-900">
                 Sales Analytics
@@ -805,8 +1046,14 @@ export default function CenterDashboard() {
               </Card>
             </div>
           </TabsContent>
+
+          <TabsContent value="profile" className="space-y-6">
+            {renderProfileContent()}
+          </TabsContent>
         </Tabs>
       </div>
+      
+      {renderProfileModal()}
     </div>
   );
 }

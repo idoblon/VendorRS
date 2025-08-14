@@ -27,6 +27,30 @@ export default function VendorDashboard({
   onLogout,
 }: VendorDashboardProps) {
   const [activeTab, setActiveTab] = useState("marketplace");
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  
+  // Mock vendor profile data
+  const vendorProfile = {
+    businessName: vendorName,
+    ownerName: "John Doe",
+    email: "vendor@example.com",
+    phone: "+977-9801234567",
+    address: "123 Business Street, Kathmandu",
+    district: "Kathmandu",
+    panNumber: "ABCDE1234F",
+    joinedDate: "2023-05-15",
+    status: "Approved",
+    bankDetails: {
+      bankName: "Nepal Bank Ltd",
+      accountNumber: "1234567890",
+      holderName: "ABC Trading Co."
+    },
+    documents: [
+      { name: "PAN Card", type: "PDF Document", id: "doc1" },
+      { name: "Business Registration", type: "PDF Document", id: "doc2" },
+      { name: "Bank Statement", type: "PDF Document", id: "doc3" }
+    ]
+  };
   const [cart, setCart] = useState<any[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -1103,6 +1127,189 @@ export default function VendorDashboard({
     </div>
   );
 
+  // Profile content
+  const renderProfileContent = () => (
+    <div className="space-y-6">
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-semibold text-gray-900">Vendor Profile</h3>
+          <Button 
+            variant="primary" 
+            size="sm"
+            onClick={() => setShowProfileModal(true)}
+          >
+            View Details
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-medium text-gray-700 mb-2">Business Information</h4>
+            <div className="space-y-2">
+              <p className="text-sm"><span className="text-gray-500">Business Name:</span> {vendorProfile.businessName}</p>
+              <p className="text-sm"><span className="text-gray-500">Owner/Manager:</span> {vendorProfile.ownerName}</p>
+              <p className="text-sm"><span className="text-gray-500">Status:</span> 
+                <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  {vendorProfile.status}
+                </span>
+              </p>
+              <p className="text-sm"><span className="text-gray-500">Joined Date:</span> {vendorProfile.joinedDate}</p>
+            </div>
+          </div>
+          
+          <div>
+            <h4 className="font-medium text-gray-700 mb-2">Contact Information</h4>
+            <div className="space-y-2">
+              <p className="text-sm"><span className="text-gray-500">Email:</span> {vendorProfile.email}</p>
+              <p className="text-sm"><span className="text-gray-500">Phone:</span> {vendorProfile.phone}</p>
+              <p className="text-sm"><span className="text-gray-500">Address:</span> {vendorProfile.address}</p>
+              <p className="text-sm"><span className="text-gray-500">District:</span> {vendorProfile.district}</p>
+            </div>
+          </div>
+        </div>
+      </Card>
+      
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Uploaded Documents</h3>
+        {vendorProfile.documents && vendorProfile.documents.length > 0 ? (
+          <div className="space-y-3">
+            {vendorProfile.documents.map((doc) => (
+              <div key={doc.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div>
+                  <p className="font-medium">{doc.name}</p>
+                  <p className="text-sm text-gray-500">{doc.type}</p>
+                </div>
+                <Button variant="outline" size="sm">
+                  View
+                </Button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500">No documents uploaded</p>
+        )}
+      </Card>
+    </div>
+  );
+  
+  // Profile Modal
+  const renderProfileModal = () => {
+    if (!showProfileModal) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="p-6 border-b sticky top-0 bg-white z-10 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">Vendor Profile Details</h2>
+            <button
+              onClick={() => setShowProfileModal(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          
+          <div className="p-6 space-y-6">
+            {/* Business Information */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Business Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Business Name</p>
+                  <p className="font-medium">{vendorProfile.businessName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Owner/Manager</p>
+                  <p className="font-medium">{vendorProfile.ownerName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Status</p>
+                  <p className="font-medium">
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      {vendorProfile.status}
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Joined Date</p>
+                  <p className="font-medium">{vendorProfile.joinedDate}</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Contact Information */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Contact Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Email</p>
+                  <p className="font-medium">{vendorProfile.email}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Phone</p>
+                  <p className="font-medium">{vendorProfile.phone}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Address</p>
+                  <p className="font-medium">{vendorProfile.address}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">District</p>
+                  <p className="font-medium">{vendorProfile.district}</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Business Details */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Business Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">PAN Number</p>
+                  <p className="font-medium">{vendorProfile.panNumber}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Bank Name</p>
+                  <p className="font-medium">{vendorProfile.bankDetails.bankName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Account Number</p>
+                  <p className="font-medium">{vendorProfile.bankDetails.accountNumber}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Account Holder</p>
+                  <p className="font-medium">{vendorProfile.bankDetails.holderName}</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Document Viewer Section */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Uploaded Documents</h3>
+              {vendorProfile.documents && vendorProfile.documents.length > 0 ? (
+                <div className="space-y-3">
+                  {vendorProfile.documents.map((doc) => (
+                    <div key={doc.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">{doc.name}</p>
+                        <p className="text-sm text-gray-500">{doc.type}</p>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        View
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500">No documents uploaded</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50">
       {/* Header */}
@@ -1191,6 +1398,7 @@ export default function VendorDashboard({
             {[
               { id: "marketplace", label: "Marketplace", icon: Package },
               { id: "orders", label: "My Orders", icon: ShoppingCart },
+              { id: "profile", label: "My Profile", icon: Users },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -1213,10 +1421,12 @@ export default function VendorDashboard({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === "marketplace" && renderMarketplace()}
         {activeTab === "orders" && renderOrders()}
+        {activeTab === "profile" && renderProfileContent()}
       </div>
 
       {showCart && renderCartModal()}
       {showPayment && renderPaymentModal()}
+      {renderProfileModal()}
     </div>
   );
 }

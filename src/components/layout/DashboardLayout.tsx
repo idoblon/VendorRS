@@ -87,10 +87,16 @@ export function DashboardLayout({
           {/* Sidebar Header */}
           <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 bg-white">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">VRS</span>
-              </div>
-              <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
+              <img
+                src="/vrslogo.png"
+                alt="VRS Logo"
+                className="w-8 h-8 object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none";
+                }}
+              />
+              <h1 className="text-xl font-bold text-gray-900">VRS</h1>
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -136,8 +142,8 @@ export function DashboardLayout({
               >
                 <Menu className="h-5 w-5" />
               </button>
-              <h2 className="text-lg font-semibold text-gray-900 capitalize">
-                {activeSection}
+              <h2 className="text-lg font-semibold text-gray-900">
+                AdminDashboard
               </h2>
             </div>
 
@@ -160,10 +166,19 @@ export function DashboardLayout({
                 {/* Notifications Dropdown */}
                 {notificationsOpen && (
                   <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                    <div className="px-4 py-2 border-b border-gray-100">
+                    <div className="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
                       <h3 className="text-sm font-semibold text-gray-900">
                         Notifications
                       </h3>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+                        }}
+                        className="text-xs text-blue-600 hover:text-blue-800"
+                      >
+                        Mark all read
+                      </button>
                     </div>
                     <div className="max-h-64 overflow-y-auto">
                       {notifications.map((notification) => (
@@ -215,28 +230,27 @@ export function DashboardLayout({
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                     <div className="px-4 py-2 border-b border-gray-100">
                       <p className="text-sm font-medium text-gray-900">
-                        Admin User
+                        Admin Profile
                       </p>
-                      <p className="text-xs text-gray-600">admin@company.com</p>
                     </div>
-                    <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      Profile Settings
+                    <button
+                      onClick={() => {
+                        console.log("Logging out...");
+                        setUserMenuOpen(false);
+                        // Call the onLogout prop if available
+                        if (typeof window !== 'undefined') {
+                          // Clear local storage
+                          localStorage.removeItem("vrs_token");
+                          localStorage.removeItem("vrs_user");
+                          // Redirect to login page
+                          window.location.href = "/";
+                        }
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Sign Out</span>
                     </button>
-                    <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      Account Preferences
-                    </button>
-                    <div className="border-t border-gray-100 mt-1">
-                      <button
-                        onClick={() => {
-                          console.log("Logging out...");
-                          setUserMenuOpen(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        <span>Sign Out</span>
-                      </button>
-                    </div>
                   </div>
                 )}
               </div>

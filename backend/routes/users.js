@@ -263,12 +263,14 @@ router.put(
             message = `We regret to inform you that your vendor application has been rejected. ${
               notes ? "Reason: " + notes + ". " : ""
             }Please contact support for more information or to reapply.`;
+            await sendMail(vendor.email, message);
             break;
           case "SUSPENDED":
             title = "Account Suspended";
             message = `Your vendor account has been suspended. ${
               notes ? "Reason: " + notes + ". " : ""
             }Please contact support for more information.`;
+            await sendMail(vendor.email, message);
             break;
           default:
             title = "Application Status Updated";
@@ -290,9 +292,8 @@ router.put(
           `Notification created for vendor ${vendor.businessName} about status change to ${status}`
         );
 
-        // TODO: Email notification will be added later once nodemailer is properly configured
         console.log(
-          `Email notification would be sent to ${vendor.email} about status change to ${status}`
+          `Email notification sent to ${vendor.email} about status change to ${status}`
         );
       } catch (notificationError) {
         console.error(
@@ -316,6 +317,135 @@ router.put(
       res.status(500).json({
         success: false,
         message: "Failed to update vendor status",
+      });
+    }
+  }
+);
+
+// @route   PUT /api/users/centers/:id/status
+// @desc    Update center application status (Admin only)
+// @access  Private (Admin)
+router.put(
+  "/centers/:id/status",
+  authenticate,
+  authorize("ADMIN"),
+  validateObjectId("id"),
+  async (req, res) => {
+    try {
+      const { status, notes } = req.body;
+
+      console.log("Center status update request:", {
+        centerId: req.params.id,
+        status,
+        notes,
+        body: req.body,
+      });
+
+      if (!status) {
+        return res.status(400).json({
+          success: false,
+          message: "Status is required",
+        });
+      }
+
+      if (!["PENDING", "APPROVED", "REJECTED", "SUSPENDED"].includes(status)) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid status value: ${status}. Must be one of: PENDING, APPROVED, REJECTED, SUSPENDED`,
+        });
+      }
+
+      const center = await User.findOne({
+        _id: req.params.id,
+        role: "CENTER",
+      });
+
+      if (!center) {
+        return res.status(404).json({
+          success: false,
+          message: "Center not found",
+        });
+      }
+
+      const oldStatus = center.status;
+      center.status = status;
+
+      // Add status change to history (you might want to create a separate model for this)
+      // For now, we'll just save the status
+      await center.save();
+
+      // Create notification for the center about status change
+      try {
+        const Notification = require("../models/Notification");
+
+        // Notification message based on status
+        let title, message;
+
+        switch (status) {
+          case "APPROVED":
+            title = "Application Approved";
+            message = `Congratulations! Your center application has been approved. Your Center ID is: ${center._id}. You can now access all center features.`;
+            await sendMail(center.email, message);
+            break;
+          case "REJECTED":
+            title = "Application Rejected";
+            message = `We regret to inform you that your center application has been rejected. ${
+              notes ? "Reason: " + notes + ". " : ""
+            }Please contact support for more information or to reapply.`;
+            await sendMail(center.email, message);
+            break;
+          case "SUSPENDED":
+            title = "Account Suspended";
+            message = `Your center account has been suspended. ${
+              notes ? "Reason: " + notes + ". " : ""
+            }Please contact support for more information.`;
+            await sendMail(center.email, message);
+            break;
+          default:
+            title = "Application Status Updated";
+            message = `Your application status has been updated to ${status}.`;
+        }
+
+        // Create notification for the center
+        await Notification.create({
+          recipient: center._id,
+          sender: req.user._id,
+          type: "STATUS_UPDATE",
+          title,
+          message,
+          relatedId: center._id,
+          onModel: "Users",
+        });
+
+        console.log(
+          `Notification created for center ${center.name} about status change to ${status}`
+        );
+
+        console.log(
+          `Email notification sent to ${center.email} about status change to ${status}`
+        );
+      } catch (notificationError) {
+        console.error(
+          "Failed to create center notification:",
+          notificationError
+        );
+        // Continue with the process even if notification fails
+      }
+
+      console.log(
+        `Center ${center.name} status changed from ${oldStatus} to ${status}`
+      );
+
+      res.json({
+        success: true,
+        message: `Center status updated to ${status}`,
+        data: { center },
+      });
+    } catch (error) {
+      console.error("Update center status error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to update center status",
       });
     }
   }
