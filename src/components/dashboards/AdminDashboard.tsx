@@ -101,6 +101,8 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
   const [showVendorModal, setShowVendorModal] = useState(false)
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null)
   const [actionNotes, setActionNotes] = useState("")
+  const [showCenterModal, setShowCenterModal] = useState(false)
+  const [selectedCenter, setSelectedCenter] = useState<DistributionCenter | null>(null)
 
   const handleCenterFormChange = (field: keyof CenterFormData, value: string) => {
     setCenterForm((prev) => ({
@@ -359,55 +361,7 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="p-6">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Recent Activity</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm text-slate-600">New vendor application approved</span>
-                    <span className="text-xs text-slate-400 ml-auto">2 hours ago</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-sm text-slate-600">Center maintenance scheduled</span>
-                    <span className="text-xs text-slate-400 ml-auto">4 hours ago</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                    <span className="text-sm text-slate-600">Payment processing updated</span>
-                    <span className="text-xs text-slate-400 ml-auto">1 day ago</span>
-                  </div>
-                </div>
-              </Card>
 
-              <Card className="p-6">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
-                <div className="space-y-3">
-                  <Button
-                    onClick={() => setActiveTab("applications")}
-                    className="w-full justify-start bg-blue-50 text-blue-700 hover:bg-blue-100"
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Review Pending Applications
-                  </Button>
-                  <Button
-                    onClick={() => setActiveTab("vendors")}
-                    className="w-full justify-start bg-green-50 text-green-700 hover:bg-green-100"
-                  >
-                    <Users className="h-4 w-4 mr-2" />
-                    Manage Vendors
-                  </Button>
-                  <Button
-                    onClick={() => setActiveTab("centers")}
-                    className="w-full justify-start bg-purple-50 text-purple-700 hover:bg-purple-100"
-                  >
-                    <Building className="h-4 w-4 mr-2" />
-                    View Centers
-                  </Button>
-                </div>
-              </Card>
-            </div>
           </div>
         )
 
@@ -421,22 +375,52 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="relative">
+                <div className="relative w-64">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
                     type="text"
                     placeholder="Search centers..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
                   />
+                  {searchTerm.length > 0 && (
+                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                      {centers
+                        .filter(center => 
+                          center.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          center.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          center.contactPerson.toLowerCase().includes(searchTerm.toLowerCase())
+                        )
+                        .map(center => (
+                          <div 
+                            key={center.id} 
+                            className="p-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => {
+                              setSearchTerm(center.name);
+                              // Additional action if needed when a center is selected
+                            }}
+                          >
+                            <div className="font-medium">{center.name}</div>
+                            <div className="text-sm text-gray-600">{center.location}</div>
+                          </div>
+                        ))
+                      }
+                      {centers.filter(center => 
+                        center.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        center.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        center.contactPerson.toLowerCase().includes(searchTerm.toLowerCase())
+                      ).length === 0 && (
+                        <div className="p-2 text-gray-500">No centers found</div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 >
-                  <option value="all">All Status</option>
                   <option value="pending">Pending</option>
                   <option value="approved">Approved</option>
                   <option value="rejected">Rejected</option>
@@ -496,6 +480,7 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                         <Button
                           variant="outline"
                           size="sm"
+                          onClick={() => openCenterModal(center)}
                           className="border-green-300 text-green-700 hover:bg-green-50 bg-transparent"
                         >
                           <Eye className="h-4 w-4 mr-1" />
@@ -520,22 +505,52 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="relative">
+                <div className="relative w-64">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
                     type="text"
                     placeholder="Search vendors..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent w-full"
                   />
+                  {searchTerm.length > 0 && (
+                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                      {vendors
+                        .filter(vendor => 
+                          vendor.businessName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          vendor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          vendor.email?.toLowerCase().includes(searchTerm.toLowerCase())
+                        )
+                        .map(vendor => (
+                          <div 
+                            key={vendor.id} 
+                            className="p-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => {
+                              setSearchTerm(vendor.businessName || vendor.name);
+                              // Additional action if needed when a vendor is selected
+                            }}
+                          >
+                            <div className="font-medium">{vendor.businessName}</div>
+                            <div className="text-sm text-gray-600">{vendor.name}</div>
+                          </div>
+                        ))
+                      }
+                      {vendors.filter(vendor => 
+                        vendor.businessName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        vendor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        vendor.email?.toLowerCase().includes(searchTerm.toLowerCase())
+                      ).length === 0 && (
+                        <div className="p-2 text-gray-500">No vendors found</div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 >
-                  <option value="all">All Status</option>
                   <option value="PENDING">Pending</option>
                   <option value="APPROVED">Approved</option>
                   <option value="REJECTED">Rejected</option>
@@ -688,6 +703,18 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
     setActionNotes("")
   }
 
+  // Function to open center detail modal
+  const openCenterModal = (center: DistributionCenter) => {
+    setSelectedCenter(center)
+    setShowCenterModal(true)
+  }
+
+  // Function to close center detail modal
+  const closeCenterModal = () => {
+    setShowCenterModal(false)
+    setSelectedCenter(null)
+  }
+
   // Function to handle vendor action with notes
   const handleVendorActionWithNotes = (action: "approve" | "reject" | "suspend" | "reactivate") => {
     if (selectedVendor) {
@@ -705,6 +732,130 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
   return (
     <DashboardLayout activeSection={activeTab} onSectionChange={setActiveTab}>
       {renderContent()}
+
+      {/* Center Modal */}
+      {showCenterModal && selectedCenter && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-slate-900">{selectedCenter.name}</h3>
+                <button onClick={closeCenterModal} className="text-gray-400 hover:text-gray-600">
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Center Information</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-slate-500">Status</p>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          selectedCenter.status === "active"
+                            ? "bg-green-100 text-green-800"
+                            : selectedCenter.status === "inactive"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {selectedCenter.status.charAt(0).toUpperCase() + selectedCenter.status.slice(1)}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">Established Date</p>
+                      <p className="font-medium text-slate-900">{selectedCenter.establishedDate}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">Region</p>
+                      <p className="font-medium text-slate-900">{selectedCenter.region}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Contact Information</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-slate-500">Manager</p>
+                      <p className="font-medium text-slate-900">{selectedCenter.contactPerson}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">Email</p>
+                      <p className="font-medium text-slate-900">{selectedCenter.email}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">Phone</p>
+                      <p className="font-medium text-slate-900">{selectedCenter.phone}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">Address</p>
+                      <p className="font-medium text-slate-900">{selectedCenter.address}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Operational Details</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-sm text-slate-500">Capacity</p>
+                    <p className="font-medium text-slate-900">{selectedCenter.capacity.toLocaleString()} sq ft</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Current Orders</p>
+                    <p className="font-medium text-slate-900">{selectedCenter.currentOrders}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Utilization</p>
+                    <p className="font-medium text-slate-900">
+                      {Math.round((selectedCenter.currentOrders / selectedCenter.capacity) * 100)}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Document Viewer Section */}
+              <div className="mt-6">
+                <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Uploaded Documents</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {selectedCenter.documents ? (
+                    selectedCenter.documents.map((doc, index) => (
+                      <div key={index} className="border rounded-lg p-3 bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <div className="flex items-center space-x-3">
+                          <div className="bg-green-100 p-2 rounded-lg">
+                            <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-slate-900 text-sm">{doc.name || `Document ${index + 1}`}</p>
+                            <p className="text-xs text-slate-500">{doc.type || 'PDF Document'}</p>
+                          </div>
+                          <button className="text-green-600 hover:text-green-800 text-sm font-medium">
+                            View
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-2 text-center py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                      <p className="text-gray-500">No documents uploaded</p>
+                      <p className="text-sm text-gray-400 mt-1">Documents will appear here once uploaded</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Vendor Detail Modal */}
       {showVendorModal && selectedVendor && (
@@ -790,10 +941,6 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                       <p className="text-sm text-slate-500">PAN Number</p>
                       <p className="font-medium text-slate-900">{selectedVendor.panNumber}</p>
                     </div>
-                    <div>
-                      <p className="text-sm text-slate-500">GST Number</p>
-                      <p className="font-medium text-slate-900">{selectedVendor.gstNumber}</p>
-                    </div>
                   </div>
                 </div>
 
@@ -824,35 +971,11 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
 
               {selectedVendor.status === VendorStatus.PENDING && (
                 <div className="mt-6">
-                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Application Decision</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Application Information</h4>
                   <div className="space-y-4">
                     <div>
-                      <label htmlFor="notes" className="block text-sm font-medium text-slate-700 mb-1">
-                        Notes (will be included in notification to vendor)
-                      </label>
-                      <textarea
-                        id="notes"
-                        rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter any notes or feedback for the vendor..."
-                        value={actionNotes}
-                        onChange={(e) => setActionNotes(e.target.value)}
-                      ></textarea>
-                    </div>
-                    <div className="flex justify-end space-x-3">
-                      <Button
-                        variant="danger"
-                        onClick={() => handleVendorActionWithNotes("reject")}
-                        className="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 border-0"
-                      >
-                        Reject Application
-                      </Button>
-                      <Button
-                        onClick={() => handleVendorActionWithNotes("approve")}
-                        className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 border-0"
-                      >
-                        Approve Application
-                      </Button>
+                      <p className="text-sm text-slate-500">Application Status</p>
+                      <p className="font-medium text-slate-900">Pending Review</p>
                     </div>
                   </div>
                 </div>
@@ -860,29 +983,11 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
 
               {selectedVendor.status === VendorStatus.APPROVED && (
                 <div className="mt-6">
-                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Account Actions</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Account Information</h4>
                   <div className="space-y-4">
                     <div>
-                      <label htmlFor="notes" className="block text-sm font-medium text-slate-700 mb-1">
-                        Notes (will be included in notification to vendor)
-                      </label>
-                      <textarea
-                        id="notes"
-                        rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter reason for suspension..."
-                        value={actionNotes}
-                        onChange={(e) => setActionNotes(e.target.value)}
-                      ></textarea>
-                    </div>
-                    <div className="flex justify-end">
-                      <Button
-                        variant="danger"
-                        onClick={() => handleVendorActionWithNotes("suspend")}
-                        className="bg-gradient-to-r from-gray-500 to-slate-600 hover:from-gray-600 hover:to-slate-700 border-0"
-                      >
-                        Suspend Account
-                      </Button>
+                      <p className="text-sm text-slate-500">Account Status</p>
+                      <p className="font-medium text-slate-900">Approved</p>
                     </div>
                   </div>
                 </div>
@@ -890,32 +995,47 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
 
               {selectedVendor.status === VendorStatus.SUSPENDED && (
                 <div className="mt-6">
-                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Account Actions</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Account Information</h4>
                   <div className="space-y-4">
                     <div>
-                      <label htmlFor="notes" className="block text-sm font-medium text-slate-700 mb-1">
-                        Notes (will be included in notification to vendor)
-                      </label>
-                      <textarea
-                        id="notes"
-                        rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter reason for reactivation..."
-                        value={actionNotes}
-                        onChange={(e) => setActionNotes(e.target.value)}
-                      ></textarea>
-                    </div>
-                    <div className="flex justify-end">
-                      <Button
-                        onClick={() => handleVendorActionWithNotes("reactivate")}
-                        className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 border-0"
-                      >
-                        Reactivate Account
-                      </Button>
+                      <p className="text-sm text-slate-500">Account Status</p>
+                      <p className="font-medium text-slate-900">Suspended</p>
                     </div>
                   </div>
                 </div>
               )}
+              
+              {/* Document Viewer Section */}
+              <div className="mt-6">
+                <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Uploaded Documents</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {selectedVendor.documents ? (
+                    selectedVendor.documents.map((doc, index) => (
+                      <div key={index} className="border rounded-lg p-3 bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <div className="flex items-center space-x-3">
+                          <div className="bg-blue-100 p-2 rounded-lg">
+                            <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-slate-900 text-sm">{doc.name || `Document ${index + 1}`}</p>
+                            <p className="text-xs text-slate-500">{doc.type || 'PDF Document'}</p>
+                          </div>
+                          <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            View
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-2 text-center py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                      <p className="text-gray-500">No documents uploaded</p>
+                      <p className="text-sm text-gray-400 mt-1">Documents will appear here once uploaded</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
