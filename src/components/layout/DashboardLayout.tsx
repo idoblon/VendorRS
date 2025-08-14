@@ -1,25 +1,65 @@
-import React, { useEffect, useState } from "react";
-import { Menu, X, User, LogOut, Search, ChevronDown } from "lucide-react";
-import { User as UserType } from "../../types";
-import { Button } from "../ui/Button";
-import { NotificationsComponent } from "../ui/NotificationsComponent";
-import axiosInstance from "../../utils/axios";
+"use client";
+
+import type React from "react";
+import { useState } from "react";
+import { Menu, X, User, LogOut, ChevronDown, Bell } from "lucide-react";
 
 interface DashboardLayoutProps {
-  user: UserType;
   children: React.ReactNode;
-  sidebar: React.ReactNode;
-  onLogout: () => void;
+  activeSection?: string;
+  onSectionChange?: (section: string) => void;
+}
+
+interface NotificationItem {
+  id: string;
+  message: string;
+  time: string;
+  read: boolean;
 }
 
 export function DashboardLayout({
-  user,
   children,
-  sidebar,
-  onLogout,
+  activeSection = "overview",
+  onSectionChange,
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([
+    {
+      id: "1",
+      message: "New vendor application received",
+      time: "2 minutes ago",
+      read: false,
+    },
+    {
+      id: "2",
+      message: "Center maintenance completed",
+      time: "1 hour ago",
+      read: false,
+    },
+    {
+      id: "3",
+      message: "Payment processed successfully",
+      time: "3 hours ago",
+      read: true,
+    },
+  ]);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const handleNotificationClick = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  };
+
+  const sidebarItems = [
+    { id: "overview", label: "Overview", icon: "📊" },
+    { id: "vendors", label: "Vendors", icon: "👥" },
+    { id: "centers", label: "Centers", icon: "🏢" },
+    { id: "applications", label: "Applications", icon: "📋" },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -47,12 +87,10 @@ export function DashboardLayout({
           {/* Sidebar Header */}
           <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 bg-white">
             <div className="flex items-center space-x-3">
-              <img
-                src="/image/vrslogo.png"
-                alt="VRS Logo"
-                className="w-8 h-8 object-contain"
-              />
-              <h1 className="text-xl font-bold text-gray-900">VRS</h1>
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">VRS</span>
+              </div>
+              <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -63,21 +101,34 @@ export function DashboardLayout({
           </div>
 
           {/* Sidebar Navigation */}
-          <nav className="flex-1 px-4 py-6 overflow-y-auto">{sidebar}</nav>
-
-          {/* Sidebar Footer */}
-          <div className="border-t border-gray-200 bg-white">
-            <div className="px-4 py-4">
-              {/* Logout button removed as requested */}
+          <nav className="flex-1 px-4 py-6 overflow-y-auto">
+            <div className="space-y-2">
+              {sidebarItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    onSectionChange?.(item.id);
+                    setSidebarOpen(false);
+                  }}
+                  className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                    activeSection === item.id
+                      ? "bg-blue-100 text-blue-700 border border-blue-200"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  <span className="font-medium">{item.label}</span>
+                </button>
+              ))}
             </div>
-          </div>
+          </nav>
         </div>
 
         {/* Main Content Area */}
         <div className="flex flex-col min-h-screen lg:min-h-0">
           {/* Header Bar */}
           <header className="bg-white border-b border-gray-200 px-4 lg:px-6 py-4 flex items-center justify-between">
-            {/* Left Section - Mobile Menu + Search */}
+            {/* Left Section - Mobile Menu */}
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => setSidebarOpen(true)}
@@ -85,12 +136,61 @@ export function DashboardLayout({
               >
                 <Menu className="h-5 w-5" />
               </button>
+              <h2 className="text-lg font-semibold text-gray-900 capitalize">
+                {activeSection}
+              </h2>
             </div>
 
             {/* Right Section - Notifications + User Menu */}
             <div className="flex items-center space-x-3">
               {/* Notifications */}
-              <NotificationsComponent />
+              <div className="relative">
+                <button
+                  onClick={() => setNotificationsOpen(!notificationsOpen)}
+                  className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <Bell className="h-5 w-5 text-gray-600" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Notifications Dropdown */}
+                {notificationsOpen && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <h3 className="text-sm font-semibold text-gray-900">
+                        Notifications
+                      </h3>
+                    </div>
+                    <div className="max-h-64 overflow-y-auto">
+                      {notifications.map((notification) => (
+                        <button
+                          key={notification.id}
+                          onClick={() =>
+                            handleNotificationClick(notification.id)
+                          }
+                          className={`w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-b-0 ${
+                            !notification.read ? "bg-blue-50" : ""
+                          }`}
+                        >
+                          <p className="text-sm text-gray-900">
+                            {notification.message}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {notification.time}
+                          </p>
+                          {!notification.read && (
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-1"></div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* User Menu */}
               <div className="relative">
@@ -103,11 +203,9 @@ export function DashboardLayout({
                   </div>
                   <div className="text-left hidden md:block">
                     <p className="text-sm font-medium text-gray-900">
-                      {user.name}
+                      Admin User
                     </p>
-                    <p className="text-xs text-gray-600 capitalize">
-                      {user.role}
-                    </p>
+                    <p className="text-xs text-gray-600">Administrator</p>
                   </div>
                   <ChevronDown className="h-4 w-4 text-gray-400 hidden md:block" />
                 </button>
@@ -117,9 +215,9 @@ export function DashboardLayout({
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                     <div className="px-4 py-2 border-b border-gray-100">
                       <p className="text-sm font-medium text-gray-900">
-                        {user.name}
+                        Admin User
                       </p>
-                      <p className="text-xs text-gray-600">{user.email}</p>
+                      <p className="text-xs text-gray-600">admin@company.com</p>
                     </div>
                     <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Profile Settings
@@ -129,10 +227,14 @@ export function DashboardLayout({
                     </button>
                     <div className="border-t border-gray-100 mt-1">
                       <button
-                        onClick={onLogout}
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                        onClick={() => {
+                          console.log("Logging out...");
+                          setUserMenuOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"
                       >
-                        Sign Out
+                        <LogOut className="h-4 w-4" />
+                        <span>Sign Out</span>
                       </button>
                     </div>
                   </div>
@@ -146,11 +248,14 @@ export function DashboardLayout({
         </div>
       </div>
 
-      {/* Click outside to close user menu */}
-      {userMenuOpen && (
+      {/* Click outside to close dropdowns */}
+      {(userMenuOpen || notificationsOpen) && (
         <div
           className="fixed inset-0 z-40"
-          onClick={() => setUserMenuOpen(false)}
+          onClick={() => {
+            setUserMenuOpen(false);
+            setNotificationsOpen(false);
+          }}
         />
       )}
     </div>

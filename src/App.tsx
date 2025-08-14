@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { LoginPage } from "./components/auth/LoginPage";
 import SignupFlow from "./components/auth/SignupFlow";
 import { VendorDashboard } from "./components/dashboards/VendorDashboard";
-import { CenterDashboard } from "./components/dashboards/CenterDashboard";
+import CenterDashboard from "./components/dashboards/CenterDashboard";
 import { AdminDashboard } from "./components/dashboards/AdminDashboard";
 import { PaymentDemo } from "./components/payment/PaymentDemo";
 import { Toaster } from "./components/ui/Toaster";
