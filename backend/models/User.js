@@ -85,10 +85,15 @@ const userSchema = new mongoose.Schema({
       uploadDate: { type: Date, default: Date.now },
     },
   ],
-  // Center-specific fields
-  centerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "DistributionCenter",
+  // Center-specific fields - removed centerId dependency
+  province: {
+    type: String,
+    required: function () {
+      return this.role === "CENTER";
+    },
+  },
+  district: {
+    type: String,
     required: function () {
       return this.role === "CENTER";
     },

@@ -2,7 +2,6 @@ const express = require('express');
 const { authenticate, authorize } = require('../middleware/auth');
 const { validatePagination } = require('../middleware/validation');
 const User = require('../models/User');
-const DistributionCenter = require('../models/DistributionCenter');
 const Product = require('../models/Product');
 const Order = require('../models/Order');
 const Message = require('../models/Message');
@@ -30,8 +29,8 @@ router.get('/dashboard', authenticate, authorize('ADMIN'), async (req, res) => {
       User.countDocuments({ role: 'VENDOR' }),
       User.countDocuments({ role: 'VENDOR', status: 'APPROVED' }),
       User.countDocuments({ role: 'VENDOR', status: 'PENDING' }),
-      DistributionCenter.countDocuments({ isActive: true }),
-      DistributionCenter.countDocuments({ isActive: true, status: 'active' }),
+      User.countDocuments({ role: 'CENTER' }),
+      User.countDocuments({ role: 'CENTER', status: 'APPROVED' }),
       Product.countDocuments({ isActive: true }),
       Order.countDocuments({ isActive: true }),
       Order.countDocuments({ isActive: true, status: 'PENDING' }),
@@ -40,7 +39,7 @@ router.get('/dashboard', authenticate, authorize('ADMIN'), async (req, res) => {
         { $group: { _id: null, total: { $sum: '$orderSummary.totalAmount' } } }
       ]),
       Order.find({ isActive: true })
-        .populate('centerId', 'name location')
+        .populate('centerId', 'name province district')
         .populate('vendorId', 'name businessName')
         .sort({ createdAt: -1 })
         .limit(5),
@@ -530,26 +529,33 @@ async function getVendorGrowth(startDate, endDate) {
 }
 
 async function getCenterUtilization() {
-  return await DistributionCenter.aggregate([
-    {
-      $match: { isActive: true }
-    },
-    {
-      $project: {
-        name: 1,
-        location: 1,
-        capacity: '$operationalDetails.capacity',
-        currentOrders: '$operationalDetails.currentOrders',
-        utilization: {
-          $multiply: [
-            { $divide: ['$operationalDetails.currentOrders', '$operationalDetails.capacity'] },
-            100
-          ]
-        }
-      }
-    },
-    { $sort: { utilization: -1 } }
-  ]);
+  // Get all CENTER users
+  const centers = await User.find({ role: 'CENTER', status: 'APPROVED' })
+    .select('name province district');
+  
+  // Get order counts for each center
+  const centerData = await Promise.all(
+    centers.map(async (center) => {
+      const orderCount = await Order.countDocuments({ centerId: center._id, isActive: true });
+      
+      // Simulate capacity and utilization data
+      const capacity = 100; // Default capacity
+      const utilization = (orderCount / capacity) * 100;
+      
+      return {
+        _id: center._id,
+        name: center.name,
+        province: center.province,
+        district: center.district,
+        capacity,
+        currentOrders: orderCount,
+        utilization
+      };
+    })
+  );
+  
+  // Sort by utilization
+  return centerData.sort((a, b) => b.utilization - a.utilization);
 }
 
 async function getTopProducts(startDate, endDate) {

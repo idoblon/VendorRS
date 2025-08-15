@@ -1,12 +1,17 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const fs = require('fs');
+const path = require('path');
 
 // Import models
 const User = require("../models/User");
-const DistributionCenter = require("../models/DistributionCenter");
 const Product = require("../models/Product");
 const Category = require("../models/Category");
+
+// Import Nepal address data
+const nepalAddressPath = path.join(__dirname, '../../src/data/nepaladdress.json');
+const nepalAddressData = JSON.parse(fs.readFileSync(nepalAddressPath, 'utf8'));
 
 const connectDB = async () => {
   console.log(process.env.MONGODB_URI, "this is the uri");
@@ -31,7 +36,6 @@ const seedDatabase = async () => {
 
     // Clear existing data
     await User.deleteMany({});
-    await DistributionCenter.deleteMany({});
     await Product.deleteMany({});
     await Category.deleteMany({});
     console.log("🧹 Cleared existing data");
@@ -64,8 +68,8 @@ const seedDatabase = async () => {
 
     const categories = await Category.insertMany(sampleCategories);
     console.log(`📦 Created ${sampleCategories.length} sample categories`);
-    // Create Distribution Centers (15 pre-established centers)
-    const distributionCenters = [
+    // Define centers with province and district information
+    const centers = [
       {
         name: "Delhi Distribution Center",
         code: "DL001",
@@ -77,7 +81,8 @@ const seedDatabase = async () => {
           pincode: "110001",
           country: "India",
         },
-        region: "Bagmati Province",
+        province: "Bagmati Province",
+        district: "Kathmandu",
         contactPerson: {
           name: "Rajesh Kumar",
           email: "center1@example.com",
@@ -115,7 +120,8 @@ const seedDatabase = async () => {
           pincode: "400069",
           country: "India",
         },
-        region: "Madhesh Province",
+        province: "Madhesh Province",
+        district: "Parsa",
         contactPerson: {
           name: "Priya Sharma",
           email: "mumbai@vrs.com",
@@ -159,7 +165,8 @@ const seedDatabase = async () => {
           pincode: "560100",
           country: "India",
         },
-        region: "Gandaki Province",
+        province: "Gandaki Province",
+        district: "Kaski",
         contactPerson: {
           name: "Amit Patel",
           email: "bangalore@vrs.com",
@@ -190,7 +197,8 @@ const seedDatabase = async () => {
           pincode: "600096",
           country: "India",
         },
-        region: "Province 1",
+        province: "Province 1",
+        district: "Morang",
         contactPerson: {
           name: "Lakshmi Iyer",
           email: "chennai@vrs.com",
@@ -228,7 +236,8 @@ const seedDatabase = async () => {
           pincode: "700064",
           country: "India",
         },
-        region: "Lumbini Province",
+        province: "Lumbini Province",
+        district: "Rupandehi",
         contactPerson: {
           name: "Subrata Das",
           email: "kolkata@vrs.com",
@@ -259,7 +268,8 @@ const seedDatabase = async () => {
           pincode: "500081",
           country: "India",
         },
-        region: "Karnali Province",
+        province: "Karnali Province",
+        district: "Surkhet",
         contactPerson: {
           name: "Venkat Reddy",
           email: "hyderabad@vrs.com",
@@ -297,7 +307,8 @@ const seedDatabase = async () => {
           pincode: "411057",
           country: "India",
         },
-        region: "Sudurpashchim Province",
+        province: "Sudurpashchim Province",
+        district: "Kailali",
         contactPerson: {
           name: "Sneha Joshi",
           email: "pune@vrs.com",
@@ -600,14 +611,13 @@ const seedDatabase = async () => {
       },
     ];
 
-    const createdCenters = await DistributionCenter.insertMany(
-      distributionCenters
-    );
-    console.log(`🏢 Created ${createdCenters.length} distribution centers`);
+    // No need to create distribution centers in the database anymore
+     // We'll use the province and district information directly
+     console.log(`🏢 Defined ${centers.length} centers with province and district information`);
 
-    // Create Center Users for each distribution center with secure credentials
+    // Create Center Users with province and district information
     const centerUsers = [];
-    for (const center of createdCenters) {
+    for (const center of centers) {
       const centerUser = {
         name: center.contactPerson.name,
         email: center.contactPerson.email,
@@ -615,7 +625,10 @@ const seedDatabase = async () => {
         phone: center.contactPerson.phone,
         role: "CENTER",
         status: "APPROVED",
-        centerId: center._id,
+        businessName: center.name,
+        address: center.address.street + ", " + center.address.city,
+        district: center.district,
+        province: center.province,
         isActive: true,
       };
       centerUsers.push(centerUser);
@@ -716,9 +729,9 @@ const seedDatabase = async () => {
         price: 2500,
         vendorId: createdVendors[0]._id,
         availability: [
-          { centerId: createdCenters[0]._id, stock: 50 },
-          { centerId: createdCenters[1]._id, stock: 30 },
-          { centerId: createdCenters[2]._id, stock: 25 },
+          { province: centers[0].province, district: centers[0].district, stock: 50 },
+          { province: centers[1].province, district: centers[1].district, stock: 30 },
+          { province: centers[2].province, district: centers[2].district, stock: 25 },
         ],
         specifications: {
           dimensions: { length: 20, width: 18, height: 8, unit: "cm" },
@@ -756,8 +769,8 @@ const seedDatabase = async () => {
         price: 1500,
         vendorId: createdVendors[0]._id,
         availability: [
-          { centerId: createdCenters[0]._id, stock: 25 },
-          { centerId: createdCenters[3]._id, stock: 20 },
+          { province: centers[0].province, district: centers[0].district, stock: 25 },
+          { province: centers[3].province, district: centers[3].district, stock: 20 },
         ],
         specifications: {
           dimensions: { length: 15, width: 8, height: 8, unit: "cm" },
@@ -789,8 +802,8 @@ const seedDatabase = async () => {
         price: 8500,
         vendorId: createdVendors[1]._id,
         availability: [
-          { centerId: createdCenters[1]._id, stock: 15 },
-          { centerId: createdCenters[4]._id, stock: 10 },
+          { province: centers[1].province, district: centers[1].district, stock: 15 },
+          { province: centers[4].province, district: centers[4].district, stock: 10 },
         ],
         specifications: {
           dimensions: { length: 65, width: 65, height: 120, unit: "cm" },
@@ -823,9 +836,9 @@ const seedDatabase = async () => {
         price: 1200,
         vendorId: createdVendors[1]._id,
         availability: [
-          { centerId: createdCenters[0]._id, stock: 30 },
-          { centerId: createdCenters[2]._id, stock: 25 },
-          { centerId: createdCenters[5]._id, stock: 20 },
+          { province: centers[0].province, district: centers[0].district, stock: 30 },
+          { province: centers[2].province, district: centers[2].district, stock: 25 },
+          { province: centers[5].province, district: centers[5].district, stock: 20 },
         ],
         specifications: {
           dimensions: { length: 40, width: 15, height: 50, unit: "cm" },
@@ -858,8 +871,8 @@ const seedDatabase = async () => {
         price: 3500,
         vendorId: createdVendors[2]._id,
         availability: [
-          { centerId: createdCenters[2]._id, stock: 15 },
-          { centerId: createdCenters[6]._id, stock: 12 },
+          { province: centers[2].province, district: centers[2].district, stock: 15 },
+          { province: centers[6].province, district: centers[6].district, stock: 12 },
         ],
         specifications: {
           dimensions: { length: 4.5, width: 4.5, height: 1.2, unit: "cm" },
@@ -895,7 +908,7 @@ const seedDatabase = async () => {
 
 📊 Summary:
 - 1 Admin user created
-- ${createdCenters.length} Distribution centers created
+- ${centers.length} Centers with province and district information
 - ${centerUsers.length} Center users created  
 - ${createdVendors.length} Vendor users created
 - ${sampleProducts.length} Sample products created

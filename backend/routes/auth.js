@@ -35,7 +35,6 @@ router.post("/register", validateUserRegistration, async (req, res) => {
       district,
       bankDetails,
       contactPersons,
-      centerId,
     } = req.body;
 
     // Check if user already exists
@@ -67,7 +66,12 @@ router.post("/register", validateUserRegistration, async (req, res) => {
       userData.bankDetails = bankDetails;
       userData.contactPersons = contactPersons || [];
     } else if (role === "CENTER") {
-      userData.centerId = centerId;
+      userData.businessName = businessName;
+      userData.panNumber = panNumber;
+      userData.address = address;
+      userData.district = district;
+      userData.bankDetails = bankDetails;
+      userData.contactPersons = contactPersons || [];
       userData.status = "APPROVED"; // Centers are pre-approved
     }
 
@@ -81,23 +85,29 @@ router.post("/register", validateUserRegistration, async (req, res) => {
     user.lastLogin = new Date();
     await user.save();
 
-    // Create notification for admin if a new vendor registers
-    if (role === "VENDOR") {
+    // Create notification for admin if a new vendor or center registers
+    if (role === "VENDOR" || role === "CENTER") {
       try {
         const Notification = require("../models/Notification");
-        await Notification.notifyAdmins({
-          type: "VENDOR_APPLICATION",
-          title: "New Vendor Application",
-          message: `${businessName} (${name}) has submitted a vendor application for approval.`,
+        const notificationType = role === "VENDOR" ? "VENDOR_APPLICATION" : "CENTER_APPLICATION";
+        const title = role === "VENDOR" ? "New Vendor Application" : "New Center Application";
+        const message = role === "VENDOR" 
+          ? `${businessName} (${name}) has submitted a vendor application for approval.`
+          : `${name} has submitted a center application for approval.`;
+        
+        console.log(`Creating ${notificationType} notification for user ${user._id} with name ${name} and status ${userData.status}`);
+        
+        const notifications = await Notification.notifyAdmins({
+          type: notificationType,
+          title: title,
+          message: message,
           relatedId: user._id,
-          onModel: "Users",
+          onModel: "User"
         });
-      } catch (notificationError) {
-        return res.status(500).json({
-          success: false,
-          message: "Failed to create admin notification",
-          error: notificationError.message,
-        });
+        
+        console.log(`Created ${notifications?.length || 0} ${notificationType} notifications`);
+      } catch (error) {
+        console.error(`Failed to create ${role} application notification:`, error);
       }
     }
 
@@ -162,10 +172,7 @@ router.post("/login", validateUserLogin, async (req, res) => {
     user.lastLogin = new Date();
     await user.save();
 
-    // Populate center information if user is CENTER role
-    if (user.role === "CENTER" && user.centerId) {
-      await user.populate("centerId", "name location code");
-    }
+    // No need to populate center information as we've removed the centerId dependency
 
     res.json({
       success: true,
@@ -263,10 +270,7 @@ router.get("/verify-token", async (req, res) => {
       });
     }
 
-    // Populate center information if user is CENTER role
-    if (user.role === "CENTER" && user.centerId) {
-      await user.populate("centerId", "name location code");
-    }
+    // No need to populate center information as we've removed the centerId dependency
 
     res.json({
       success: true,
