@@ -2,10 +2,47 @@ const express = require('express');
 const { authenticate, authorize, requireApproval } = require('../middleware/auth');
 const { validateProduct, validateObjectId, validatePagination } = require('../middleware/validation');
 const Product = require('../models/Product');
-const DistributionCenter = require('../models/DistributionCenter');
 const mongoose = require('mongoose');
+const fs = require('fs');
+const path = require('path');
+
+// Path to the nepaladdress.json file for province and district data
+const nepalAddressPath = path.join(__dirname, '../../src/data/nepaladdress.json');
+const nepalAddressData = JSON.parse(fs.readFileSync(nepalAddressPath, 'utf8'));
 
 const router = express.Router();
+
+// Helper function to sort products by availability in specified province/district
+function sortProductsByAvailability(products, province, district) {
+  return products.sort((a, b) => {
+    // Find availability entries that match the province/district criteria
+    const aAvailability = a.availability.find(item => {
+      if (district) {
+        return item.province === province && item.district === district;
+      }
+      return item.province === province;
+    });
+    
+    const bAvailability = b.availability.find(item => {
+      if (district) {
+        return item.province === province && item.district === district;
+      }
+      return item.province === province;
+    });
+    
+    // If both have matching availability, sort by stock (higher stock first)
+    if (aAvailability && bAvailability) {
+      return bAvailability.stock - aAvailability.stock;
+    }
+    
+    // If only one has matching availability, prioritize it
+    if (aAvailability) return -1;
+    if (bAvailability) return 1;
+    
+    // If neither has matching availability, maintain original order
+    return 0;
+  });
+}
 
 // @route   GET /api/products
 // @desc    Get all products
@@ -17,7 +54,8 @@ router.get('/', authenticate, validatePagination, async (req, res) => {
     const skip = (page - 1) * limit;
     
     const category = req.query.category;
-    const centerId = req.query.centerId;
+    const province = req.query.province;
+    const district = req.query.district;
     const search = req.query.search;
     const vendorId = req.query.vendorId;
     const status = req.query.status || 'available';
@@ -45,18 +83,28 @@ router.get('/', authenticate, validatePagination, async (req, res) => {
       ];
     }
 
-    // If centerId is specified, filter products available at that center
-    if (centerId) {
-      query['availability.centerId'] = centerId;
+    // If province is specified, filter products available in that province
+    if (province) {
+      query['availability.province'] = province;
       query['availability.stock'] = { $gt: 0 };
+      
+      // If district is also specified, further filter by district
+      if (district) {
+        query['availability.district'] = district;
+      }
     }
 
-    const products = await Product.find(query)
+    let products = await Product.find(query)
       .populate('vendorId', 'name businessName email phone')
-      .populate('availability.centerId', 'name location code')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
+      
+    // Apply sorting algorithm if province/district specified
+    if (province) {
+      // Sort products by availability in the specified province/district
+      products = sortProductsByAvailability(products, province, district);
+    }
 
     const total = await Product.countDocuments(query);
 
@@ -91,8 +139,7 @@ router.get('/:id', authenticate, validateObjectId('id'), async (req, res) => {
       _id: req.params.id,
       isActive: true
     })
-    .populate('vendorId', 'name businessName email phone')
-    .populate('availability.centerId', 'name location code status');
+    .populate('vendorId', 'name businessName email phone');
 
     if (!product) {
       return res.status(404).json({

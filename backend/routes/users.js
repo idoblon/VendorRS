@@ -285,7 +285,7 @@ router.put(
           title,
           message,
           relatedId: vendor._id,
-          onModel: "Users",
+          onModel: "User",
         });
 
         console.log(
@@ -414,7 +414,7 @@ router.put(
           title,
           message,
           relatedId: center._id,
-          onModel: "Users",
+          onModel: "User",
         });
 
         console.log(
@@ -464,15 +464,34 @@ router.get(
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
+      const status = req.query.status;
+      const search = req.query.search;
 
-      const centerUsers = await User.find({ role: "CENTER" })
+      // Build query
+      const query = { role: "CENTER" };
+
+      if (status && status !== "all") {
+        query.status = status.toUpperCase();
+      }
+
+      if (search) {
+        query.$or = [
+          { name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      console.log("Fetching CENTER users with query:", query);
+
+      const centerUsers = await User.find(query)
         .select("-password")
-        .populate("centerId", "name location code status")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
 
-      const total = await User.countDocuments({ role: "CENTER" });
+      const total = await User.countDocuments(query);
+
+      console.log(`Found ${centerUsers.length} CENTER users`);
 
       res.json({
         success: true,

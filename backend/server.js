@@ -13,7 +13,6 @@ const connectDB = require('./config/database');
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
-const centerRoutes = require('./routes/centers');
 const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders');
 const messageRoutes = require('./routes/messages');
@@ -21,6 +20,7 @@ const adminRoutes = require('./routes/admin');
 const paymentRoutes = require('./routes/payments');
 const notificationRoutes = require('./routes/notifications');
 const category = require('./routes/category'); // Importing the category route
+const addressRoutes = require('./routes/address'); // Importing the address route for province and district data
 
 // Import socket handlers
 const socketHandler = require('./socket/socketHandler');
@@ -95,11 +95,11 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/centers', centerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api', addressRoutes); // Using address routes for province and district data
 app.use('/api/payments', paymentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/categories', category); // Registering the category route

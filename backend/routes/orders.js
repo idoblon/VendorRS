@@ -3,7 +3,6 @@ const { authenticate, authorize, requireApproval } = require('../middleware/auth
 const { validateOrder, validateObjectId, validatePagination } = require('../middleware/validation');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
-const DistributionCenter = require('../models/DistributionCenter');
 const { bubbleSort, sortByField } = require('../utils/sorting');
 
 const router = express.Router();

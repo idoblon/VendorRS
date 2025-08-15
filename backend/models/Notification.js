@@ -3,16 +3,16 @@ const mongoose = require('mongoose');
 const notificationSchema = new mongoose.Schema({
   recipient: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Users',
+    ref: 'User',
     required: true
   },
   sender: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Users'
+    ref: 'User'
   },
   type: {
     type: String,
-    enum: ['VENDOR_APPLICATION', 'STATUS_UPDATE', 'ORDER_UPDATE', 'SYSTEM', 'MESSAGE'],
+    enum: ['VENDOR_APPLICATION', 'CENTER_APPLICATION', 'STATUS_UPDATE', 'ORDER_UPDATE', 'SYSTEM', 'MESSAGE'],
     required: true
   },
   title: {
@@ -29,7 +29,7 @@ const notificationSchema = new mongoose.Schema({
   },
   onModel: {
     type: String,
-    enum: ['Users', 'Order', 'Product']
+    enum: ['User', 'Order', 'Product']
   },
   isRead: {
     type: Boolean,
@@ -68,12 +68,15 @@ notificationSchema.methods.markAsRead = function() {
 // Create notification for all admins
 notificationSchema.statics.notifyAdmins = async function(data) {
   try {
-    const User = mongoose.model('Users');
+    const User = mongoose.model('User'); // Fixed model name from 'Users' to 'User'
+    console.log('Finding admin users for notifications');
     const admins = await User.find({ role: 'ADMIN', isActive: true });
+    console.log(`Found ${admins.length} admin users for notifications`);
     
     const notifications = [];
     
     for (const admin of admins) {
+      console.log(`Creating notification for admin: ${admin._id} (${admin.email})`);
       const notificationData = {
         recipient: admin._id,
         ...data
@@ -83,9 +86,13 @@ notificationSchema.statics.notifyAdmins = async function(data) {
     }
     
     if (notifications.length > 0) {
-      return this.insertMany(notifications);
+      console.log(`Inserting ${notifications.length} notifications into database`);
+      const result = await this.insertMany(notifications);
+      console.log(`Successfully inserted ${result.length} notifications`);
+      return result;
     }
     
+    console.log('No notifications created - no active admins found');
     return [];
   } catch (error) {
     console.error('Error creating admin notifications:', error);

@@ -97,7 +97,6 @@ router.put('/:id/read', authenticate, async (req, res) => {
       message: 'Notification marked as read',
       data: { notification }
     });
-    
   } catch (error) {
     console.error('Mark notification as read error:', error);
     res.status(500).json({
