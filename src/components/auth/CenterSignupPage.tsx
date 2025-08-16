@@ -1,4 +1,3 @@
-import type React from "react";
 import { useState, useEffect } from "react";
 import {
   ArrowLeft,
@@ -13,6 +12,7 @@ import {
 import { Card } from "../ui/Card";
 import nepalAddressData from "../../data/nepaladdress.json";
 import nepaliBanksData from "../../data/nepali-banks.json";
+import axiosInstance from "../../utils/axios";
 
 interface SignupPageProps {
   onShowLogin: () => void;
@@ -104,13 +104,6 @@ function calculatePasswordStrength(password: string): number {
   return strength;
 }
 
-const submitCenterRegistration = async (
-  formData: FormData
-): Promise<{ status: number }> => {
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  return { status: 200 };
-};
-
 export default function CenterSignupPage({
   onShowLogin,
   onSignupSuccess,
@@ -129,7 +122,6 @@ export default function CenterSignupPage({
     provinces: false,
     districts: false,
   });
-  const [apiErrors, setApiErrors] = useState<{ [key: string]: string }>({});
   const [isDragOver, setIsDragOver] = useState(false);
 
   const [formData, setFormData] = useState<SignupFormData>({
@@ -197,6 +189,7 @@ export default function CenterSignupPage({
     setErrors([]);
     setSubmitState("submitting");
 
+    // Validate form fields
     const newErrors: string[] = [];
 
     if (!formData.centerName.trim()) newErrors.push("Center name is required");
@@ -249,40 +242,65 @@ export default function CenterSignupPage({
 
     try {
       const formDataToSubmit = new FormData();
-      formDataToSubmit.append("centerName", formData.centerName);
+
+      // Append all simple fields
+      formDataToSubmit.append("name", formData.centerName);
       formDataToSubmit.append("email", formData.email);
-      formDataToSubmit.append(
-        "phoneNumber",
-        formatPhoneNumber(formData.phoneNumber)
-      );
       formDataToSubmit.append("password", formData.password);
-      formDataToSubmit.append("province", formData.province);
+      formDataToSubmit.append("phone", formData.phoneNumber);
+      formDataToSubmit.append("role", "CENTER");
+      formDataToSubmit.append("businessName", formData.centerName);
+      formDataToSubmit.append("panNumber", formData.panNumber || "");
+      formDataToSubmit.append("address", formData.district);
       formDataToSubmit.append("district", formData.district);
+      formDataToSubmit.append("province", formData.province);
+
+      // Append contact persons
       formDataToSubmit.append(
-        "contactPerson1Name",
-        formData.contactPerson1.name
+        "contactPersons",
+        JSON.stringify(
+          [
+            {
+              name: formData.contactPerson1.name,
+              phone: formData.contactPerson1.phone,
+            },
+            formData.contactPerson2.name
+              ? {
+                  name: formData.contactPerson2.name,
+                  phone: formData.contactPerson2.phone,
+                }
+              : null,
+          ].filter(Boolean)
+        )
       );
+
+      // Append bank details
       formDataToSubmit.append(
-        "contactPerson1Phone",
-        formatPhoneNumber(formData.contactPerson1.phone)
+        "bankDetails",
+        JSON.stringify({
+          bankName: formData.bankDetails.bankName,
+          accountNumber: formData.bankDetails.accountNumber,
+          branch: formData.bankDetails.branch,
+          holderName: formData.bankDetails.holderName,
+        })
       );
-      if (formData.contactPerson2.name) {
-        formDataToSubmit.append(
-          "contactPerson2Name",
-          formData.contactPerson2.name
-        );
-        formDataToSubmit.append(
-          "contactPerson2Phone",
-          formatPhoneNumber(formData.contactPerson2.phone)
-        );
-      }
+
+      // Append PAN document if exists
       if (panDocument) {
         formDataToSubmit.append("panDocument", panDocument);
       }
 
-      const response = await submitCenterRegistration(formDataToSubmit);
+      const response = await axiosInstance.post(
+        "/api/auth/register",
+        formDataToSubmit,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         setSubmitState("success");
         setTimeout(() => {
           onSignupSuccess();
@@ -290,9 +308,13 @@ export default function CenterSignupPage({
       } else {
         throw new Error("Registration failed");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration error:", error);
-      setErrors(["Registration failed. Please try again."]);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Registration failed. Please try again.";
+      setErrors([errorMessage]);
       setSubmitState("error");
     } finally {
       setIsLoading(false);
@@ -480,6 +502,7 @@ export default function CenterSignupPage({
             className="space-y-0"
             encType="multipart/form-data"
           >
+            {/* Center Information Section */}
             <div className="p-6 bg-orange-50 border-b">
               <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                 <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm mr-2">
@@ -704,6 +727,7 @@ export default function CenterSignupPage({
               </div>
             </div>
 
+            {/* Contact Information Section */}
             <div className="p-6 bg-yellow-50 border-b">
               <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                 <span className="w-6 h-6 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm mr-2">
@@ -805,6 +829,7 @@ export default function CenterSignupPage({
               </div>
             </div>
 
+            {/* Bank Details Section */}
             <div className="p-6 bg-green-50 border-b">
               <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                 <span className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-sm mr-2">
@@ -905,6 +930,7 @@ export default function CenterSignupPage({
               </div>
             </div>
 
+            {/* Documents Section */}
             <div className="p-6 bg-pink-50 border-b">
               <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                 <span className="w-6 h-6 bg-pink-500 text-white rounded-full flex items-center justify-center text-sm mr-2">
@@ -998,6 +1024,7 @@ export default function CenterSignupPage({
               </div>
             </div>
 
+            {/* Submit Section */}
             <div className="p-6 bg-white">
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button

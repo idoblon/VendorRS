@@ -12,132 +12,168 @@ const router = express.Router();
 
 // Generate JWT token
 const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+  console.log(
+    process.env.JWT_SECRET,
+    "Generating token for user ID",
+    process.JWT_EXPIRE
+  );
+  const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE,
   });
+  console.log(`Generated JWT token: ${token}`);
+  return token;
 };
 
 // @route   POST /api/auth/register
 // @desc    Register a new user (vendor or center)
 // @access  Public
-router.post("/register", validateUserRegistration, async (req, res) => {
-  try {
-    const {
-      name,
-      email,
-      password,
-      phone,
-      role,
-      businessName,
-      panNumber,
-      gstNumber,
-      address,
-      district,
-      bankDetails,
-      contactPersons,
-    } = req.body;
+const multer = require("multer");
+const upload = multer(); // Initialize multer for form-data parsing
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({
+router.post(
+  "/register",
+  upload.none(), // Parse form-data without file uploads
+  validateUserRegistration,
+  async (req, res) => {
+    try {
+      // Parse form data
+      const {
+        name,
+        email,
+        password,
+        phone,
+        role,
+        businessName,
+        panNumber,
+        gstNumber,
+        address,
+        district,
+        bankDetails,
+        contactPersons,
+      } = req.body;
+
+      // Parse JSON strings from form data
+      let parsedBankDetails = {};
+      let parsedContactPersons = [];
+
+      try {
+        parsedBankDetails = bankDetails ? JSON.parse(bankDetails) : {};
+        parsedContactPersons = contactPersons ? JSON.parse(contactPersons) : [];
+      } catch (parseError) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid bankDetails or contactPersons format",
+        });
+      }
+
+      // Check if user already exists
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: "User with this email already exists",
+        });
+      }
+
+      // Create user object
+      const userData = {
+        name,
+        email,
+        password,
+        phone,
+        role,
+        status: role === "ADMIN" ? "APPROVED" : "PENDING",
+      };
+
+      // Add role-specific fields
+      if (role === "VENDOR") {
+        userData.businessName = businessName;
+        userData.panNumber = panNumber;
+        userData.gstNumber = gstNumber;
+        userData.address = address;
+        userData.district = district;
+        userData.bankDetails = parsedBankDetails;
+        userData.contactPersons = parsedContactPersons;
+      } else if (role === "CENTER") {
+        userData.businessName = businessName;
+        userData.panNumber = panNumber;
+        userData.address = address;
+        userData.district = district;
+        userData.bankDetails = parsedBankDetails;
+        userData.contactPersons = parsedContactPersons;
+        userData.status = "APPROVED"; // Centers are pre-approved
+      }
+
+      // Create user
+      const user = await User.create(userData);
+
+      // Generate token
+      const token = generateToken(user._id);
+
+      // Update last login
+      user.lastLogin = new Date();
+      await user.save();
+
+      // Create notification for admin
+      if (role === "VENDOR" || role === "CENTER") {
+        try {
+          const Notification = require("../models/Notification");
+          const notificationType =
+            role === "VENDOR" ? "VENDOR_APPLICATION" : "CENTER_APPLICATION";
+          const title =
+            role === "VENDOR"
+              ? "New Vendor Application"
+              : "New Center Application";
+          const message =
+            role === "VENDOR"
+              ? `${businessName} (${name}) has submitted a vendor application for approval.`
+              : `${name} has submitted a center application for approval.`;
+
+          await Notification.notifyAdmins({
+            type: notificationType,
+            title: title,
+            message: message,
+            relatedId: user._id,
+            onModel: "User",
+          });
+        } catch (error) {
+          console.error("Notification creation failed:", error);
+        }
+      }
+
+      res.status(201).json({
+        success: true,
+        message: `${role.toLowerCase()} registered successfully`,
+        data: {
+          user: user.toJSON(),
+          token,
+          expiresIn: process.env.JWT_EXPIRE,
+        },
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({
         success: false,
-        message: "User with this email already exists",
+        message: "Registration failed",
+        error:
+          process.env.NODE_ENV === "development" ? error.message : undefined,
       });
     }
-
-    // Create user object
-    const userData = {
-      name,
-      email,
-      password,
-      phone,
-      role,
-      status: role === "ADMIN" ? "APPROVED" : "PENDING",
-    };
-
-    // Add role-specific fields
-    if (role === "VENDOR") {
-      userData.businessName = businessName;
-      userData.panNumber = panNumber;
-      userData.gstNumber = gstNumber;
-      userData.address = address;
-      userData.district = district;
-      userData.bankDetails = bankDetails;
-      userData.contactPersons = contactPersons || [];
-    } else if (role === "CENTER") {
-      userData.businessName = businessName;
-      userData.panNumber = panNumber;
-      userData.address = address;
-      userData.district = district;
-      userData.bankDetails = bankDetails;
-      userData.contactPersons = contactPersons || [];
-      userData.status = "APPROVED"; // Centers are pre-approved
-    }
-
-    // Create user
-    const user = await User.create(userData);
-
-    // Generate token
-    const token = generateToken(user._id);
-
-    // Update last login
-    user.lastLogin = new Date();
-    await user.save();
-
-    // Create notification for admin if a new vendor or center registers
-    if (role === "VENDOR" || role === "CENTER") {
-      try {
-        const Notification = require("../models/Notification");
-        const notificationType = role === "VENDOR" ? "VENDOR_APPLICATION" : "CENTER_APPLICATION";
-        const title = role === "VENDOR" ? "New Vendor Application" : "New Center Application";
-        const message = role === "VENDOR" 
-          ? `${businessName} (${name}) has submitted a vendor application for approval.`
-          : `${name} has submitted a center application for approval.`;
-        
-        console.log(`Creating ${notificationType} notification for user ${user._id} with name ${name} and status ${userData.status}`);
-        
-        const notifications = await Notification.notifyAdmins({
-          type: notificationType,
-          title: title,
-          message: message,
-          relatedId: user._id,
-          onModel: "User"
-        });
-        
-        console.log(`Created ${notifications?.length || 0} ${notificationType} notifications`);
-      } catch (error) {
-        console.error(`Failed to create ${role} application notification:`, error);
-      }
-    }
-
-    res.status(201).json({
-      success: true,
-      message: `${role.toLowerCase()} registered successfully`,
-      data: {
-        user: user.toJSON(),
-        token,
-        expiresIn: process.env.JWT_EXPIRE,
-      },
-    });
-  } catch (error) {
-    console.error("Registration error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Registration failed",
-      error: process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
   }
-});
+);
 
 // @route   POST /api/auth/login
 // @desc    Login user
 // @access  Public
 router.post("/login", validateUserLogin, async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
     // Find user by email
-    const user = await User.findOne({ email }).select("+password");
+
+    const user = await User.findOne({ email, role: role.toUpperCase() }).select(
+      "+password"
+    );
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -145,11 +181,9 @@ router.post("/login", validateUserLogin, async (req, res) => {
       });
     }
 
-    if (user && (await user.comparePassword(password))) {
-      console.log("password matched");
-    }
     // Check password
     const isPasswordValid = await user.comparePassword(password);
+
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
@@ -167,7 +201,7 @@ router.post("/login", validateUserLogin, async (req, res) => {
 
     // Generate token
     const token = generateToken(user._id);
-
+    console.log(token);
     // Update last login
     user.lastLogin = new Date();
     await user.save();

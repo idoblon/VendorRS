@@ -5,6 +5,7 @@ A comprehensive Node.js backend API for the Vendor Request System with MongoDB i
 ## 🚀 Features
 
 ### Core Functionality
+
 - **User Authentication & Authorization** (JWT-based)
 - **Role-based Access Control** (Admin, Vendor, Center)
 - **Real-time Chat System** (Socket.IO)
@@ -13,6 +14,7 @@ A comprehensive Node.js backend API for the Vendor Request System with MongoDB i
 - **Security Middleware** (Helmet, CORS, Rate Limiting)
 
 ### Business Logic
+
 - **Vendor Management** (Registration, Approval, Profile Management)
 - **Distribution Center Management** (15 Pre-established Centers)
 - **Product Catalog** (Category-based, Multi-center Availability)
@@ -29,22 +31,27 @@ A comprehensive Node.js backend API for the Vendor Request System with MongoDB i
 ## 🛠️ Installation
 
 ### 1. Clone and Navigate
+
 ```bash
 cd c:\Users\hp\Projects\VRS\backend
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 3. Environment Setup
+
 Copy the `.env.example` file to `.env` and update the values:
+
 ```bash
 cp .env.example .env
 ```
 
 The `.env.example` file contains all the required environment variables:
+
 ```env
 # Database Configuration
 MONGODB_URI=mongodb://localhost:27017/vrs_database
@@ -52,7 +59,7 @@ MONGODB_URI=mongodb://localhost:27017/vrs_database
 # Server Configuration
 PORT=5000
 JWT_SECRET=your_secure_jwt_secret_key
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:5000
 
 # User Credentials (for database seeding)
 ADMIN_EMAIL=admin@example.com
@@ -62,14 +69,17 @@ CENTER_PASSWORD=your_secure_center_password
 ```
 
 ### 4. Start MongoDB
+
 Ensure MongoDB is running on `localhost:27017`
 
 ### 5. Seed Database
+
 ```bash
 npm run seed
 ```
 
 ### 6. Start Server
+
 ```bash
 # Development mode with auto-reload
 npm run dev
@@ -81,6 +91,7 @@ npm start
 ## 🗄️ Database Structure
 
 ### Pre-seeded Data
+
 - **1 Admin User** (Credentials configured via environment variables)
 - **15 Distribution Centers** (Across all regions of Nepal)
 - **15 Center Users** (One for each center, credentials configured via environment variables)
@@ -88,6 +99,7 @@ npm start
 - **5 Sample Products** (Distributed across centers)
 
 ### Collections
+
 - **users** - All system users (Admin, Vendors, Centers)
 - **distributioncenters** - Pre-established distribution centers
 - **products** - Product catalog with multi-center availability
@@ -98,6 +110,7 @@ npm start
 ## 🔐 Authentication
 
 ### Login Endpoints
+
 ```bash
 # Regular Login
 POST /api/auth/login
@@ -116,6 +129,7 @@ POST /api/auth/login
 ```
 
 ### Credentials
+
 ```
 All credentials are now configured through environment variables for security.
 Please set the following variables in your .env file:
@@ -129,41 +143,48 @@ CENTER_PASSWORD - Default password for center accounts
 ## 📡 API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
 - `GET /api/auth/verify-token` - Token verification
 
 ### Users
+
 - `GET /api/users/profile` - Get user profile
 - `PUT /api/users/profile` - Update profile
 - `GET /api/users/vendors` - Get all vendors (Admin)
 - `PUT /api/users/vendors/:id/status` - Update vendor status
 
 ### Distribution Centers
+
 - `GET /api/centers` - Get all centers
 - `POST /api/centers` - Create center (Admin)
 - `PUT /api/centers/:id` - Update center (Admin)
 - `PUT /api/centers/:id/status` - Update center status
 
 ### Products
+
 - `GET /api/products` - Get products (with filters)
 - `POST /api/products` - Create product (Vendor)
 - `PUT /api/products/:id` - Update product (Vendor)
 - `PUT /api/products/:id/stock` - Update stock levels
 
 ### Orders
+
 - `GET /api/orders` - Get orders (role-filtered)
 - `POST /api/orders` - Create order (Center)
 - `PUT /api/orders/:id/status` - Update order status
 - `PUT /api/orders/:id/payment` - Update payment status
 
 ### Messages
+
 - `GET /api/messages/conversations` - Get conversations
 - `GET /api/messages/conversations/:id/messages` - Get messages
 - `POST /api/messages` - Send message
 - `POST /api/messages/conversations/:id/mark-read` - Mark as read
 
 ### Admin
+
 - `GET /api/admin/dashboard` - Dashboard data
 - `GET /api/admin/analytics` - Detailed analytics
 - `GET /api/admin/system-health` - System health status
@@ -172,13 +193,15 @@ CENTER_PASSWORD - Default password for center accounts
 ## 🔄 Real-time Features (Socket.IO)
 
 ### Connection
+
 ```javascript
-const socket = io('http://localhost:5000', {
-  auth: { token: 'your-jwt-token' }
+const socket = io("http://localhost:3000", {
+  auth: { token: "your-jwt-token" },
 });
 ```
 
 ### Events
+
 - `send_message` - Send real-time message
 - `join_conversation` - Join conversation room
 - `typing_start/stop` - Typing indicators
@@ -221,6 +244,7 @@ backend/
 ## 🔧 Configuration
 
 ### Environment Variables
+
 ```env
 # Database
 MONGODB_URI=mongodb://localhost:27017/vrs_database
@@ -241,45 +265,13 @@ RATE_LIMIT_WINDOW=15
 RATE_LIMIT_MAX_REQUESTS=100
 ```
 
-## 📊 Distribution Centers
-
-The system includes 15 pre-established distribution centers across India:
-
-### North India
-- Delhi Distribution Center (DL001)
-- Jaipur Distribution Center (RJ001)
-- Lucknow Distribution Center (UP001)
-- Chandigarh Distribution Center (CH001)
-
-### South India
-- Bangalore Tech Hub (KA001)
-- Chennai Operations (TN001)
-- Hyderabad Logistics Hub (TS001)
-- Kochi Distribution Center (KL001)
-
-### West India
-- Mumbai Distribution Center (MH001)
-- Pune Distribution Center (MH002)
-- Ahmedabad Distribution Center (GJ001)
-
-### East India
-- Kolkata Distribution Center (WB001)
-- Bhubaneswar Distribution Center (OR001)
-
-### Central India
-- Indore Distribution Center (MP001)
-
-### Northeast India
-- Guwahati Distribution Center (AS001)
-
 ## 🚦 API Testing
 
 ### Health Check
+
 ```bash
-GET http://localhost:5000/health
+GET http://localhost:3000/health
 ```
-
-
 
 ## 🔒 Security Features
 
@@ -316,6 +308,7 @@ GET http://localhost:5000/health
 ## 🚀 Deployment
 
 ### Production Setup
+
 1. Set `NODE_ENV=production`
 2. Use secure JWT secret
 3. Configure MongoDB Atlas or production database
@@ -324,6 +317,7 @@ GET http://localhost:5000/health
 6. Configure monitoring and logging
 
 ### Docker Support (Optional)
+
 ```dockerfile
 FROM node:16-alpine
 WORKDIR /app
@@ -345,6 +339,7 @@ CMD ["npm", "start"]
 ## 📞 Support
 
 For issues or questions:
+
 - Check the logs in the console
 - Verify MongoDB is running
 - Ensure all environment variables are set

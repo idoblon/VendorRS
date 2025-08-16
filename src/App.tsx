@@ -9,6 +9,7 @@ import { PaymentDemo } from "./components/payment/PaymentDemo";
 import { Toaster } from "./components/ui/Toaster";
 import { User } from "./types/index";
 import SignupSuccessPage from "./components/auth/SignupSuccessPage";
+import axiosInstance from "./utils/axios";
 
 // Define UserRole type locally based on the User interface
 type UserRole = User["role"]; // This will be "admin" | "vendor" | "user"
@@ -29,15 +30,15 @@ const App = () => {
           return;
         }
 
-        const response = await fetch("/api/auth/verify-token", {
+        const response = await axiosInstance.get("/api/auth/verify-token", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        const data = await response.json();
+        const data = await response.data;
 
-        if (response.ok && data.success) {
+        if (response.status === 200 && data.success) {
           // Normalize role to lowercase to match our type
           const user = data.data.user;
           if (user?.role) {

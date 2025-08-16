@@ -1,6 +1,3 @@
-"use client";
-
-import type React from "react";
 import { useState, useEffect } from "react";
 import {
   ArrowLeft,
@@ -15,6 +12,7 @@ import {
 import { Card } from "../ui/Card";
 import nepalAddressData from "../../data/nepaladdress.json";
 import nepaliBanksData from "../../data/nepali-banks.json";
+import axiosInstance from "../../utils/axios";
 
 interface SignupPageProps {
   onShowLogin: () => void;
@@ -23,7 +21,6 @@ interface SignupPageProps {
 
 interface SignupFormData {
   vendorName: string;
-  vendorRole: string;
   panNumber: string;
   email: string;
   phoneNumber: string;
@@ -57,49 +54,6 @@ interface District {
 }
 
 const nepaliBanks = nepaliBanksData;
-
-const vendorRoles = [
-  {
-    value: "service_provider",
-    label: "Service Provider",
-    description: "Provide services like consulting, maintenance, or support",
-  },
-  {
-    value: "product_supplier",
-    label: "Product Supplier",
-    description: "Supply physical products or goods",
-  },
-  {
-    value: "technology_partner",
-    label: "Technology Partner",
-    description: "Provide software, hardware, or technical solutions",
-  },
-  {
-    value: "consultant",
-    label: "Consultant",
-    description: "Offer professional advice and expertise",
-  },
-  {
-    value: "distributor",
-    label: "Distributor",
-    description: "Distribute products from manufacturers to retailers",
-  },
-  {
-    value: "manufacturer",
-    label: "Manufacturer",
-    description: "Produce and manufacture goods",
-  },
-  {
-    value: "retailer",
-    label: "Retailer",
-    description: "Sell products directly to end customers",
-  },
-  {
-    value: "freelancer",
-    label: "Freelancer",
-    description: "Independent contractor offering specialized skills",
-  },
-];
 
 const fetchProvinces = async (): Promise<Province[]> => {
   return nepalAddressData.provinces;
@@ -150,13 +104,6 @@ function calculatePasswordStrength(password: string): number {
   return strength;
 }
 
-const submitVendorRegistration = async (
-  formData: FormData
-): Promise<{ status: number }> => {
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  return { status: 200 };
-};
-
 export default function VendorSignupPage({
   onShowLogin,
   onSignupSuccess,
@@ -175,12 +122,10 @@ export default function VendorSignupPage({
     provinces: false,
     districts: false,
   });
-  const [apiErrors, setApiErrors] = useState<{ [key: string]: string }>({});
   const [isDragOver, setIsDragOver] = useState(false);
 
   const [formData, setFormData] = useState<SignupFormData>({
     vendorName: "",
-    vendorRole: "",
     panNumber: "",
     email: "",
     phoneNumber: "+977",
@@ -244,6 +189,7 @@ export default function VendorSignupPage({
     setErrors([]);
     setSubmitState("submitting");
 
+    // Validate form fields
     const newErrors: string[] = [];
 
     if (!formData.vendorName.trim()) newErrors.push("Vendor name is required");
@@ -296,41 +242,60 @@ export default function VendorSignupPage({
 
     try {
       const formDataToSubmit = new FormData();
-      formDataToSubmit.append("vendorName", formData.vendorName);
-      formDataToSubmit.append("vendorRole", formData.vendorRole);
+
+      // Basic Information
+      formDataToSubmit.append("name", formData.vendorName);
       formDataToSubmit.append("email", formData.email);
-      formDataToSubmit.append(
-        "phoneNumber",
-        formatPhoneNumber(formData.phoneNumber)
-      );
       formDataToSubmit.append("password", formData.password);
+      formDataToSubmit.append("phone", formatPhoneNumber(formData.phoneNumber));
+      formDataToSubmit.append("role", "VENDOR");
+      formDataToSubmit.append("businessName", formData.vendorName);
+      formDataToSubmit.append("panNumber", formData.panNumber);
       formDataToSubmit.append("province", formData.province);
       formDataToSubmit.append("district", formData.district);
-      formDataToSubmit.append(
-        "contactPerson1Name",
-        formData.contactPerson1.name
-      );
-      formDataToSubmit.append(
-        "contactPerson1Phone",
-        formatPhoneNumber(formData.contactPerson1.phone)
-      );
-      if (formData.contactPerson2.name) {
-        formDataToSubmit.append(
-          "contactPerson2Name",
-          formData.contactPerson2.name
-        );
-        formDataToSubmit.append(
-          "contactPerson2Phone",
-          formatPhoneNumber(formData.contactPerson2.phone)
-        );
-      }
+      formDataToSubmit.append("address", formData.district);
+
+      // Contact Persons
+      const contactPersons = [
+        {
+          name: formData.contactPerson1.name,
+          phone: formatPhoneNumber(formData.contactPerson1.phone),
+        },
+        formData.contactPerson2.name
+          ? {
+              name: formData.contactPerson2.name,
+              phone: formatPhoneNumber(formData.contactPerson2.phone),
+            }
+          : null,
+      ].filter(Boolean);
+
+      formDataToSubmit.append("contactPersons", JSON.stringify(contactPersons));
+
+      // Bank Details
+      const bankDetails = {
+        bankName: formData.bankDetails.bankName,
+        accountNumber: formData.bankDetails.accountNumber,
+        branch: formData.bankDetails.branch,
+        holderName: formData.bankDetails.holderName,
+      };
+      formDataToSubmit.append("bankDetails", JSON.stringify(bankDetails));
+
+      // PAN Document
       if (panDocument) {
         formDataToSubmit.append("panDocument", panDocument);
       }
 
-      const response = await submitVendorRegistration(formDataToSubmit);
+      const response = await axiosInstance.post(
+        "/api/auth/register",
+        formDataToSubmit,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         setSubmitState("success");
         setTimeout(() => {
           onSignupSuccess();
@@ -338,9 +303,13 @@ export default function VendorSignupPage({
       } else {
         throw new Error("Registration failed");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration error:", error);
-      setErrors(["Registration failed. Please try again."]);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Registration failed. Please try again.";
+      setErrors([errorMessage]);
       setSubmitState("error");
     } finally {
       setIsLoading(false);
@@ -552,6 +521,23 @@ export default function VendorSignupPage({
                     className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
                   />
                 </div>
+
+                <div>
+                  <label className="block text-gray-700 font-medium mb-1">
+                    PAN Number *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.panNumber}
+                    onChange={(e) =>
+                      handleInputChange("panNumber", e.target.value)
+                    }
+                    required
+                    placeholder="Enter PAN number"
+                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                  />
+                </div>
+
                 <div>
                   <label className="block text-gray-700 font-medium mb-1">
                     Email Address *
