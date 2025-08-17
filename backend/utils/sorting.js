@@ -13,7 +13,6 @@
 const bubbleSort = (array, key = null, ascending = true) => {
   // Create a copy of the array to avoid modifying the original
   const result = [...array];
-  const n = result.length;
   
   // Comparison function based on whether we're sorting objects by key or simple values
   const compare = (a, b) => {
@@ -28,23 +27,8 @@ const bubbleSort = (array, key = null, ascending = true) => {
     }
   };
   
-  // Bubble sort algorithm implementation
-  for (let i = 0; i < n - 1; i++) {
-    let swapped = false;
-    
-    for (let j = 0; j < n - i - 1; j++) {
-      if (compare(result[j], result[j + 1]) > 0) {
-        // Swap elements
-        [result[j], result[j + 1]] = [result[j + 1], result[j]];
-        swapped = true;
-      }
-    }
-    
-    // If no swapping occurred in this pass, array is sorted
-    if (!swapped) break;
-  }
-  
-  return result;
+  // Use JavaScript's built-in sort method which is more efficient than bubble sort
+  return result.sort(compare);
 };
 
 /**

@@ -88,15 +88,15 @@ router.get('/sorted', authenticate, async (req, res) => {
     // Convert to plain objects for sorting
     const plainOrders = orders.map(order => order.toObject());
     
-    // Apply bubble sort algorithm
+    // Apply efficient sorting algorithm
     const ascending = order.toLowerCase() !== 'desc';
     const sortedOrders = sortByField(plainOrders, sortBy, ascending);
     
     res.json({
       success: true,
-      message: 'Orders sorted using bubble sort algorithm',
+      message: 'Orders sorted using efficient sorting algorithm',
       sortingInfo: {
-        algorithm: 'Bubble Sort',
+        algorithm: 'Built-in Sort',
         field: sortBy,
         order: ascending ? 'ascending' : 'descending'
       },
@@ -184,11 +184,20 @@ router.post('/', authenticate, authorize('CENTER'), requireApproval, validateOrd
     }
 
     // Verify stock availability at the center
-    const center = await DistributionCenter.findById(req.user.centerId);
+    const center = await User.findById(req.user.centerId); // Changed to use User model for center
     if (!center) {
       return res.status(400).json({
         success: false,
         message: 'Distribution center not found'
+      });
+    }
+
+    // Get vendor information to calculate discount based on district
+    const vendor = await User.findById(products[0].vendorId); // Get vendor to access district info
+    if (!vendor) {
+      return res.status(400).json({
+        success: false,
+        message: 'Vendor not found'
       });
     }
 
@@ -224,11 +233,38 @@ router.post('/', authenticate, authorize('CENTER'), requireApproval, validateOrd
       });
     }
 
+    // Calculate discount based on vendor's district (up to 15%)
+    let discountAmount = 0;
+    let discountPercentage = 0;
+    
+    if (vendor.district && center.district) {
+      // Simple logic: if vendor and center are in the same district, give 15% discount
+      // If in different districts, give 5% discount (or no discount if not specified)
+      if (vendor.district === center.district) {
+        discountPercentage = 15; // 15% discount for same district
+      } else if (vendor.district !== center.district) {
+        discountPercentage = 5; // 5% discount for different districts
+      }
+      discountAmount = (subtotal * discountPercentage) / 100;
+    }
+
     // Calculate tax and total
     const taxRate = 18; // GST rate
     const taxAmount = (subtotal * taxRate) / 100;
     const shippingCost = 500; // Fixed shipping cost
-    const totalAmount = subtotal + taxAmount + shippingCost;
+    const totalAmountBeforeCommission = subtotal + taxAmount + shippingCost - discountAmount;
+    
+    // Calculate admin commission (up to 10%)
+    let adminCommissionAmount = 0;
+    let adminCommissionPercentage = 0;
+    
+    // For simplicity, we'll calculate a fixed 5% commission from the total amount (before discount)
+    // In a real system, this would be configurable per admin or based on business rules
+    adminCommissionPercentage = 5; // 5% commission (up to 10% max)
+    adminCommissionAmount = (totalAmountBeforeCommission * adminCommissionPercentage) / 100;
+    
+    // Final total amount after commission deduction (for vendor)
+    const finalTotalAmount = totalAmountBeforeCommission - adminCommissionAmount;
 
     // Create order
     const order = await Order.create({
@@ -239,8 +275,8 @@ router.post('/', authenticate, authorize('CENTER'), requireApproval, validateOrd
         subtotal,
         tax: { rate: taxRate, amount: taxAmount },
         shipping: { method: 'Standard', cost: shippingCost },
-        discount: { amount: 0 },
-        totalAmount
+        discount: { amount: discountAmount, value: discountPercentage },
+        totalAmount: finalTotalAmount // Final amount after commission deduction
       },
       deliveryDetails: deliveryDetails || {},
       payment: {
@@ -248,13 +284,18 @@ router.post('/', authenticate, authorize('CENTER'), requireApproval, validateOrd
         status: 'PENDING'
       },
       priority: priority || 'MEDIUM',
-      notes
+      notes,
+      // Add commission information to order
+      adminCommission: {
+        amount: adminCommissionAmount,
+        percentage: adminCommissionPercentage
+      }
     });
 
     // Update product stock (reserve stock)
     for (const item of processedItems) {
       await Product.updateOne(
-        { 
+        {
           _id: item.productId,
           'availability.centerId': center._id
         },
@@ -265,13 +306,13 @@ router.post('/', authenticate, authorize('CENTER'), requireApproval, validateOrd
     }
 
     // Update center's current orders count
-    await DistributionCenter.updateOne(
+    await User.updateOne( // Changed to use User model for center
       { _id: center._id },
       { $inc: { 'operationalDetails.currentOrders': 1 } }
     );
 
     await order.populate('centerId', 'name location code');
-    await order.populate('vendorId', 'name businessName email');
+    await order.populate('vendorId', 'name businessName email district');
     await order.populate('items.productId', 'name category');
 
     res.status(201).json({
@@ -388,6 +429,10 @@ router.put('/:id/status', authenticate, validateObjectId('id'), async (req, res)
         { _id: order.centerId },
         { $inc: { 'operationalDetails.currentOrders': -1 } }
       );
+      
+      // Record admin commission when order is delivered
+      // This would typically be handled by a separate commission service in a real system
+      console.log(`Admin commission of ${order.adminCommission?.amount || 0} recorded for order ${order._id}`);
     } else if (status === 'DELIVERED') {
       // Update delivery date
       order.deliveryDetails.actualDate = new Date();
@@ -459,6 +504,10 @@ router.put('/:id/payment', authenticate, validateObjectId('id'), async (req, res
     if (paymentStatus === 'COMPLETED') {
       order.payment.paidDate = new Date();
       order.payment.paidAmount = order.payment.paidAmount || order.orderSummary.totalAmount;
+      
+      // Record admin commission when payment is completed
+      // This would typically be handled by a separate commission service in a real system
+      console.log(`Admin commission of ${order.adminCommission?.amount || 0} recorded for order ${order._id}`);
     }
 
     await order.save();
@@ -562,6 +611,11 @@ router.get('/stats/overview', authenticate, async (req, res) => {
       Order.aggregate([
         { $match: matchQuery },
         { $group: { _id: null, totalRevenue: { $sum: '$orderSummary.totalAmount' } } }
+      ]),
+      // Get total commission (for admins)
+      Order.aggregate([
+        { $match: matchQuery },
+        { $group: { _id: null, totalCommission: { $sum: '$adminCommission.amount' } } }
       ])
     ]);
 
@@ -571,10 +625,12 @@ router.get('/stats/overview', authenticate, async (req, res) => {
       confirmedOrders,
       deliveredOrders,
       cancelledOrders,
-      revenueStats
+      revenueStats,
+      commissionStats
     ] = stats;
 
     const totalRevenue = revenueStats[0]?.totalRevenue || 0;
+    const totalCommission = commissionStats[0]?.totalCommission || 0;
 
     res.json({
       success: true,
@@ -588,6 +644,10 @@ router.get('/stats/overview', authenticate, async (req, res) => {
         },
         revenue: {
           total: totalRevenue,
+          currency: 'INR'
+        },
+        commission: {
+          total: totalCommission,
           currency: 'INR'
         }
       }
@@ -642,6 +702,24 @@ router.post('/vendor/:vendorId/order', authenticate, async (req, res) => {
       });
     }
 
+    // Get vendor and center information to calculate discount and commission
+    const vendor = await User.findById(vendorId); // Get vendor to access district info
+    const center = await User.findById(centerId); // Get center to access district info
+    
+    if (!vendor) {
+      return res.status(400).json({
+        success: false,
+        message: 'Vendor not found'
+      });
+    }
+    
+    if (!center) {
+      return res.status(400).json({
+        success: false,
+        message: 'Center not found'
+      });
+    }
+
     // Calculate subtotal
     const subtotal = validItems.reduce((sum, item) => sum + item.totalPrice, 0);
 
@@ -652,18 +730,35 @@ router.post('/vendor/:vendorId/order', authenticate, async (req, res) => {
     // Set shipping cost from shippingMethod or 0
     const shippingCost = shippingMethod?.cost || 0;
 
-    // Calculate discount amount
+    // Calculate discount based on vendor's district (up to 15%)
     let discountAmount = 0;
-    if (discount) {
-      if (discount.type === 'percentage') {
-        discountAmount = (subtotal * discount.value) / 100;
-      } else if (discount.type === 'fixed') {
-        discountAmount = discount.value;
+    let discountPercentage = 0;
+    
+    if (vendor.district && center.district) {
+      // Simple logic: if vendor and center are in the same district, give 15% discount
+      // If in different districts, give 5% discount (or no discount if not specified)
+      if (vendor.district === center.district) {
+        discountPercentage = 15; // 15% discount for same district
+      } else if (vendor.district !== center.district) {
+        discountPercentage = 5; // 5% discount for different districts
       }
+      discountAmount = (subtotal * discountPercentage) / 100;
     }
 
-    // Calculate total amount
-    const totalAmount = subtotal + taxAmount + shippingCost - discountAmount;
+    // Calculate total amount before commission
+    const totalAmountBeforeCommission = subtotal + taxAmount + shippingCost - discountAmount;
+    
+    // Calculate admin commission (up to 10%)
+    let adminCommissionAmount = 0;
+    let adminCommissionPercentage = 0;
+    
+    // For simplicity, we'll calculate a fixed 5% commission from the total amount (before discount)
+    // In a real system, this would be configurable per admin or based on business rules
+    adminCommissionPercentage = 5; // 5% commission (up to 10% max)
+    adminCommissionAmount = (totalAmountBeforeCommission * adminCommissionPercentage) / 100;
+    
+    // Final total amount after commission deduction (for vendor)
+    const finalTotalAmount = totalAmountBeforeCommission - adminCommissionAmount;
 
     // Create the order object
     const order = new Order({
@@ -682,7 +777,7 @@ router.post('/vendor/:vendorId/order', authenticate, async (req, res) => {
           value: discount?.value || 0,
           amount: discountAmount
         },
-        totalAmount
+        totalAmount: finalTotalAmount // Final amount after commission deduction
       },
       payment: {
         method: paymentMethod,
@@ -691,7 +786,12 @@ router.post('/vendor/:vendorId/order', authenticate, async (req, res) => {
       },
       status: 'PENDING',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      // Add commission information to order
+      adminCommission: {
+        amount: adminCommissionAmount,
+        percentage: adminCommissionPercentage
+      }
     });
 
     await order.save();
@@ -735,13 +835,19 @@ router.get('/vendor/:vendorId/orders', authenticate, async (req, res) => {
 router.get("/analytics/:vendorId", async (req, res) => {
   const { vendorId } = req.params;
 
-  // get order fomr order table 
+  // get order fomr order table
   const orders = await Order.find({ vendorId });
   // Fetch orders for the specific vendor
 
   const totalOrdersPlaced = orders.length;
 
   const totalAmountSpent = orders.reduce((sum, order) => sum + order.orderSummary.totalAmount, 0);
+  
+  // Calculate total discounts received
+  const totalDiscounts = orders.reduce((sum, order) => sum + (order.orderSummary.discount?.amount || 0), 0);
+  
+  // Calculate total commission paid to admins
+  const totalCommissionPaid = orders.reduce((sum, order) => sum + (order.adminCommission?.amount || 0), 0);
 
   const totalProductOrders = orders.reduce(
     (sum, order) =>
@@ -751,6 +857,8 @@ router.get("/analytics/:vendorId", async (req, res) => {
   const format = [
     { name: 'Total Orders Placed', value: totalOrdersPlaced },
     { name: 'Total Amount Spent', value: totalAmountSpent },
+    { name: 'Total Discounts Received', value: totalDiscounts },
+    { name: 'Total Commission Paid', value: totalCommissionPaid },
     { name: 'Total Products Ordered', value: totalProductOrders }
   ];
 

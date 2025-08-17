@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Package,
   ShoppingCart,
@@ -13,9 +13,15 @@ import {
   LogOut,
   X,
   CreditCard,
+  BarChart3,
 } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
+import {
+  getCentersByCategory,
+  getCenterCategories,
+} from "../../utils/centerApi";
+import { getVendorAnalytics } from "../../utils/vendorApi";
 
 interface VendorDashboardProps {
   vendorName?: string;
@@ -28,7 +34,27 @@ export default function VendorDashboard({
 }: VendorDashboardProps) {
   const [activeTab, setActiveTab] = useState("marketplace");
   const [showProfileModal, setShowProfileModal] = useState(false);
-  
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [centersByCategory, setCentersByCategory] = useState<any[]>([]);
+  const [showCategorySearch, setShowCategorySearch] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<string[]>([]);
+
+  // Fetch categories when component mounts
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categoryList = await getCenterCategories();
+        setCategories(categoryList);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   // Mock vendor profile data
   const vendorProfile = {
     businessName: vendorName,
@@ -43,13 +69,13 @@ export default function VendorDashboard({
     bankDetails: {
       bankName: "Nepal Bank Ltd",
       accountNumber: "1234567890",
-      holderName: "ABC Trading Co."
+      holderName: "ABC Trading Co.",
     },
     documents: [
       { name: "PAN Card", type: "PDF Document", id: "doc1" },
       { name: "Business Registration", type: "PDF Document", id: "doc2" },
-      { name: "Bank Statement", type: "PDF Document", id: "doc3" }
-    ]
+      { name: "Bank Statement", type: "PDF Document", id: "doc3" },
+    ],
   };
   const [cart, setCart] = useState<any[]>([]);
   const [showCart, setShowCart] = useState(false);
@@ -998,14 +1024,110 @@ export default function VendorDashboard({
       </div>
 
       <Card className="p-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <input
-            type="text"
-            placeholder="Search products from centers..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-          />
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <input
+              type="text"
+              placeholder="Search products from centers..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+            />
+          </div>
+          <Button
+            onClick={() => setShowCategorySearch(!showCategorySearch)}
+            className="bg-orange-600 hover:bg-orange-700"
+          >
+            Search by Category
+          </Button>
         </div>
+
+        {showCategorySearch && (
+          <div className="mt-4 p-4 bg-orange-50 rounded-lg border border-orange-200">
+            <h4 className="font-medium text-gray-900 mb-2">
+              Search Centers by Category
+            </h4>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+              >
+                <option value="">Select a category</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+              <Button
+                onClick={async () => {
+                  if (!selectedCategory) return;
+
+                  try {
+                    setLoading(true);
+                    setError(null);
+                    const data = await getCentersByCategory(selectedCategory);
+                    setCentersByCategory(data);
+                  } catch (err) {
+                    setError("Failed to fetch centers");
+                    console.error("Error fetching centers:", err);
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                className="bg-orange-600 hover:bg-orange-700"
+                disabled={loading}
+              >
+                {loading ? "Searching..." : "Search Centers"}
+              </Button>
+            </div>
+
+            {error && (
+              <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200">
+                {error}
+              </div>
+            )}
+
+            {centersByCategory.length > 0 && (
+              <div className="mt-4">
+                <h5 className="font-medium text-gray-900 mb-2">
+                  Matching Centers
+                </h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {centersByCategory.map((center) => (
+                    <div
+                      key={center._id}
+                      className="flex items-center p-3 bg-white rounded-lg border border-orange-200 shadow-sm"
+                    >
+                      <img
+                        src={center.image || "/placeholder-0undu.png"}
+                        alt={center.name}
+                        className="w-12 h-12 object-cover rounded-lg mr-3"
+                      />
+                      <div className="flex-1">
+                        <h6 className="font-medium text-gray-900">
+                          {center.name}
+                        </h6>
+                        <p className="text-sm text-gray-600">
+                          {center.location}
+                        </p>
+                        <div className="flex items-center mt-1">
+                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                          <span className="text-sm text-gray-600 ml-1">
+                            {center.rating}
+                          </span>
+                        </div>
+                      </div>
+                      <Button variant="outline" size="sm" className="ml-2">
+                        View
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </Card>
 
       {/* Products from Centers */}
@@ -1132,49 +1254,82 @@ export default function VendorDashboard({
     <div className="space-y-6">
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold text-gray-900">Vendor Profile</h3>
-          <Button 
-            variant="primary" 
+          <h3 className="text-xl font-semibold text-gray-900">
+            Vendor Profile
+          </h3>
+          <Button
+            variant="primary"
             size="sm"
             onClick={() => setShowProfileModal(true)}
           >
             View Details
           </Button>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-gray-700 mb-2">Business Information</h4>
+            <h4 className="font-medium text-gray-700 mb-2">
+              Business Information
+            </h4>
             <div className="space-y-2">
-              <p className="text-sm"><span className="text-gray-500">Business Name:</span> {vendorProfile.businessName}</p>
-              <p className="text-sm"><span className="text-gray-500">Owner/Manager:</span> {vendorProfile.ownerName}</p>
-              <p className="text-sm"><span className="text-gray-500">Status:</span> 
+              <p className="text-sm">
+                <span className="text-gray-500">Business Name:</span>{" "}
+                {vendorProfile.businessName}
+              </p>
+              <p className="text-sm">
+                <span className="text-gray-500">Owner/Manager:</span>{" "}
+                {vendorProfile.ownerName}
+              </p>
+              <p className="text-sm">
+                <span className="text-gray-500">Status:</span>
                 <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                   {vendorProfile.status}
                 </span>
               </p>
-              <p className="text-sm"><span className="text-gray-500">Joined Date:</span> {vendorProfile.joinedDate}</p>
+              <p className="text-sm">
+                <span className="text-gray-500">Joined Date:</span>{" "}
+                {vendorProfile.joinedDate}
+              </p>
             </div>
           </div>
-          
+
           <div>
-            <h4 className="font-medium text-gray-700 mb-2">Contact Information</h4>
+            <h4 className="font-medium text-gray-700 mb-2">
+              Contact Information
+            </h4>
             <div className="space-y-2">
-              <p className="text-sm"><span className="text-gray-500">Email:</span> {vendorProfile.email}</p>
-              <p className="text-sm"><span className="text-gray-500">Phone:</span> {vendorProfile.phone}</p>
-              <p className="text-sm"><span className="text-gray-500">Address:</span> {vendorProfile.address}</p>
-              <p className="text-sm"><span className="text-gray-500">District:</span> {vendorProfile.district}</p>
+              <p className="text-sm">
+                <span className="text-gray-500">Email:</span>{" "}
+                {vendorProfile.email}
+              </p>
+              <p className="text-sm">
+                <span className="text-gray-500">Phone:</span>{" "}
+                {vendorProfile.phone}
+              </p>
+              <p className="text-sm">
+                <span className="text-gray-500">Address:</span>{" "}
+                {vendorProfile.address}
+              </p>
+              <p className="text-sm">
+                <span className="text-gray-500">District:</span>{" "}
+                {vendorProfile.district}
+              </p>
             </div>
           </div>
         </div>
       </Card>
-      
+
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Uploaded Documents</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          Uploaded Documents
+        </h3>
         {vendorProfile.documents && vendorProfile.documents.length > 0 ? (
           <div className="space-y-3">
             {vendorProfile.documents.map((doc) => (
-              <div key={doc.id} className="flex items-center justify-between p-3 border rounded-lg">
+              <div
+                key={doc.id}
+                className="flex items-center justify-between p-3 border rounded-lg"
+              >
                 <div>
                   <p className="font-medium">{doc.name}</p>
                   <p className="text-sm text-gray-500">{doc.type}</p>
@@ -1191,16 +1346,18 @@ export default function VendorDashboard({
       </Card>
     </div>
   );
-  
+
   // Profile Modal
   const renderProfileModal = () => {
     if (!showProfileModal) return null;
-    
+
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
           <div className="p-6 border-b sticky top-0 bg-white z-10 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">Vendor Profile Details</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Vendor Profile Details
+            </h2>
             <button
               onClick={() => setShowProfileModal(false)}
               className="text-gray-500 hover:text-gray-700"
@@ -1208,11 +1365,13 @@ export default function VendorDashboard({
               <X className="h-5 w-5" />
             </button>
           </div>
-          
+
           <div className="p-6 space-y-6">
             {/* Business Information */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Business Information</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">
+                Business Information
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Business Name</p>
@@ -1236,10 +1395,12 @@ export default function VendorDashboard({
                 </div>
               </div>
             </div>
-            
+
             {/* Contact Information */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Contact Information</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">
+                Contact Information
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
@@ -1259,10 +1420,12 @@ export default function VendorDashboard({
                 </div>
               </div>
             </div>
-            
+
             {/* Business Details */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Business Details</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">
+                Business Details
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">PAN Number</p>
@@ -1270,26 +1433,37 @@ export default function VendorDashboard({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Bank Name</p>
-                  <p className="font-medium">{vendorProfile.bankDetails.bankName}</p>
+                  <p className="font-medium">
+                    {vendorProfile.bankDetails.bankName}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Account Number</p>
-                  <p className="font-medium">{vendorProfile.bankDetails.accountNumber}</p>
+                  <p className="font-medium">
+                    {vendorProfile.bankDetails.accountNumber}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Account Holder</p>
-                  <p className="font-medium">{vendorProfile.bankDetails.holderName}</p>
+                  <p className="font-medium">
+                    {vendorProfile.bankDetails.holderName}
+                  </p>
                 </div>
               </div>
             </div>
-            
+
             {/* Document Viewer Section */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Uploaded Documents</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">
+                Uploaded Documents
+              </h3>
               {vendorProfile.documents && vendorProfile.documents.length > 0 ? (
                 <div className="space-y-3">
                   {vendorProfile.documents.map((doc) => (
-                    <div key={doc.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div
+                      key={doc.id}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
                       <div>
                         <p className="font-medium">{doc.name}</p>
                         <p className="text-sm text-gray-500">{doc.type}</p>
@@ -1391,7 +1565,6 @@ export default function VendorDashboard({
           </div>
         </div>
       </div>
-
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex space-x-8">
@@ -1416,16 +1589,102 @@ export default function VendorDashboard({
           </nav>
         </div>
       </div>
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === "marketplace" && renderMarketplace()}
         {activeTab === "orders" && renderOrders()}
         {activeTab === "profile" && renderProfileContent()}
       </div>
-
       {showCart && renderCartModal()}
       {showPayment && renderPaymentModal()}
+      {/* Analytics content */}
+      const renderAnalytics = () = (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Business Analytics
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Orders Placed
+                </p>
+                <p className="text-2xl font-bold text-gray-900">89</p>
+              </div>
+              <ShoppingCart className="h-8 w-8 text-blue-600" />
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Amount Spent
+                </p>
+                <p className="text-2xl font-bold text-gray-900">रू 1,85,000</p>
+              </div>
+              <DollarSign className="h-8 w-8 text-green-600" />
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Discounts Received
+                </p>
+                <p className="text-2xl font-bold text-gray-900">रू 12,000</p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-orange-600" />
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Commission Paid
+                </p>
+                <p className="text-2xl font-bold text-gray-900">रू 9,250</p>
+              </div>
+              <CreditCard className="h-8 w-8 text-purple-600" />
+            </div>
+          </Card>
+        </div>
+
+        <Card className="p-6">
+          <h4 className="text-md font-semibold text-gray-900 mb-4">
+            Analytics Breakdown
+          </h4>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+              <span className="font-medium">Total Orders Placed</span>
+              <span className="font-bold">89</span>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+              <span className="font-medium">Total Amount Spent</span>
+              <span className="font-bold">रू 1,85,000</span>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+              <span className="font-medium">Total Discounts Received</span>
+              <span className="font-bold text-green-600">रू 12,000</span>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+              <span className="font-medium">Total Commission Paid</span>
+              <span className="font-bold text-red-600">रू 9,250</span>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+              <span className="font-medium">Total Products Ordered</span>
+              <span className="font-bold">450</span>
+            </div>
+          </div>
+        </Card>
+      </div>
+      );
       {renderProfileModal()}
     </div>
   );

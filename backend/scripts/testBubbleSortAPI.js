@@ -104,4 +104,4 @@ const testBubbleSortAPI = async () => {
 };
 
 // Run the test
-testBubbleSortAPI();
+testEfficientSortAPI();

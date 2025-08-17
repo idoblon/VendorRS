@@ -98,6 +98,14 @@ const userSchema = new mongoose.Schema({
       return this.role === "CENTER";
     },
   },
+  // Center categories for product matching
+  categories: {
+    type: [String],
+    required: function () {
+      return this.role === "CENTER";
+    },
+    default: []
+  },
   isActive: {
     type: Boolean,
     default: true,

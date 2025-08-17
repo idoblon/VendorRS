@@ -55,11 +55,12 @@ export function DashboardLayout({
   };
 
   const sidebarItems = [
-    { id: "overview", label: "Overview", icon: "📊" },
-    { id: "vendors", label: "Vendors", icon: "👥" },
-    { id: "centers", label: "Centers", icon: "🏢" },
-    { id: "applications", label: "Applications", icon: "📋" },
-  ];
+      { id: "overview", label: "Overview", icon: "📊" },
+      { id: "vendors", label: "Vendors", icon: "👥" },
+      { id: "centers", label: "Centers", icon: "🏢" },
+      { id: "categories", label: "Categories", icon: "🏷️" },
+      { id: "applications", label: "Applications", icon: "📋" },
+    ];
 
   return (
     <div className="min-h-screen bg-gray-50">

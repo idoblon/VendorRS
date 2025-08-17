@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import {
   LayoutDashboard,
@@ -16,11 +16,17 @@ import {
   User,
   LogOut,
   ChevronDown,
+  X,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./../ui/tabs";
 import { Badge } from "../ui/badge";
+import {
+  getCategories,
+  createCategory,
+  deleteCategory,
+} from "../../utils/categoryApi";
 
 interface Product {
   id: string;
@@ -47,7 +53,7 @@ interface IncomingOrder {
     total: number;
   }>;
   totalAmount: number;
-  status: "pending" | "confirmed" | "shipped" | "delivered";
+  status: "pending" | "confirmed" | "processing" | "shipped" | "delivered";
   requestedDeliveryDate: string;
   createdDate: string;
   updatedDate: string;
@@ -63,7 +69,14 @@ export default function CenterDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [categories, setCategories] = useState<{ _id: string; name: string }[]>(
+    []
+  );
+  const [newCategory, setNewCategory] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   // Mock center profile data
   const centerProfile = {
     name: "Kathmandu Distribution Center",
@@ -81,8 +94,8 @@ export default function CenterDashboard() {
     documents: [
       { name: "Registration Certificate", type: "PDF Document", id: "doc1" },
       { name: "Facility Layout", type: "PDF Document", id: "doc2" },
-      { name: "Safety Compliance", type: "PDF Document", id: "doc3" }
-    ]
+      { name: "Safety Compliance", type: "PDF Document", id: "doc3" },
+    ],
   };
 
   // Mock data - Center's inventory with more demo items
@@ -412,6 +425,62 @@ export default function CenterDashboard() {
     console.log("Logging out...");
   };
 
+  // Category management functions
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const data = await getCategories();
+      setCategories(data);
+      setError(null);
+    } catch (err) {
+      setError("Failed to fetch categories");
+      console.error("Error fetching categories:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addCategory = async () => {
+    if (!newCategory.trim()) return;
+
+    try {
+      setLoading(true);
+      const data = await createCategory(newCategory.trim());
+      setCategories([...categories, data]);
+      setNewCategory("");
+      setError(null);
+    } catch (err) {
+      setError("Failed to create category");
+      console.error("Error creating category:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeCategory = async (categoryToRemove: {
+    _id: string;
+    name: string;
+  }) => {
+    try {
+      setLoading(true);
+      await deleteCategory(categoryToRemove._id);
+      setCategories(
+        categories.filter((cat) => cat._id !== categoryToRemove._id)
+      );
+      setError(null);
+    } catch (err) {
+      setError("Failed to delete category");
+      console.error("Error deleting category:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load categories when component mounts
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   // Profile content
   const renderProfileContent = () => (
     <div className="space-y-6">
@@ -419,8 +488,8 @@ export default function CenterDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>Center Profile</span>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => setShowProfileModal(true)}
             >
@@ -431,33 +500,62 @@ export default function CenterDashboard() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-medium text-gray-700 mb-2">Center Information</h4>
+              <h4 className="font-medium text-gray-700 mb-2">
+                Center Information
+              </h4>
               <div className="space-y-2">
-                <p className="text-sm"><span className="text-gray-500">Center Name:</span> {centerProfile.name}</p>
-                <p className="text-sm"><span className="text-gray-500">Manager:</span> {centerProfile.managerName}</p>
-                <p className="text-sm"><span className="text-gray-500">Status:</span> 
+                <p className="text-sm">
+                  <span className="text-gray-500">Center Name:</span>{" "}
+                  {centerProfile.name}
+                </p>
+                <p className="text-sm">
+                  <span className="text-gray-500">Manager:</span>{" "}
+                  {centerProfile.managerName}
+                </p>
+                <p className="text-sm">
+                  <span className="text-gray-500">Status:</span>
                   <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     {centerProfile.status}
                   </span>
                 </p>
-                <p className="text-sm"><span className="text-gray-500">Established Date:</span> {centerProfile.establishedDate}</p>
-                <p className="text-sm"><span className="text-gray-500">Region:</span> {centerProfile.region}</p>
+                <p className="text-sm">
+                  <span className="text-gray-500">Established Date:</span>{" "}
+                  {centerProfile.establishedDate}
+                </p>
+                <p className="text-sm">
+                  <span className="text-gray-500">Region:</span>{" "}
+                  {centerProfile.region}
+                </p>
               </div>
             </div>
-            
+
             <div>
-              <h4 className="font-medium text-gray-700 mb-2">Contact Information</h4>
+              <h4 className="font-medium text-gray-700 mb-2">
+                Contact Information
+              </h4>
               <div className="space-y-2">
-                <p className="text-sm"><span className="text-gray-500">Email:</span> {centerProfile.email}</p>
-                <p className="text-sm"><span className="text-gray-500">Phone:</span> {centerProfile.phone}</p>
-                <p className="text-sm"><span className="text-gray-500">Address:</span> {centerProfile.address}</p>
-                <p className="text-sm"><span className="text-gray-500">District:</span> {centerProfile.district}</p>
+                <p className="text-sm">
+                  <span className="text-gray-500">Email:</span>{" "}
+                  {centerProfile.email}
+                </p>
+                <p className="text-sm">
+                  <span className="text-gray-500">Phone:</span>{" "}
+                  {centerProfile.phone}
+                </p>
+                <p className="text-sm">
+                  <span className="text-gray-500">Address:</span>{" "}
+                  {centerProfile.address}
+                </p>
+                <p className="text-sm">
+                  <span className="text-gray-500">District:</span>{" "}
+                  {centerProfile.district}
+                </p>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Operational Details</CardTitle>
@@ -470,16 +568,20 @@ export default function CenterDashboard() {
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-500">Current Orders</p>
-              <p className="text-xl font-semibold">{centerProfile.currentOrders}</p>
+              <p className="text-xl font-semibold">
+                {centerProfile.currentOrders}
+              </p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-500">Utilization</p>
-              <p className="text-xl font-semibold">{centerProfile.utilization}</p>
+              <p className="text-xl font-semibold">
+                {centerProfile.utilization}
+              </p>
             </div>
           </div>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Uploaded Documents</CardTitle>
@@ -488,7 +590,10 @@ export default function CenterDashboard() {
           {centerProfile.documents && centerProfile.documents.length > 0 ? (
             <div className="space-y-3">
               {centerProfile.documents.map((doc) => (
-                <div key={doc.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div
+                  key={doc.id}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
                   <div>
                     <p className="font-medium">{doc.name}</p>
                     <p className="text-sm text-gray-500">{doc.type}</p>
@@ -504,18 +609,71 @@ export default function CenterDashboard() {
           )}
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Center Categories</CardTitle>
+          <p className="text-sm text-gray-600">
+            Manage the product categories your center supports
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                placeholder="Add new category"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                onKeyPress={(e) => e.key === "Enter" && addCategory()}
+              />
+              <Button onClick={addCategory} variant="outline">
+                Add
+              </Button>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {loading ? (
+                <p className="text-gray-500">Loading categories...</p>
+              ) : error ? (
+                <p className="text-red-500">{error}</p>
+              ) : categories.length > 0 ? (
+                categories.map((category) => (
+                  <div
+                    key={category._id}
+                    className="flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
+                  >
+                    <span>{category.name}</span>
+                    <button
+                      onClick={() => removeCategory(category)}
+                      className="ml-2 text-green-600 hover:text-green-900"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500">No categories found</p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
-  
+
   // Profile Modal
   const renderProfileModal = () => {
     if (!showProfileModal) return null;
-    
+
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
           <div className="p-6 border-b sticky top-0 bg-white z-10 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">Center Profile Details</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Center Profile Details
+            </h2>
             <button
               onClick={() => setShowProfileModal(false)}
               className="text-gray-500 hover:text-gray-700"
@@ -523,11 +681,13 @@ export default function CenterDashboard() {
               <X className="h-5 w-5" />
             </button>
           </div>
-          
+
           <div className="p-6 space-y-6">
             {/* Center Information */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Center Information</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">
+                Center Information
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Center Name</p>
@@ -555,10 +715,12 @@ export default function CenterDashboard() {
                 </div>
               </div>
             </div>
-            
+
             {/* Contact Information */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Contact Information</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">
+                Contact Information
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
@@ -578,10 +740,12 @@ export default function CenterDashboard() {
                 </div>
               </div>
             </div>
-            
+
             {/* Operational Details */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Operational Details</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">
+                Operational Details
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Storage Capacity</p>
@@ -597,14 +761,19 @@ export default function CenterDashboard() {
                 </div>
               </div>
             </div>
-            
+
             {/* Document Viewer Section */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Uploaded Documents</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">
+                Uploaded Documents
+              </h3>
               {centerProfile.documents && centerProfile.documents.length > 0 ? (
                 <div className="space-y-3">
                   {centerProfile.documents.map((doc) => (
-                    <div key={doc.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div
+                      key={doc.id}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
                       <div>
                         <p className="font-medium">{doc.name}</p>
                         <p className="text-sm text-gray-500">{doc.type}</p>
@@ -618,6 +787,57 @@ export default function CenterDashboard() {
               ) : (
                 <p className="text-gray-500">No documents uploaded</p>
               )}
+            </div>
+
+            {/* Category Management Section */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">
+                Center Categories
+              </h3>
+              <p className="text-sm text-gray-600 mb-3">
+                Manage the product categories your center supports
+              </p>
+
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    placeholder="Add new category"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    onKeyPress={(e) => e.key === "Enter" && addCategory()}
+                  />
+                  <Button onClick={addCategory} variant="outline">
+                    Add
+                  </Button>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {loading ? (
+                    <p className="text-gray-500">Loading categories...</p>
+                  ) : error ? (
+                    <p className="text-red-500">{error}</p>
+                  ) : categories.length > 0 ? (
+                    categories.map((category) => (
+                      <div
+                        key={category._id}
+                        className="flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
+                      >
+                        <span>{category.name}</span>
+                        <button
+                          onClick={() => removeCategory(category)}
+                          className="ml-2 text-green-600 hover:text-green-900"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500">No categories found</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -967,7 +1187,7 @@ export default function CenterDashboard() {
                             >
                               Confirm Order
                             </Button>
-                            <Button variant="destructive" size="sm">
+                            <Button variant="danger" size="sm">
                               Decline
                             </Button>
                           </>
@@ -1052,7 +1272,7 @@ export default function CenterDashboard() {
           </TabsContent>
         </Tabs>
       </div>
-      
+
       {renderProfileModal()}
     </div>
   );

@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Users, Building, BarChart3, Search, Eye, FileText } from "lucide-react"
+import { Users, Building, BarChart3, Search, Eye, FileText, Plus, X } from "lucide-react"
 import { DashboardLayout } from "./../layout/DashboardLayout"
 import { Card } from "./../ui/Card"
 import { Button } from "./../ui/Button"
 import { type User, type Vendor, VendorStatus } from "../../types/index"
 import { ApplicationsComponent } from "./ApplicationsComponent"
+import { getCategories, createCategory, deleteCategory } from "../../utils/categoryApi"
 
 interface AdminDashboardProps {
   user: User
@@ -42,6 +43,11 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterStatus, setFilterStatus] = useState("all")
   const [vendors, setVendors] = useState<Vendor[]>([])
+  const [categories, setCategories] = useState<{_id: string, name: string}[]>([])
+  const [newCategory, setNewCategory] = useState("")
+  const [showCategoryForm, setShowCategoryForm] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const [centerForm, setCenterForm] = useState<CenterFormData>({
     name: "",
@@ -97,7 +103,7 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
     },
   ])
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [categoryError, setCategoryError] = useState<string | null>(null)
   const [showVendorModal, setShowVendorModal] = useState(false)
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null)
   const [actionNotes, setActionNotes] = useState("")
@@ -295,15 +301,68 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
   }
 
   const handleCenterAction = (centerId: string, action: "activate" | "deactivate" | "maintenance" | "delete") => {
-    const actionMessages = {
-      activate: "Distribution center activated",
-      deactivate: "Distribution center deactivated",
-      maintenance: "Distribution center set to maintenance mode",
-      delete: "Distribution center deleted",
+      const actionMessages = {
+        activate: "Distribution center activated",
+        deactivate: "Distribution center deactivated",
+        maintenance: "Distribution center set to maintenance mode",
+        delete: "Distribution center deleted",
+      }
+  
+      console.log(actionMessages[action])
     }
-
-    console.log(actionMessages[action])
-  }
+  
+    // Category management functions
+      const fetchCategories = async () => {
+        try {
+          setLoading(true);
+          const data = await getCategories();
+          setCategories(data);
+          setCategoryError(null);
+        } catch (err) {
+          setCategoryError("Failed to fetch categories");
+          console.error("Error fetching categories:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      const addCategory = async () => {
+        if (!newCategory.trim()) return;
+        
+        try {
+          setLoading(true);
+          const data = await createCategory(newCategory.trim());
+          setCategories([...categories, data]);
+          setNewCategory("");
+          setCategoryError(null);
+        } catch (err) {
+          setCategoryError("Failed to create category");
+          console.error("Error creating category:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      const removeCategory = async (categoryToRemove: { _id: string, name: string }) => {
+        try {
+          setLoading(true);
+          await deleteCategory(categoryToRemove._id);
+          setCategories(categories.filter(cat => cat._id !== categoryToRemove._id));
+          setCategoryError(null);
+        } catch (err) {
+          setCategoryError("Failed to delete category");
+          console.error("Error deleting category:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      // Load categories when component mounts or when activeTab changes to categories
+      useEffect(() => {
+        if (activeTab === "categories") {
+          fetchCategories();
+        }
+      }, [activeTab]);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -676,8 +735,79 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
           </div>
         )
 
-      case "applications":
-        return <ApplicationsComponent />
+      case "categories":
+              return (
+                <div className="space-y-6 bg-gradient-to-br from-purple-50/30 to-indigo-50/30 min-h-screen -m-6 p-6">
+                  <div className="bg-gradient-to-r from-purple-600 to-indigo-700 text-white p-6 rounded-xl shadow-lg">
+                    <h1 className="text-3xl font-bold">Category Management</h1>
+                    <p className="text-purple-100 mt-2">Manage product categories for the platform</p>
+                  </div>
+      
+                  <Card className="bg-gradient-to-br from-white to-purple-50/50 border-purple-200 shadow-lg p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-lg font-semibold text-slate-900">Add New Category</h2>
+                      <Button
+                        onClick={() => setShowCategoryForm(!showCategoryForm)}
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        {showCategoryForm ? "Cancel" : "Add Category"}
+                      </Button>
+                    </div>
+      
+                    {showCategoryForm && (
+                      <div className="mb-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                        <div className="flex gap-3">
+                          <input
+                            type="text"
+                            value={newCategory}
+                            onChange={(e) => setNewCategory(e.target.value)}
+                            placeholder="Enter new category name"
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            onKeyPress={(e) => e.key === 'Enter' && addCategory()}
+                          />
+                          <Button
+                            onClick={addCategory}
+                            className="bg-purple-600 hover:bg-purple-700"
+                          >
+                            Add
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+      
+                    <div>
+                      <h3 className="text-md font-semibold text-slate-900 mb-4">Existing Categories</h3>
+                                      {loading ? (
+                                        <p className="text-gray-500">Loading categories...</p>
+                                      ) : categoryError ? (
+                                        <p className="text-red-500">{categoryError}</p>
+                                      ) : categories.length > 0 ? (
+                                        <div className="flex flex-wrap gap-2">
+                                          {categories.map((category) => (
+                                            <div
+                                              key={category._id}
+                                              className="flex items-center bg-purple-100 text-purple-800 px-4 py-2 rounded-full"
+                                            >
+                                              <span>{category.name}</span>
+                                              <button
+                                                onClick={() => removeCategory(category)}
+                                                className="ml-2 text-purple-600 hover:text-purple-900"
+                                              >
+                                                <X className="h-4 w-4" />
+                                              </button>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      ) : (
+                                        <p className="text-gray-500">No categories found</p>
+                                      )}
+                    </div>
+                  </Card>
+                </div>
+              )
+      
+            case "applications":
+              return <ApplicationsComponent />
 
       // Default case for other tabs
       default:

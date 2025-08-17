@@ -551,6 +551,32 @@ router.get('/center/:centerId', async (req, res) => {
       message: 'Failed to fetch center products' + error
     });
   }
+// @route   GET /api/products/vendor/:vendorId/category/:category
+// @desc    Get products by vendor and category
+// @access  Private
+router.get('/vendor/:vendorId/category/:category', authenticate, async (req, res) => {
+  try {
+    const category = req.params.category;
+    
+    const products = await Product.find({
+      vendorId: req.params.vendorId,
+      category: category,
+      isActive: true
+    })
+    .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: { products }
+    });
+  } catch (error) {
+    console.error('Get vendor products by category error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch vendor products by category'
+    });
+  }
+});
 });
 
 module.exports = router;

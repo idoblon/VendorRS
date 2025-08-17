@@ -62,6 +62,11 @@ const orderSchema = new mongoose.Schema({
       value: Number,
       amount: { type: Number, default: 0 }
     },
+    // Admin commission (if applicable)
+    adminCommission: {
+      amount: { type: Number, default: 0 },
+      percentage: { type: Number, default: 0 }
+    },
     totalAmount: {
       type: Number,
       required: true,
