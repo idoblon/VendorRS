@@ -414,15 +414,21 @@ router.get('/categories', authenticate, async (req, res) => {
   try {
     const categories = [
       'Electronics',
-      'Furniture', 
-      'Stationery',
-      'Wearables',
+      'Furniture',
+      'Clothing',
+      'Footwear',
       'Accessories',
       'Books',
       'Sports',
       'Home & Garden',
       'Automotive',
-      'Health & Beauty'
+      'Health & Beauty',
+      'Spices & Herbs',
+      'Grains & Pulses',
+      'Beverages',
+      'Snacks & Sweets',
+      'Stationery',
+      'Wearables'
     ];
 
     res.json({

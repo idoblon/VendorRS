@@ -11,11 +11,28 @@ echo.
 echo Starting VRS Backend and Frontend...
 echo.
 
-echo [1/4] Checking MongoDB status...
+echo [1/5] Checking environment files...
+if not exist ".env" (
+  echo Frontend .env file not found. Creating default .env file...
+  echo VITE_API_URL=http://localhost:5000 > .env
+  echo Frontend .env file created.
+)
+
+if not exist "backend\.env" (
+  echo Backend .env file not found. Please create one based on .env.example
+  echo You can copy backend\.env.example to backend\.env and modify as needed
+  pause
+  exit
+)
+
+echo Environment files checked.
+echo.
+
+echo [2/5] Checking MongoDB status...
 echo Please ensure MongoDB is running on localhost:27017
 echo.
 
-echo [2/4] Starting Backend Server...
+echo [3/5] Starting Backend Server...
 cd backend
 start "VRS Backend" cmd /k "npm run dev"
 echo Backend starting on http://localhost:5000
@@ -23,7 +40,7 @@ echo.
 
 timeout /t 3 /nobreak >nul
 
-echo [3/4] Starting Frontend Development Server...
+echo [4/5] Starting Frontend Development Server...
 cd ..
 start "VRS Frontend" cmd /k "npm run dev"
 echo Frontend starting on http://localhost:3000
@@ -31,7 +48,7 @@ echo.
 
 timeout /t 2 /nobreak >nul
 
-echo [4/4] Opening System in Browser...
+echo [5/5] Opening System in Browser...
 timeout /t 5 /nobreak >nul
 start http://localhost:3000
 

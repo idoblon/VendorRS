@@ -195,7 +195,7 @@ CENTER_PASSWORD - Default password for center accounts
 ### Connection
 
 ```javascript
-const socket = io("http://localhost:3000", {
+const socket = io("http://localhost:5000", {
   auth: { token: "your-jwt-token" },
 });
 ```
@@ -258,7 +258,7 @@ JWT_SECRET=your-secret-key
 JWT_EXPIRE=7d
 
 # CORS
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:5000
 
 # Rate Limiting
 RATE_LIMIT_WINDOW=15
@@ -270,7 +270,7 @@ RATE_LIMIT_MAX_REQUESTS=100
 ### Health Check
 
 ```bash
-GET http://localhost:3000/health
+GET http://localhost:5000/health
 ```
 
 ## 🔒 Security Features

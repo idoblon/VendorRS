@@ -68,7 +68,7 @@ notificationSchema.methods.markAsRead = function() {
 // Create notification for all admins
 notificationSchema.statics.notifyAdmins = async function(data) {
   try {
-    const User = mongoose.model('User'); // Fixed model name from 'Users' to 'User'
+    const User = mongoose.model('User'); // Use the correct model name
     console.log('Finding admin users for notifications');
     const admins = await User.find({ role: 'ADMIN', isActive: true });
     console.log(`Found ${admins.length} admin users for notifications`);

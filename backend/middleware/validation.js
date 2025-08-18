@@ -41,7 +41,7 @@ const validateUserRegistration = [
 
   body("phone")
     .matches(/^\+977[0-9]{10}$/)
-    .withMessage("Please provide a valid Nepali phone number (+977 followed by 10 digits)"),
+    .withMessage("Please provide a valid Nepal mobile number (+977 followed by 10 digits starting with 9)"),
 
   body("role")
     .isIn(["VENDOR", "CENTER"])
@@ -59,10 +59,23 @@ const validateUserRegistration = [
     .matches(/^[0-9]{9}$/)
     .withMessage("Please provide a valid Nepal PAN number (9 digits)"),
 
-  // GST validation removed as per requirement
-  body("gstNumber")
+  body("address")
     .if(body("role").equals("VENDOR"))
-    .optional(), // Made optional, will be verified by admin instead of real-time validation
+    .trim()
+    .isLength({ min: 2, max: 200 })
+    .withMessage("Address must be between 2 and 200 characters"),
+
+  body("district")
+    .if(body("role").equals("VENDOR"))
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage("District must be between 2 and 100 characters"),
+
+  body("province")
+    .if(body("role").equals("VENDOR"))
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Province must be between 2 and 100 characters"),
 
   handleValidationErrors,
 ];
@@ -231,7 +244,7 @@ const validateDistributionCenter = [
 // Parameter validation
 const validateObjectId = (paramName) => [
   param(paramName).isMongoId().withMessage(`Invalid ${paramName}`),
-
+  
   handleValidationErrors,
 ];
 

@@ -1,8 +1,9 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X, User, LogOut, ChevronDown, Bell } from "lucide-react";
+import axiosInstance from "../../utils/axios";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -15,6 +16,8 @@ interface NotificationItem {
   message: string;
   time: string;
   read: boolean;
+  title: string;
+  createdAt: string;
 }
 
 export function DashboardLayout({
@@ -25,42 +28,144 @@ export function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([
-    {
-      id: "1",
-      message: "New vendor application received",
-      time: "2 minutes ago",
-      read: false,
-    },
-    {
-      id: "2",
-      message: "Center maintenance completed",
-      time: "1 hour ago",
-      read: false,
-    },
-    {
-      id: "3",
-      message: "Payment processed successfully",
-      time: "3 hours ago",
-      read: true,
-    },
-  ]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  // Fetch notifications from backend
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        // First fetch application-related notifications
+        const appResponse = await axiosInstance.get("/api/notifications", {
+          params: { limit: 5, type: "VENDOR_APPLICATION" },
+        });
 
-  const handleNotificationClick = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+        // Then fetch center application notifications
+        const centerAppResponse = await axiosInstance.get("/api/notifications", {
+          params: { limit: 5, type: "CENTER_APPLICATION" },
+        });
+
+        // Combine application notifications
+        let appNotifications = [];
+        if (appResponse.data.success) {
+          appNotifications = appResponse.data.data.notifications;
+        }
+        
+        if (centerAppResponse.data.success) {
+          appNotifications = [...appNotifications, ...centerAppResponse.data.data.notifications];
+        }
+
+        // If we don't have enough notifications, fetch general notifications
+        let allNotifications = appNotifications;
+        let unreadCount = 0;
+        
+        if (appNotifications.length < 10) {
+          const generalResponse = await axiosInstance.get("/api/notifications", {
+            params: { limit: 10 - appNotifications.length },
+          });
+          
+          if (generalResponse.data.success) {
+            // Filter out application notifications that we already have
+            const generalNotifications = generalResponse.data.data.notifications.filter(
+              (n: any) => n.type !== "VENDOR_APPLICATION" && n.type !== "CENTER_APPLICATION"
+            );
+            
+            allNotifications = [...appNotifications, ...generalNotifications];
+            unreadCount = generalResponse.data.data.unreadCount;
+          }
+        }
+        
+        // If we still don't have the unread count from general notifications, calculate it
+        if (unreadCount === 0) {
+          const unreadResponse = await axiosInstance.get("/api/notifications", {
+            params: { unread: true },
+          });
+          
+          if (unreadResponse.data.success) {
+            unreadCount = unreadResponse.data.data.unreadCount;
+          }
+        }
+
+        const formattedNotifications = allNotifications.map(
+          (notification: any) => ({
+            id: notification._id,
+            title: notification.title,
+            message: notification.message,
+            time: formatTime(notification.createdAt),
+            read: notification.isRead,
+            createdAt: notification.createdAt,
+          })
+        );
+
+        setNotifications(formattedNotifications);
+        setUnreadCount(unreadCount);
+      } catch (error) {
+        console.error("Failed to fetch notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+
+    // Set up interval to refresh notifications every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60)
     );
+
+    if (diffInMinutes < 1) return "Just now";
+    if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
+
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours} hours ago`;
+
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays} days ago`;
+  };
+
+  const handleNotificationClick = async (id: string) => {
+    try {
+      // Mark notification as read
+      await axiosInstance.put(`/api/notifications/${id}/read`);
+
+      // Update local state
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      );
+
+      // Update unread count
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      // Mark all notifications as read
+      await axiosInstance.put("/api/notifications/read-all");
+
+      // Update local state
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error("Failed to mark all notifications as read:", error);
+    }
   };
 
   const sidebarItems = [
-      { id: "overview", label: "Overview", icon: "📊" },
-      { id: "vendors", label: "Vendors", icon: "👥" },
-      { id: "centers", label: "Centers", icon: "🏢" },
-      { id: "categories", label: "Categories", icon: "🏷️" },
-      { id: "applications", label: "Applications", icon: "📋" },
-    ];
+    { id: "overview", label: "Overview", icon: "📊" },
+    { id: "vendors", label: "Vendors", icon: "👥" },
+    { id: "centers", label: "Centers", icon: "🏢" },
+    { id: "categories", label: "Categories", icon: "🏷️" },
+    { id: "applications", label: "Applications", icon: "📋" },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -171,10 +276,10 @@ export function DashboardLayout({
                       <h3 className="text-sm font-semibold text-gray-900">
                         Notifications
                       </h3>
-                      <button 
+                      <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+                          handleMarkAllRead();
                         }}
                         className="text-xs text-blue-600 hover:text-blue-800"
                       >
@@ -182,27 +287,36 @@ export function DashboardLayout({
                       </button>
                     </div>
                     <div className="max-h-64 overflow-y-auto">
-                      {notifications.map((notification) => (
-                        <button
-                          key={notification.id}
-                          onClick={() =>
-                            handleNotificationClick(notification.id)
-                          }
-                          className={`w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-b-0 ${
-                            !notification.read ? "bg-blue-50" : ""
-                          }`}
-                        >
-                          <p className="text-sm text-gray-900">
-                            {notification.message}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {notification.time}
-                          </p>
-                          {!notification.read && (
-                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-1"></div>
-                          )}
-                        </button>
-                      ))}
+                      {notifications.length === 0 ? (
+                        <div className="px-4 py-3 text-center text-gray-500">
+                          No notifications
+                        </div>
+                      ) : (
+                        notifications.map((notification) => (
+                          <button
+                            key={notification.id}
+                            onClick={() =>
+                              handleNotificationClick(notification.id)
+                            }
+                            className={`w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-b-0 ${
+                              !notification.read ? "bg-blue-50" : ""
+                            }`}
+                          >
+                            <p className="text-sm font-medium text-gray-900">
+                              {notification.title}
+                            </p>
+                            <p className="text-sm text-gray-700 mt-1">
+                              {notification.message}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {notification.time}
+                            </p>
+                            {!notification.read && (
+                              <div className="w-2 h-2 bg-blue-500 rounded-full mt-1"></div>
+                            )}
+                          </button>
+                        ))
+                      )}
                     </div>
                   </div>
                 )}
@@ -239,7 +353,7 @@ export function DashboardLayout({
                         console.log("Logging out...");
                         setUserMenuOpen(false);
                         // Call the onLogout prop if available
-                        if (typeof window !== 'undefined') {
+                        if (typeof window !== "undefined") {
                           // Clear local storage
                           localStorage.removeItem("vrs_token");
                           localStorage.removeItem("vrs_user");

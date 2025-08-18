@@ -50,7 +50,7 @@ const orderSchema = new mongoose.Schema({
       min: 0
     },
     tax: {
-      rate: { type: Number, default: 18 }, // GST rate in percentage
+      rate: { type: Number, default: 18 },
       amount: { type: Number, required: true }
     },
     shipping: {

@@ -13,6 +13,7 @@ import { Card } from "../ui/Card";
 import nepalAddressData from "../../data/nepaladdress.json";
 import nepaliBanksData from "../../data/nepali-banks.json";
 import axiosInstance from "../../utils/axios";
+import { getCategories } from "../../utils/categoryApi";
 
 interface SignupPageProps {
   onShowLogin: () => void;
@@ -27,6 +28,7 @@ interface SignupFormData {
   password: string;
   province: string;
   district: string;
+  categories: string[];
   contactPerson1: {
     name: string;
     phone: string;
@@ -123,6 +125,9 @@ export default function CenterSignupPage({
     districts: false,
   });
   const [isDragOver, setIsDragOver] = useState(false);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
 
   const [formData, setFormData] = useState<SignupFormData>({
     centerName: "",
@@ -132,6 +137,7 @@ export default function CenterSignupPage({
     password: "",
     province: "",
     district: "",
+    categories: [],
     contactPerson1: { name: "", phone: "" },
     contactPerson2: { name: "", phone: "" },
     bankDetails: {
@@ -159,6 +165,21 @@ export default function CenterSignupPage({
       }
     };
     loadProvinces();
+  }, []);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      setLoadingCategories(true);
+      try {
+        const categoriesData = await getCategories();
+        setCategories(categoriesData.map(cat => cat.name));
+      } catch (error) {
+        console.error("Failed to load categories:", error);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+    loadCategories();
   }, []);
 
   useEffect(() => {
@@ -199,6 +220,7 @@ export default function CenterSignupPage({
     if (!formData.password.trim()) newErrors.push("Password is required");
     if (!formData.province) newErrors.push("Province is required");
     if (!formData.district) newErrors.push("District is required");
+    if (formData.categories.length === 0) newErrors.push("At least one category must be selected");
     if (!formData.contactPerson1.name.trim())
       newErrors.push("Contact person name is required");
     if (!formData.contactPerson1.phone.trim())
@@ -254,6 +276,7 @@ export default function CenterSignupPage({
       formDataToSubmit.append("address", formData.district);
       formDataToSubmit.append("district", formData.district);
       formDataToSubmit.append("province", formData.province);
+      formDataToSubmit.append("categories", JSON.stringify(formData.categories));
 
       // Append contact persons
       formDataToSubmit.append(
@@ -343,6 +366,19 @@ export default function CenterSignupPage({
         [childField]: value,
       },
     }));
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setFormData(prevData => {
+      const newCategories = prevData.categories.includes(category)
+        ? prevData.categories.filter(c => c !== category)
+        : [...prevData.categories, category];
+      
+      return {
+        ...prevData,
+        categories: newCategories
+      };
+    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -544,6 +580,20 @@ export default function CenterSignupPage({
 
                 <div>
                   <label className="block text-gray-700 font-medium mb-1">
+                    PAN Number *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.panNumber}
+                    onChange={(e) => handleInputChange("panNumber", e.target.value)}
+                    required
+                    placeholder="Enter PAN number"
+                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 font-medium mb-1">
                     Phone Number *
                   </label>
                   <input
@@ -727,11 +777,94 @@ export default function CenterSignupPage({
               </div>
             </div>
 
+            {/* Category Selection Section */}
+            <div className="p-6 bg-purple-50 border-b">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <span className="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm mr-2">
+                  2
+                </span>
+                Center Categories
+              </h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2">
+                    Select Categories *
+                  </label>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Select the categories that best describe your center's products/services
+                  </p>
+                  
+                  {loadingCategories ? (
+                    <div className="flex items-center justify-center p-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500"></div>
+                      <span className="ml-2 text-gray-600">Loading categories...</span>
+                    </div>
+                  ) : categories.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">No categories available</p>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                      {categories.map((category) => (
+                        <div
+                          key={category}
+                          onClick={() => handleCategoryChange(category)}
+                          className={`p-3 border rounded cursor-pointer transition-all ${
+                            formData.categories.includes(category)
+                              ? "border-purple-500 bg-purple-100"
+                              : "border-gray-300 hover:border-purple-300"
+                          }`}
+                        >
+                          <div className="flex items-center">
+                            <div className={`w-4 h-4 rounded-full border mr-2 flex items-center justify-center ${
+                              formData.categories.includes(category)
+                                ? "bg-purple-500 border-purple-500"
+                                : "border-gray-400"
+                            }`}>
+                              {formData.categories.includes(category) && (
+                                <div className="w-2 h-2 bg-white rounded-full"></div>
+                              )}
+                            </div>
+                            <span className="text-sm">{category}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {formData.categories.length > 0 && (
+                    <div className="mt-4">
+                      <p className="text-sm text-gray-700 mb-2">Selected categories:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {formData.categories.map((category) => (
+                          <span
+                            key={category}
+                            className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"
+                          >
+                            {category}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCategoryChange(category);
+                              }}
+                              className="ml-2 text-purple-600 hover:text-purple-800"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Contact Information Section */}
             <div className="p-6 bg-yellow-50 border-b">
               <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                 <span className="w-6 h-6 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm mr-2">
-                  2
+                  3
                 </span>
                 Contact Information
               </h3>
@@ -833,7 +966,7 @@ export default function CenterSignupPage({
             <div className="p-6 bg-green-50 border-b">
               <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                 <span className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-sm mr-2">
-                  3
+                  4
                 </span>
                 बैंक विवरण (Bank Details)
               </h3>
@@ -934,7 +1067,7 @@ export default function CenterSignupPage({
             <div className="p-6 bg-pink-50 border-b">
               <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                 <span className="w-6 h-6 bg-pink-500 text-white rounded-full flex items-center justify-center text-sm mr-2">
-                  4
+                  5
                 </span>
                 Documents
               </h3>

@@ -68,6 +68,11 @@ const fetchDistricts = async (provinceId: string): Promise<District[]> => {
 };
 
 const validateNepalPhoneNumber = (phone: string): boolean => {
+  // Check if phone is empty or just "+977"
+  if (!phone || phone.trim() === "" || phone.trim() === "+977") {
+    return false;
+  }
+  
   const cleanPhone = phone.replace(/\D/g, "");
 
   if (cleanPhone.length === 13 && cleanPhone.startsWith("977")) {
@@ -78,6 +83,39 @@ const validateNepalPhoneNumber = (phone: string): boolean => {
   }
 
   return false;
+};
+
+// Add a function to get detailed validation errors
+const getPhoneNumberValidationError = (phone: string): string | null => {
+  if (!phone || phone.trim() === "") {
+    return "Phone number is required";
+  }
+  
+  if (phone.trim() === "+977") {
+    return "Please enter a complete phone number";
+  }
+  
+  const cleanPhone = phone.replace(/\D/g, "");
+
+  if (cleanPhone.length === 13 && cleanPhone.startsWith("977")) {
+    const localNumber = cleanPhone.substring(3);
+    if (localNumber.length !== 10) {
+      return "Phone number must be exactly 10 digits after +977";
+    }
+    if (!localNumber.startsWith("9")) {
+      return "Nepal mobile numbers must start with 9";
+    }
+    return null;
+  } else if (cleanPhone.length === 10) {
+    if (!cleanPhone.startsWith("9")) {
+      return "Nepal mobile numbers must start with 9";
+    }
+    return null;
+  } else if (cleanPhone.length === 0) {
+    return "Phone number is required";
+  } else {
+    return "Please enter a valid Nepal mobile number (+977 followed by 10 digits)";
+  }
 };
 
 const formatPhoneNumber = (phone: string): string => {
@@ -205,23 +243,29 @@ export default function VendorSignupPage({
       newErrors.push("Contact person phone is required");
     if (!panDocument) newErrors.push("PAN document is required");
 
-    if (
-      formData.phoneNumber &&
-      !validateNepalPhoneNumber(formData.phoneNumber)
-    ) {
-      newErrors.push("Please enter a valid Nepal mobile number");
+    // Validate PAN number (9 digits)
+    if (formData.panNumber && !/^[0-9]{9}$/.test(formData.panNumber)) {
+      newErrors.push("PAN number must be exactly 9 digits");
     }
-    if (
-      formData.contactPerson1.phone &&
-      !validateNepalPhoneNumber(formData.contactPerson1.phone)
-    ) {
-      newErrors.push("Please enter a valid phone number for contact person 1");
+
+    // Validate phone number format
+    const phoneError = getPhoneNumberValidationError(formData.phoneNumber);
+    if (phoneError) {
+      newErrors.push(phoneError);
     }
-    if (
-      formData.contactPerson2.phone &&
-      !validateNepalPhoneNumber(formData.contactPerson2.phone)
-    ) {
-      newErrors.push("Please enter a valid phone number for contact person 2");
+    // Validate contact person phone numbers
+    if (formData.contactPerson1.phone) {
+      const contact1PhoneError = getPhoneNumberValidationError(formData.contactPerson1.phone);
+      if (contact1PhoneError) {
+        newErrors.push(`Contact person 1: ${contact1PhoneError}`);
+      }
+    }
+    
+    if (formData.contactPerson2.phone) {
+      const contact2PhoneError = getPhoneNumberValidationError(formData.contactPerson2.phone);
+      if (contact2PhoneError) {
+        newErrors.push(`Contact person 2: ${contact2PhoneError}`);
+      }
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -241,30 +285,46 @@ export default function VendorSignupPage({
     }
 
     try {
+      // Validate PAN number (9 digits) before submission
+      if (formData.panNumber && !/^[0-9]{9}$/.test(formData.panNumber)) {
+        throw new Error("PAN number must be exactly 9 digits");
+      }
+
       const formDataToSubmit = new FormData();
+
+      // Format phone numbers
+      const formattedPhoneNumber = formatPhoneNumber(formData.phoneNumber);
+      const formattedContact1Phone = formatPhoneNumber(formData.contactPerson1.phone);
+      const formattedContact2Phone = formatPhoneNumber(formData.contactPerson2.phone);
 
       // Basic Information
       formDataToSubmit.append("name", formData.vendorName);
       formDataToSubmit.append("email", formData.email);
       formDataToSubmit.append("password", formData.password);
-      formDataToSubmit.append("phone", formatPhoneNumber(formData.phoneNumber));
+      formDataToSubmit.append("phone", formattedPhoneNumber);
       formDataToSubmit.append("role", "VENDOR");
       formDataToSubmit.append("businessName", formData.vendorName);
       formDataToSubmit.append("panNumber", formData.panNumber);
       formDataToSubmit.append("province", formData.province);
       formDataToSubmit.append("district", formData.district);
-      formDataToSubmit.append("address", formData.district);
+      // Get display names for district and province
+      const selectedProvince = provinces.find(p => p.id === formData.province);
+      const selectedDistrict = districts.find(d => d.id === formData.district);
+      const address = selectedDistrict && selectedProvince
+        ? `${selectedDistrict.displayName}, ${selectedProvince.displayName}`
+        : `${formData.district}, ${formData.province}`;
+      formDataToSubmit.append("address", address);
 
       // Contact Persons
       const contactPersons = [
         {
           name: formData.contactPerson1.name,
-          phone: formatPhoneNumber(formData.contactPerson1.phone),
+          phone: formattedContact1Phone,
         },
         formData.contactPerson2.name
           ? {
               name: formData.contactPerson2.name,
-              phone: formatPhoneNumber(formData.contactPerson2.phone),
+              phone: formattedContact2Phone,
             }
           : null,
       ].filter(Boolean);
@@ -285,6 +345,23 @@ export default function VendorSignupPage({
         formDataToSubmit.append("panDocument", panDocument);
       }
 
+      // Debug: Log form data being sent
+      console.log("Form data being sent:", {
+        name: formData.vendorName,
+        email: formData.email,
+        password: formData.password,
+        phone: formattedPhoneNumber,
+        role: "VENDOR",
+        businessName: formData.vendorName,
+        panNumber: formData.panNumber,
+        province: formData.province,
+        district: formData.district,
+        address: address,
+        contactPersons: contactPersons,
+        bankDetails: bankDetails,
+        panDocument: panDocument ? panDocument.name : null
+      });
+      
       const response = await axiosInstance.post(
         "/api/auth/register",
         formDataToSubmit,
@@ -305,11 +382,23 @@ export default function VendorSignupPage({
       }
     } catch (error: any) {
       console.error("Registration error:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "Registration failed. Please try again.";
-      setErrors([errorMessage]);
+      let errorMessages: string[] = [];
+      
+      if (error.response?.data?.errors) {
+        // Handle validation errors from backend
+        errorMessages = error.response.data.errors.map((err: any) =>
+          `${err.field}: ${err.message}`
+        );
+      } else {
+        // Handle other errors
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Registration failed. Please try again.";
+        errorMessages = [errorMessage];
+      }
+      
+      setErrors(errorMessages);
       setSubmitState("error");
     } finally {
       setIsLoading(false);

@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+// Use environment variable or default to localhost:5000
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: API_URL,
   timeout: 10000,
 });
 

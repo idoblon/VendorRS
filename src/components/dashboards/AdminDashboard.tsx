@@ -5,9 +5,10 @@ import { Users, Building, BarChart3, Search, Eye, FileText, Plus, X } from "luci
 import { DashboardLayout } from "./../layout/DashboardLayout"
 import { Card } from "./../ui/Card"
 import { Button } from "./../ui/Button"
-import { type User, type Vendor, VendorStatus } from "../../types/index"
+import { type User, type Vendor, VendorStatus, type Document } from "../../types/index"
 import { ApplicationsComponent } from "./ApplicationsComponent"
 import { getCategories, createCategory, deleteCategory } from "../../utils/categoryApi"
+import axiosInstance from "../../utils/axios"
 
 interface AdminDashboardProps {
   user: User
@@ -27,6 +28,7 @@ interface DistributionCenter {
   currentOrders: number
   establishedDate: string
   region: string
+  documents?: Document[];
 }
 
 interface CenterFormData {
@@ -48,6 +50,7 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
   const [showCategoryForm, setShowCategoryForm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [pendingApplicationsCount, setPendingApplicationsCount] = useState(0)
 
   const [centerForm, setCenterForm] = useState<CenterFormData>({
     name: "",
@@ -155,101 +158,116 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
     console.log("Center created successfully")
   }
 
-  // Mock API function to replace axios
-  const mockApiCall = async (url: string, method = "GET", data?: any) => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    if (url.includes("/api/users/vendors")) {
-      return {
-        data: {
-          success: true,
-          data: {
-            vendors: [
-              {
-                id: "1",
-                _id: "1",
-                name: "John Doe",
-                businessName: "Doe Electronics",
-                email: "john@doeelectronics.com",
-                phone: "+91 9876543210",
-                address: "123 Business Street, Tech City",
-                district: "Central District",
-                panNumber: "ABCDE1234F",
-                gstNumber: "12ABCDE1234F1Z5",
-                status: VendorStatus.PENDING,
-                joinedDate: new Date().toISOString(),
-                bankDetails: {
-                  bankName: "State Bank of India",
-                  accountNumber: "1234567890",
-                  holderName: "John Doe",
-                },
-              },
-              {
-                id: "2",
-                _id: "2",
-                name: "Jane Smith",
-                businessName: "Smith Tech Solutions",
-                email: "jane@smithtech.com",
-                phone: "+91 9876543211",
-                address: "456 Innovation Drive, Tech Park",
-                district: "North District",
-                panNumber: "FGHIJ5678K",
-                gstNumber: "34FGHIJ5678K2A6",
-                status: VendorStatus.APPROVED,
-                joinedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-                bankDetails: {
-                  bankName: "HDFC Bank",
-                  accountNumber: "0987654321",
-                  holderName: "Jane Smith",
-                },
-              },
-            ],
-          },
-        },
-      }
-    }
-
-    if (url.includes("/status")) {
-      return {
-        data: {
-          success: true,
-          message: "Status updated successfully",
-        },
-      }
-    }
-
-    return {
-      data: {
-        success: true,
-        data: {},
-      },
-    }
-  }
-
   // Fetch vendors from the backend
   const fetchVendors = async () => {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await mockApiCall("/api/users/vendors")
+      const response = await axiosInstance.get("/api/users/vendors")
       if (response.data.success) {
-        setVendors(response.data.data.vendors)
+        // Map the vendor data to match the Vendor interface
+        const mappedVendors = response.data.data.vendors.map((vendor: any) => ({
+          ...vendor,
+          id: vendor._id,
+        }))
+        setVendors(mappedVendors)
       } else {
         setError(response.data.message || "Failed to fetch vendors")
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching vendors:", error)
-      setError(error instanceof Error ? error.message : "An error occurred while fetching vendors")
+      setError(error.response?.data?.message || error.message || "An error occurred while fetching vendors")
     } finally {
       setIsLoading(false)
     }
   }
 
-  // Load vendors when component mounts or when activeTab changes to vendors or dashboard
+  // Fetch centers from the backend
+  const fetchCenters = async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const response = await axiosInstance.get("/api/users/centers")
+      if (response.data.success) {
+        // Map the center data to match the DistributionCenter interface
+        const mappedCenters = response.data.data.centerUsers.map((center: any) => ({
+          ...center,
+          id: center._id,
+          location: center.district,
+          contactPerson: center.name,
+          capacity: 0, // This would need to be added to the backend model
+          currentOrders: 0, // This would need to be added to the backend model
+          establishedDate: center.createdAt ? new Date(center.createdAt).toISOString().split("T")[0] : "",
+          region: center.province || ""
+        }))
+        setCenters(mappedCenters)
+      } else {
+        setError(response.data.message || "Failed to fetch centers")
+      }
+    } catch (error: any) {
+      console.error("Error fetching centers:", error)
+      setError(error.response?.data?.message || error.message || "An error occurred while fetching centers")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Update vendor status
+  const updateVendorStatus = async (
+    vendorId: string,
+    status: string,
+    notes?: string
+  ) => {
+    try {
+      const response = await axiosInstance.put(`/api/users/vendors/${vendorId}/status`, {
+        status,
+        notes
+      })
+      
+      if (response.data.success) {
+        // Refresh the vendor list after successful action
+        fetchVendors()
+        return response.data
+      } else {
+        throw new Error(response.data.message || "Failed to update vendor status")
+      }
+    } catch (error: any) {
+      console.error("Error updating vendor status:", error)
+      throw error
+    }
+  }
+
+  // Update center status
+  const updateCenterStatus = async (
+    centerId: string,
+    status: string,
+    notes?: string
+  ) => {
+    try {
+      const response = await axiosInstance.put(`/api/users/centers/${centerId}/status`, {
+        status,
+        notes
+      })
+      
+      if (response.data.success) {
+        // Refresh the center list after successful action
+        fetchCenters()
+        return response.data
+      } else {
+        throw new Error(response.data.message || "Failed to update center status")
+      }
+    } catch (error: any) {
+      console.error("Error updating center status:", error)
+      throw error
+    }
+  }
+
+  // Load vendors/centers when component mounts or when activeTab changes
   useEffect(() => {
     if (activeTab === "vendors" || activeTab === "dashboard") {
       fetchVendors()
+    } else if (activeTab === "centers") {
+      fetchCenters()
     }
   }, [activeTab])
 
@@ -281,22 +299,14 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
       })
 
       // Make API call to update vendor status
-      const response = await mockApiCall(`/api/users/vendors/${vendorId}/status`, "PUT", {
-        status: statusMap[action],
-        notes: notes || "",
-      })
-
-      if (response.data.success) {
-        console.log(actionMessages[action])
-
-        // Refresh the vendor list after successful action
-        fetchVendors()
-      } else {
-        console.log(response.data.message || "Failed to update vendor status")
-      }
-    } catch (error) {
+      const response = await updateVendorStatus(vendorId, statusMap[action], notes)
+      
+      console.log(actionMessages[action])
+      
+      return response
+    } catch (error: any) {
       console.error("Error updating vendor status:", error)
-      console.log(error instanceof Error ? error.message : "An error occurred while updating vendor status")
+      throw error
     }
   }
 
@@ -364,6 +374,34 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
         }
       }, [activeTab]);
 
+  // Fetch pending applications count
+  useEffect(() => {
+    const fetchPendingApplicationsCount = async () => {
+      try {
+        // Fetch pending vendors
+        const vendorResponse = await axiosInstance.get("/api/users/vendors", {
+          params: { status: "PENDING" }
+        });
+        
+        // Fetch pending centers
+        const centerResponse = await axiosInstance.get("/api/users/centers", {
+          params: { status: "PENDING" }
+        });
+        
+        // Calculate total pending applications
+        const vendorCount = vendorResponse.data.data?.pagination?.total || 0;
+        const centerCount = centerResponse.data.data?.pagination?.total || 0;
+        const totalCount = vendorCount + centerCount;
+        
+        setPendingApplicationsCount(totalCount);
+      } catch (error) {
+        console.error("Error fetching pending applications count:", error);
+      }
+    };
+    
+    fetchPendingApplicationsCount();
+  }, []);
+
   const renderContent = () => {
     switch (activeTab) {
       case "overview":
@@ -394,15 +432,20 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                   </div>
                 </div>
               </Card>
-              <Card className="p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
+              <Card
+                className="p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200 cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setActiveTab("applications")}
+              >
                 <div className="flex items-center">
                   <div className="p-3 bg-yellow-500 rounded-lg">
                     <FileText className="h-6 w-6 text-white" />
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-slate-600">Pending Applications</p>
-                    <p className="text-2xl font-bold text-slate-900">23</p>
-                    <p className="text-xs text-orange-600">Requires attention</p>
+                    <p className="text-2xl font-bold text-slate-900">{pendingApplicationsCount}</p>
+                    <p className="text-xs text-orange-600">
+                      {pendingApplicationsCount === 1 ? "Requires attention" : pendingApplicationsCount > 1 ? "Require attention" : "No pending applications"}
+                    </p>
                   </div>
                 </div>
               </Card>
@@ -698,7 +741,6 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                               <div>
                                 <p className="text-slate-500">Business Details</p>
                                 <p className="font-medium text-slate-900">PAN: {vendor.panNumber}</p>
-                                <p className="font-medium text-slate-900">GST: {vendor.gstNumber}</p>
                               </div>
                             </div>
 
@@ -715,12 +757,12 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                             </div>
                           </div>
 
-                          <div className="flex md:flex-col space-x-2 md:space-x-0 md:space-y-2">
+                          <div className="flex items-center space-x-2">
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="sm"
                               onClick={() => openVendorModal(vendor)}
-                              className="text-slate-600 hover:text-slate-700 hover:bg-slate-50 flex items-center"
+                              className="border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
                             >
                               <Eye className="h-4 w-4 mr-1" />
                               View Details
@@ -846,16 +888,56 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
   }
 
   // Function to handle vendor action with notes
-  const handleVendorActionWithNotes = (action: "approve" | "reject" | "suspend" | "reactivate") => {
+  const handleVendorActionWithNotes = async (action: "approve" | "reject" | "suspend" | "reactivate") => {
     if (selectedVendor) {
-      console.log(selectedVendor)
-      handleVendorAction(selectedVendor._id, action, actionNotes)
-      closeVendorModal()
+      try {
+        await handleVendorAction(selectedVendor._id, action, actionNotes)
+        closeVendorModal()
+        
+        // Show success message based on action
+        const actionMessages = {
+          approve: "Vendor approved successfully. A notification has been sent to the vendor.",
+          reject: "Vendor application rejected. A notification has been sent to the vendor.",
+          suspend: "Vendor account suspended. A notification has been sent to the vendor.",
+          reactivate: "Vendor account reactivated. A notification has been sent to the vendor.",
+        }
+        
+        console.log(actionMessages[action])
+      } catch (error: any) {
+        console.error("Error updating vendor status:", error)
+        console.log(error.response?.data?.message || error.message || "An error occurred while updating vendor status")
+      }
+    }
+  }
 
-      // Refresh vendors list after action
-      setTimeout(() => {
-        fetchVendors()
-      }, 1000)
+  // Function to handle center action with notes
+  const handleCenterActionWithNotes = async (action: "approve" | "reject" | "suspend" | "reactivate") => {
+    if (selectedCenter) {
+      try {
+        // Map the action to a status
+        const statusMap = {
+          approve: "APPROVED",
+          reject: "REJECTED",
+          suspend: "SUSPENDED",
+          reactivate: "APPROVED",
+        }
+        
+        await updateCenterStatus(selectedCenter.id, statusMap[action], actionNotes)
+        closeCenterModal()
+        
+        // Show success message based on action
+        const actionMessages = {
+          approve: "Center approved successfully. A notification has been sent to the center.",
+          reject: "Center application rejected. A notification has been sent to the center.",
+          suspend: "Center account suspended. A notification has been sent to the center.",
+          reactivate: "Center account reactivated. A notification has been sent to the center.",
+        }
+        
+        console.log(actionMessages[action])
+      } catch (error: any) {
+        console.error("Error updating center status:", error)
+        console.log(error.response?.data?.message || error.message || "An error occurred while updating center status")
+      }
     }
   }
 
@@ -950,6 +1032,7 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                   </div>
                 </div>
               </div>
+              
               
               {/* Document Viewer Section */}
               <div className="mt-6">
@@ -1134,6 +1217,7 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                   </div>
                 </div>
               )}
+              
               
               {/* Document Viewer Section */}
               <div className="mt-6">

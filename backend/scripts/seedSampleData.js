@@ -14,7 +14,6 @@ const Order = require("../models/Order");
 const Product = require("../models/Product");
 
 const connectDB = async () => {
-  console.log(process.env.MONGODB_URI, "this is the uri");
   try {
     await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
@@ -27,7 +26,7 @@ const connectDB = async () => {
   }
 };
 
-const seedDatabase = async () => {
+const seedSampleData = async () => {
   try {
     console.log("🌱 Starting database seeding with sample data...");
 
@@ -760,7 +759,7 @@ const seedDatabase = async () => {
 
 // Run the seeding
 connectDB().then(() => {
-  seedDatabase();
+  seedSampleData();
 });
 
-module.exports = { seedDatabase };
+module.exports = { seedSampleData };

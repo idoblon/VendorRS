@@ -32,7 +32,7 @@ const server = http.createServer(app);
 // Initialize Socket.IO
 const io = socketIo(server, {
   cors: {
-    origin: "*",
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   }
@@ -62,7 +62,7 @@ app.use('/api/', limiter);
 
 // CORS configuration
 app.use(cors({
-  origin: "*",
+  origin: process.env.FRONTEND_URL || "http://localhost:3000",
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -204,3 +204,5 @@ process.on('SIGINT', () => {
 });
 
 module.exports = app;
+
+// Port set to 5000 as required

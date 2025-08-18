@@ -15,7 +15,7 @@ const generateToken = (userId) => {
   console.log(
     process.env.JWT_SECRET,
     "Generating token for user ID",
-    process.JWT_EXPIRE
+    process.env.JWT_EXPIRE
   );
   const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE,
@@ -32,7 +32,7 @@ const upload = multer(); // Initialize multer for form-data parsing
 
 router.post(
   "/register",
-  upload.none(), // Parse form-data without file uploads
+  upload.any(), // Parse form-data with file uploads
   validateUserRegistration,
   async (req, res) => {
     try {
@@ -45,24 +45,27 @@ router.post(
         role,
         businessName,
         panNumber,
-        gstNumber,
         address,
         district,
+        province,
         bankDetails,
         contactPersons,
+        categories,
       } = req.body;
 
       // Parse JSON strings from form data
       let parsedBankDetails = {};
       let parsedContactPersons = [];
+      let parsedCategories = [];
 
       try {
         parsedBankDetails = bankDetails ? JSON.parse(bankDetails) : {};
         parsedContactPersons = contactPersons ? JSON.parse(contactPersons) : [];
+        parsedCategories = categories ? JSON.parse(categories) : [];
       } catch (parseError) {
         return res.status(400).json({
           success: false,
-          message: "Invalid bankDetails or contactPersons format",
+          message: "Invalid bankDetails, contactPersons, or categories format",
         });
       }
 
@@ -89,9 +92,9 @@ router.post(
       if (role === "VENDOR") {
         userData.businessName = businessName;
         userData.panNumber = panNumber;
-        userData.gstNumber = gstNumber;
         userData.address = address;
         userData.district = district;
+        userData.province = province;
         userData.bankDetails = parsedBankDetails;
         userData.contactPersons = parsedContactPersons;
       } else if (role === "CENTER") {
@@ -99,6 +102,8 @@ router.post(
         userData.panNumber = panNumber;
         userData.address = address;
         userData.district = district;
+        userData.province = province;
+        userData.categories = parsedCategories;
         userData.bankDetails = parsedBankDetails;
         userData.contactPersons = parsedContactPersons;
         userData.status = "APPROVED"; // Centers are pre-approved
@@ -127,7 +132,7 @@ router.post(
           const message =
             role === "VENDOR"
               ? `${businessName} (${name}) has submitted a vendor application for approval.`
-              : `${name} has submitted a center application for approval.`;
+              : `${businessName} (${name}) has submitted a center application for approval.`;
 
           await Notification.notifyAdmins({
             type: notificationType,
@@ -152,6 +157,19 @@ router.post(
       });
     } catch (error) {
       console.error("Registration error:", error);
+      // Check if it's a validation error
+      if (error.name === "ValidationError") {
+        const errors = Object.values(error.errors).map(err => ({
+          field: err.path,
+          message: err.message
+        }));
+        return res.status(400).json({
+          success: false,
+          message: "Validation failed",
+          errors: errors
+        });
+      }
+      
       res.status(500).json({
         success: false,
         message: "Registration failed",
@@ -196,6 +214,14 @@ router.post("/login", validateUserLogin, async (req, res) => {
       return res.status(401).json({
         success: false,
         message: "Account is deactivated. Please contact administrator.",
+      });
+    }
+
+    // Check if vendor account is approved
+    if (user.role === "VENDOR" && user.status !== "APPROVED") {
+      return res.status(401).json({
+        success: false,
+        message: "Vendor account is not approved yet. Please wait for administrator approval.",
       });
     }
 

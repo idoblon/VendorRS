@@ -43,13 +43,8 @@ const userSchema = new mongoose.Schema({
   panNumber: {
     type: String,
     required: function () {
-      return this.role === "VENDOR";
+      return this.role === "VENDOR" || this.role === "CENTER";
     },
-  },
-  gstNumber: {
-    type: String,
-    // Made optional as per requirement - will be verified by admin instead
-    required: false,
   },
   address: {
     type: String,
@@ -152,4 +147,4 @@ userSchema.methods.toJSON = function () {
   return user;
 };
 
-module.exports = mongoose.model("Users", userSchema);
+module.exports = mongoose.model("User", userSchema);

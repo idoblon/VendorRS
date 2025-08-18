@@ -249,7 +249,7 @@ router.post('/', authenticate, authorize('CENTER'), requireApproval, validateOrd
     }
 
     // Calculate tax and total
-    const taxRate = 18; // GST rate
+    const taxRate = 18;
     const taxAmount = (subtotal * taxRate) / 100;
     const shippingCost = 500; // Fixed shipping cost
     const totalAmountBeforeCommission = subtotal + taxAmount + shippingCost - discountAmount;

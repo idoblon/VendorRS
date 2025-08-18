@@ -13,6 +13,12 @@ export interface BankDetails {
   ifscCode?: string
 }
 
+export interface Document {
+  name: string;
+  type: string;
+  url?: string;
+}
+
 export enum VendorStatus {
   PENDING = "PENDING",
   APPROVED = "APPROVED",
@@ -30,13 +36,13 @@ export interface Vendor {
   address: string
   district: string
   panNumber: string
-  gstNumber: string
   status: VendorStatus
   joinedDate: string
   bankDetails?: BankDetails
+  documents?: Document[];
 }
 
-export enum OrderStatus {  
+export enum OrderStatus {
   PENDING = 'PENDING',
   PROCESSING = 'PROCESSING',
   COMPLETED = 'COMPLETED',

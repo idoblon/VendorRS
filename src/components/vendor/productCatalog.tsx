@@ -22,7 +22,7 @@ export default function ProductCatalog() {
   const [paymentCompleted, setPaymentCompleted] = useState(false)
   const [clientSecret, setClientSecret] = useState("");
 
-  const stripePromise = loadStripe("pk_test_51RryGpRwaX8v4ksQ7mwWIl0XuOrw5G3AWBHWAv7FypjMOsWBbrCrHM4YsEpBSBcZ6LI7u3CznXhdxgD8hnyP5hos00s8QuykF7");
+  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
   useEffect(() => {
     const fetchInitialCategories = async () => {
       setLoadingCategories(true);
