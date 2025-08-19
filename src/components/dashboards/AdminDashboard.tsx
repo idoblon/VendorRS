@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Users, Building, BarChart3, Search, Eye, FileText, Plus, X } from "lucide-react"
+import { Users, Building, BarChart3, Search, Eye, FileText, Plus, X, Check, AlertCircle, Settings } from "lucide-react"
+import { formatNepaliCurrency, formatNepaliCurrencyShort } from "../../utils/currencyUtils"
 import { DashboardLayout } from "./../layout/DashboardLayout"
 import { Card } from "./../ui/Card"
 import { Button } from "./../ui/Button"
@@ -51,6 +52,76 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pendingApplicationsCount, setPendingApplicationsCount] = useState(0)
+  const [showCommissionModal, setShowCommissionModal] = useState(false)
+  const [showVendorStatsModal, setShowVendorStatsModal] = useState(false)
+  const [showCenterStatsModal, setShowCenterStatsModal] = useState(false)
+  
+  // Mock commission data
+  const [commissionData, setCommissionData] = useState({
+    total: 1280000, // 12.8 lakh NPR
+    vendorCommission: 780000, // 7.8 lakh NPR
+    centerCommission: 500000, // 5 lakh NPR
+    monthlyBreakdown: [
+      { month: "January", amount: 95000 },
+      { month: "February", amount: 105000 },
+      { month: "March", amount: 120000 },
+      { month: "April", amount: 110000 },
+      { month: "May", amount: 130000 },
+      { month: "June", amount: 150000 },
+      { month: "July", amount: 140000 },
+      { month: "August", amount: 160000 },
+      { month: "September", amount: 120000 },
+      { month: "October", amount: 150000 },
+    ]
+  })
+  
+  // Function to handle vendor status changes
+  const handleVendorStatusChange = async (vendorId: string, newStatus: string) => {
+    try {
+      // Map UI status to API status format
+      const statusMap: Record<string, string> = {
+        "active": "APPROVED",
+        "inactive": "SUSPENDED",
+        "maintenance": "MAINTENANCE"
+      };
+      
+      const apiStatus = statusMap[newStatus] || newStatus.toUpperCase();
+      console.log(`Changing vendor ${vendorId} status to ${apiStatus}`);
+      
+      // Make API call to update vendor status
+      await updateVendorStatus(vendorId, apiStatus);
+      
+      // Success message
+      console.log(`Vendor status updated to ${newStatus} successfully`);
+    } catch (error: any) {
+      console.error("Error updating vendor status:", error);
+      console.log(error.response?.data?.message || error.message || "An error occurred while updating vendor status");
+    }
+  }
+  
+  // Function to handle center status changes
+  const handleCenterStatusChange = async (centerId: string, newStatus: string) => {
+    try {
+      // Map UI status to API status format
+      const statusMap: Record<string, string> = {
+        "active": "APPROVED",
+        "inactive": "SUSPENDED",
+        "maintenance": "MAINTENANCE"
+      };
+      
+      const apiStatus = statusMap[newStatus] || newStatus.toUpperCase();
+      console.log(`Changing center ${centerId} status to ${apiStatus}`);
+      
+      // Make API call to update center status
+      await updateCenterStatus(centerId, apiStatus);
+      
+      // Success message
+      console.log(`Center status updated to ${newStatus} successfully`);
+    } catch (error: any) {
+      console.error("Error updating center status:", error);
+      console.log(error.response?.data?.message || error.message || "An error occurred while updating center status");
+    }
+  }
 
   const [centerForm, setCenterForm] = useState<CenterFormData>({
     name: "",
@@ -408,7 +479,10 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+              <Card 
+                className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 cursor-pointer hover:shadow-md transition-all"
+                onClick={() => setShowVendorStatsModal(true)}
+              >
                 <div className="flex items-center">
                   <div className="p-3 bg-blue-500 rounded-lg">
                     <Users className="h-6 w-6 text-white" />
@@ -420,7 +494,10 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                   </div>
                 </div>
               </Card>
-              <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+              <Card 
+                className="p-6 bg-gradient-to-br from-green-50 to-green-100 border-green-200 cursor-pointer hover:shadow-md transition-all"
+                onClick={() => setShowCenterStatsModal(true)}
+              >
                 <div className="flex items-center">
                   <div className="p-3 bg-green-500 rounded-lg">
                     <Building className="h-6 w-6 text-white" />
@@ -432,47 +509,193 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                   </div>
                 </div>
               </Card>
-              <Card
-                className="p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200 cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => setActiveTab("applications")}
+              <Card 
+                className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 cursor-pointer hover:shadow-md transition-all"
+                onClick={() => setShowCommissionModal(true)}
               >
-                <div className="flex items-center">
-                  <div className="p-3 bg-yellow-500 rounded-lg">
-                    <FileText className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-slate-600">Pending Applications</p>
-                    <p className="text-2xl font-bold text-slate-900">{pendingApplicationsCount}</p>
-                    <p className="text-xs text-orange-600">
-                      {pendingApplicationsCount === 1 ? "Requires attention" : pendingApplicationsCount > 1 ? "Require attention" : "No pending applications"}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-              <Card className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
                 <div className="flex items-center">
                   <div className="p-3 bg-purple-500 rounded-lg">
                     <BarChart3 className="h-6 w-6 text-white" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-slate-600">Monthly Revenue</p>
-                    <p className="text-2xl font-bold text-slate-900">$45.2K</p>
-                    <p className="text-xs text-green-600">+8% growth</p>
+                    <p className="text-sm font-medium text-slate-600">Total Commission</p>
+                    <p className="text-2xl font-bold text-slate-900">{formatNepaliCurrencyShort(commissionData.total)}</p>
+                    <p className="text-xs text-green-600">From vendors and centers sales</p>
                   </div>
                 </div>
               </Card>
             </div>
 
 
+            
+            {/* Commission Modal */}
+            {showCommissionModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl overflow-hidden">
+                  <div className="p-6 bg-gradient-to-r from-purple-600 to-indigo-700 text-white flex justify-between items-center">
+                    <h2 className="text-2xl font-bold">Commission Details</h2>
+                    <button onClick={() => setShowCommissionModal(false)} className="text-white hover:text-gray-200">
+                      <X className="h-6 w-6" />
+                    </button>
+                  </div>
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <p className="text-sm text-gray-600">Total Commission</p>
+                        <p className="text-2xl font-bold">{formatNepaliCurrency(commissionData.total)}</p>
+                      </div>
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <p className="text-sm text-gray-600">Vendor Commission</p>
+                        <p className="text-2xl font-bold">{formatNepaliCurrency(commissionData.vendorCommission)}</p>
+                      </div>
+                      <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <p className="text-sm text-gray-600">Center Commission</p>
+                        <p className="text-2xl font-bold">{formatNepaliCurrency(commissionData.centerCommission)}</p>
+                      </div>
+                    </div>
+                    
+                    <h3 className="text-lg font-semibold mb-4">Monthly Breakdown</h3>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full bg-white border border-gray-200">
+                        <thead>
+                          <tr className="bg-gray-100">
+                            <th className="py-2 px-4 border-b text-left">Month</th>
+                            <th className="py-2 px-4 border-b text-right">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {commissionData.monthlyBreakdown.map((item, index) => (
+                            <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                              <td className="py-2 px-4 border-b">{item.month}</td>
+                              <td className="py-2 px-4 border-b text-right">{formatNepaliCurrency(item.amount)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot>
+                          <tr className="bg-gray-100 font-semibold">
+                            <td className="py-2 px-4 border-b">Total</td>
+                            <td className="py-2 px-4 border-b text-right">
+                              {formatNepaliCurrency(
+                                commissionData.monthlyBreakdown.reduce((sum, item) => sum + item.amount, 0)
+                              )}
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Vendor Stats Modal */}
+            {showVendorStatsModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl overflow-hidden">
+                  <div className="p-6 bg-gradient-to-r from-blue-600 to-blue-800 text-white flex justify-between items-center">
+                    <h2 className="text-2xl font-bold">Vendor Statistics</h2>
+                    <button onClick={() => setShowVendorStatsModal(false)} className="text-white hover:text-gray-200">
+                      <X className="h-6 w-6" />
+                    </button>
+                  </div>
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <p className="text-sm text-gray-600">Total Vendors</p>
+                        <p className="text-2xl font-bold">1,234</p>
+                      </div>
+                      <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <p className="text-sm text-gray-600">Active Vendors</p>
+                        <p className="text-2xl font-bold">987</p>
+                      </div>
+                      <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                        <p className="text-sm text-gray-600">Pending Approval</p>
+                        <p className="text-2xl font-bold">42</p>
+                      </div>
+                    </div>
+                    
+                    <h3 className="text-lg font-semibold mb-4">Vendor Categories</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+                        <p className="text-sm text-gray-600">Food</p>
+                        <p className="text-xl font-bold">356</p>
+                      </div>
+                      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+                        <p className="text-sm text-gray-600">Electronics</p>
+                        <p className="text-xl font-bold">289</p>
+                      </div>
+                      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+                        <p className="text-sm text-gray-600">Clothing</p>
+                        <p className="text-xl font-bold">412</p>
+                      </div>
+                      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+                        <p className="text-sm text-gray-600">Services</p>
+                        <p className="text-xl font-bold">177</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Center Stats Modal */}
+            {showCenterStatsModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl overflow-hidden">
+                  <div className="p-6 bg-gradient-to-r from-green-600 to-emerald-700 text-white flex justify-between items-center">
+                    <h2 className="text-2xl font-bold">Center Statistics</h2>
+                    <button onClick={() => setShowCenterStatsModal(false)} className="text-white hover:text-gray-200">
+                      <X className="h-6 w-6" />
+                    </button>
+                  </div>
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <p className="text-sm text-gray-600">Total Centers</p>
+                        <p className="text-2xl font-bold">56</p>
+                      </div>
+                      <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+                        <p className="text-sm text-gray-600">Active Centers</p>
+                        <p className="text-2xl font-bold">48</p>
+                      </div>
+                      <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                        <p className="text-sm text-gray-600">Pending Approval</p>
+                        <p className="text-2xl font-bold">5</p>
+                      </div>
+                    </div>
+                    
+                    <h3 className="text-lg font-semibold mb-4">Center Locations</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+                        <p className="text-sm text-gray-600">Kathmandu</p>
+                        <p className="text-xl font-bold">24</p>
+                      </div>
+                      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+                        <p className="text-sm text-gray-600">Pokhara</p>
+                        <p className="text-xl font-bold">12</p>
+                      </div>
+                      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+                        <p className="text-sm text-gray-600">Lalitpur</p>
+                        <p className="text-xl font-bold">8</p>
+                      </div>
+                      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+                        <p className="text-sm text-gray-600">Bhaktapur</p>
+                        <p className="text-xl font-bold">6</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )
 
       case "centers":
         return (
-          <div className="space-y-6 bg-gradient-to-br from-green-50/30 to-emerald-50/30 min-h-screen -m-6 p-6">
-            <div className="bg-gradient-to-r from-green-600 to-emerald-700 text-white p-6 rounded-xl shadow-lg">
-              <h1 className="text-3xl font-bold">Centers</h1>
-              <p className="text-green-100 mt-2">Manage your centers and locations</p>
+          <div className="space-y-6 bg-gradient-to-br from-blue-50/30 to-teal-50/30 min-h-screen -m-6 p-6">
+            <div className="bg-gradient-to-r from-blue-600 to-teal-700 text-white p-6 rounded-xl shadow-lg">
+              <h1 className="text-3xl font-bold">Distribution Center Management</h1>
+              <p className="text-blue-100 mt-2">Review and manage distribution centers</p>
             </div>
 
             <div className="flex items-center justify-between">
@@ -518,18 +741,34 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                     </div>
                   )}
                 </div>
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                </select>
+                <div className="flex items-center space-x-2">
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="all">All</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="suspended">Suspended</option>
+                    <option value="maintenance">Maintenance</option>
+                  </select>
+                </div>
               </div>
             </div>
 
+            {/* Center Applications Component */}
+            {filterStatus === "pending" && (
+              <div className="mb-6">
+                <ApplicationsComponent 
+                  initialTab="center" 
+                  initialStatusFilter="pending" 
+                  hideTabSelector={true} 
+                />
+              </div>
+            )}
+            
             <Card className="bg-gradient-to-br from-white to-green-50/50 border-green-200 shadow-lg">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-slate-900">All Centers</h2>
@@ -538,44 +777,57 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                 {centers.map((center) => (
                   <Card
                     key={center.id}
-                    className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-green-50/50 border-green-200 p-4"
+                    className={`hover:shadow-xl transition-all duration-300 p-4 ${
+                      center.status === "active"
+                        ? "bg-gradient-to-br from-white to-green-50/50 border-green-200"
+                        : center.status === "inactive"
+                          ? "bg-gradient-to-br from-white to-red-50/50 border-red-200"
+                          : center.status === "suspended"
+                            ? "bg-gradient-to-br from-white to-gray-50/50 border-gray-200"
+                            : "bg-gradient-to-br from-white to-amber-50/50 border-amber-200"
+                    }`}
                   >
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                       <div className="space-y-3 flex-1">
-                        <div>
-                          <h3 className="text-lg font-semibold text-slate-900">{center.name}</h3>
-                          <p className="text-sm text-slate-600 flex items-center mt-1">
-                            <Building className="h-4 w-4 mr-1" />
-                            {center.location}
-                          </p>
+                        <div className="flex justify-between">
+                          <div>
+                            <h3 className="text-lg font-semibold text-slate-900">{center.name}</h3>
+                            <p className="text-sm text-slate-600 flex items-center mt-1">
+                              <Building className="h-4 w-4 mr-1" />
+                              {center.location}
+                            </p>
+                          </div>
+                          <span
+                            className={`px-3 py-1 text-sm font-medium rounded-full ${
+                              center.status === "active"
+                                ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                                : center.status === "pending"
+                                  ? "bg-amber-100 text-amber-800 border border-amber-200"
+                                  : center.status === "suspended"
+                                    ? "bg-gray-100 text-gray-800 border border-gray-200"
+                                    : "bg-red-100 text-red-800 border border-red-200"
+                            }`}
+                          >
+                            {center.status.charAt(0).toUpperCase() + center.status.slice(1)}
+                          </span>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                           <div>
-                            <span className="text-slate-500">Manager:</span>
-                            <p className="font-medium text-slate-900">{center.contactPerson}</p>
+                            <p className="text-slate-500">Contact Information</p>
+                            <p className="font-medium text-slate-900">{center.email}</p>
+                            <p className="font-medium text-slate-900">{center.phone}</p>
                           </div>
                           <div>
-                            <span className="text-slate-500">Capacity:</span>
-                            <p className="font-medium text-slate-900">{center.capacity.toLocaleString()} sq ft</p>
+                            <p className="text-slate-500">Center Details</p>
+                            <p className="font-medium text-slate-900">Manager: {center.contactPerson}</p>
+                            <p className="font-medium text-slate-900">Capacity: {center.capacity.toLocaleString()} sq ft</p>
                           </div>
-                          <div>
-                            <span className="text-slate-500">Current Orders:</span>
-                            <p className="font-medium text-slate-900">{center.currentOrders}</p>
-                          </div>
-                          <div>
-                            <span className="text-slate-500">Status:</span>
-                            <span
-                              className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                                center.status === "active"
-                                  ? "bg-green-100 text-green-800"
-                                  : center.status === "inactive"
-                                    ? "bg-red-100 text-red-800"
-                                    : "bg-yellow-100 text-yellow-800"
-                              }`}
-                            >
-                              {center.status.charAt(0).toUpperCase() + center.status.slice(1)}
-                            </span>
-                          </div>
+                        </div>
+
+                        <div>
+                          <p className="text-slate-500">Address</p>
+                          <p className="font-medium text-slate-900">{center.address}</p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -588,6 +840,52 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                           <Eye className="h-4 w-4 mr-1" />
                           View Details
                         </Button>
+                        
+                        {center.status === "pending" && (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleCenterStatusChange(center.id, "active")}
+                              className="border-green-300 text-green-700 hover:bg-green-50 bg-transparent"
+                            >
+                              <Check className="h-4 w-4 mr-1" />
+                              Accept
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleCenterStatusChange(center.id, "inactive")}
+                              className="border-red-300 text-red-700 hover:bg-red-50 bg-transparent"
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Reject
+                            </Button>
+                          </>
+                        )}
+                        
+                        {center.status === "active" && (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleCenterStatusChange(center.id, "inactive")}
+                              className="border-orange-300 text-orange-700 hover:bg-orange-50 bg-transparent"
+                            >
+                              <AlertCircle className="h-4 w-4 mr-1" />
+                              Suspend
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleCenterStatusChange(center.id, "maintenance")}
+                              className="border-purple-300 text-purple-700 hover:bg-purple-50 bg-transparent"
+                            >
+                              <Settings className="h-4 w-4 mr-1" />
+                              Maintenance
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </Card>
@@ -648,17 +946,33 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                     </div>
                   )}
                 </div>
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                >
-                  <option value="PENDING">Pending</option>
-                  <option value="APPROVED">Approved</option>
-                  <option value="REJECTED">Rejected</option>
-                </select>
+                <div className="flex items-center space-x-2">
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="all">All</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="APPROVED">Approved</option>
+                    <option value="REJECTED">Rejected</option>
+                    <option value="SUSPENDED">Suspended</option>
+                    <option value="MAINTENANCE">Maintenance</option>
+                  </select>
+                </div>
               </div>
             </div>
+            
+            {/* Vendor Applications Component */}
+            {filterStatus === "PENDING" && (
+              <div className="mb-6">
+                <ApplicationsComponent 
+                  initialTab="vendor" 
+                  initialStatusFilter="pending" 
+                  hideTabSelector={true} 
+                />
+              </div>
+            )}
 
             {/* All Vendors Section */}
             <Card className="bg-gradient-to-br from-white to-blue-50/50 border-blue-200 shadow-lg">
@@ -767,6 +1081,52 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                               <Eye className="h-4 w-4 mr-1" />
                               View Details
                             </Button>
+                            
+                            {vendor.status === VendorStatus.PENDING && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleVendorStatusChange(vendor.id, "APPROVED")}
+                                  className="border-green-300 text-green-700 hover:bg-green-50 bg-transparent"
+                                >
+                                  <Check className="h-4 w-4 mr-1" />
+                                  Accept
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleVendorStatusChange(vendor.id, "REJECTED")}
+                                  className="border-red-300 text-red-700 hover:bg-red-50 bg-transparent"
+                                >
+                                  <X className="h-4 w-4 mr-1" />
+                                  Reject
+                                </Button>
+                              </>
+                            )}
+                            
+                            {vendor.status === VendorStatus.APPROVED && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleVendorStatusChange(vendor.id, "SUSPENDED")}
+                                  className="border-orange-300 text-orange-700 hover:bg-orange-50 bg-transparent"
+                                >
+                                  <AlertCircle className="h-4 w-4 mr-1" />
+                                  Suspend
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleVendorStatusChange(vendor.id, "MAINTENANCE")}
+                                  className="border-purple-300 text-purple-700 hover:bg-purple-50 bg-transparent"
+                                >
+                                  <Settings className="h-4 w-4 mr-1" />
+                                  Maintenance
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </div>
                       </Card>
@@ -848,8 +1208,7 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                 </div>
               )
       
-            case "applications":
-              return <ApplicationsComponent />
+            // Applications are now integrated into vendor and center tabs
 
       // Default case for other tabs
       default:
@@ -1033,6 +1392,38 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                 </div>
               </div>
               
+              {selectedCenter.status === "pending" && (
+                <div className="mt-6">
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4 border-b pb-2">Application Status</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm text-slate-500">Status</p>
+                      <p className="font-medium text-slate-900">Pending Review</p>
+                    </div>
+                    <div className="flex space-x-4 mt-4">
+                      <button
+                        onClick={() => handleCenterAction(selectedCenter.id, "approve")}
+                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center"
+                      >
+                        <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Accept Application
+                      </button>
+                      <button
+                        onClick={() => handleCenterAction(selectedCenter.id, "reject")}
+                        className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center"
+                      >
+                        <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Reject Application
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               
               {/* Document Viewer Section */}
               <div className="mt-6">
@@ -1189,6 +1580,26 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
                     <div>
                       <p className="text-sm text-slate-500">Application Status</p>
                       <p className="font-medium text-slate-900">Pending Review</p>
+                    </div>
+                    <div className="flex space-x-4 mt-4">
+                      <button
+                        onClick={() => handleVendorAction(selectedVendor.id, "approve")}
+                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center"
+                      >
+                        <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Accept Application
+                      </button>
+                      <button
+                        onClick={() => handleVendorAction(selectedVendor.id, "reject")}
+                        className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center"
+                      >
+                        <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Reject Application
+                      </button>
                     </div>
                   </div>
                 </div>

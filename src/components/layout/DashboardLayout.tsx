@@ -163,8 +163,6 @@ export function DashboardLayout({
     { id: "overview", label: "Overview", icon: "📊" },
     { id: "vendors", label: "Vendors", icon: "👥" },
     { id: "centers", label: "Centers", icon: "🏢" },
-    { id: "categories", label: "Categories", icon: "🏷️" },
-    { id: "applications", label: "Applications", icon: "📋" },
   ];
 
   return (

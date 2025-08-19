@@ -59,7 +59,7 @@ MONGODB_URI=mongodb://localhost:27017/vrs_database
 # Server Configuration
 PORT=5000
 JWT_SECRET=your_secure_jwt_secret_key
-FRONTEND_URL=http://localhost:5000
+FRONTEND_URL=http://localhost:5173
 
 # User Credentials (for database seeding)
 ADMIN_EMAIL=admin@example.com

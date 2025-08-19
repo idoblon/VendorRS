@@ -217,11 +217,11 @@ router.post("/login", validateUserLogin, async (req, res) => {
       });
     }
 
-    // Check if vendor account is approved
-    if (user.role === "VENDOR" && user.status !== "APPROVED") {
+    // Check if vendor or center account is approved
+    if ((user.role === "VENDOR" || user.role === "CENTER") && user.status !== "APPROVED") {
       return res.status(401).json({
         success: false,
-        message: "Vendor account is not approved yet. Please wait for administrator approval.",
+        message: `${user.role.toLowerCase()} account is not approved yet. Please wait for administrator approval.`,
       });
     }
 

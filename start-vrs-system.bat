@@ -43,14 +43,14 @@ timeout /t 3 /nobreak >nul
 echo [4/5] Starting Frontend Development Server...
 cd ..
 start "VRS Frontend" cmd /k "npm run dev"
-echo Frontend starting on http://localhost:3000
+echo Frontend starting on http://localhost:5173
 echo.
 
 timeout /t 2 /nobreak >nul
 
 echo [5/5] Opening System in Browser...
 timeout /t 5 /nobreak >nul
-start http://localhost:3000
+start http://localhost:5173
 
 echo.
 echo ========================================
@@ -58,7 +58,7 @@ echo    VRS System Started Successfully!
 echo ========================================
 echo.
 echo Backend API: http://localhost:5000
-echo Frontend App: http://localhost:3000
+echo Frontend App: http://localhost:5173
 echo Health Check: http://localhost:5000/health
 echo.
 echo Login Credentials:
