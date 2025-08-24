@@ -34,8 +34,8 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
       <p className="text-gray-600 text-sm mb-3 flex-grow">{product.description}</p>
       <div className="flex justify-between items-center mt-auto">
         <span className="text-xl font-bold">
-          {product.currency} {product.price.toFixed(2)}
-        </span>
+                  {product.currency === 'npr' ? 'रू' : product.currency} {product.price.toFixed(2)}
+                </span>
         <button
           onClick={() => onAddToCart(product)}
           className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"

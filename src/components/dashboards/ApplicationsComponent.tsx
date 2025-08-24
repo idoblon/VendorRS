@@ -19,22 +19,12 @@ interface Application {
   documents: string[]
 }
 
-interface ApplicationsComponentProps {
-  initialTab?: "vendor" | "center";
-  initialStatusFilter?: "all" | "pending" | "approved" | "rejected";
-  hideTabSelector?: boolean;
-}
-
-export function ApplicationsComponent({
-  initialTab = "vendor",
-  initialStatusFilter = "pending",
-  hideTabSelector = false
-}: ApplicationsComponentProps = {}) {
+export function ApplicationsComponent() {
   const [applications, setApplications] = useState<Application[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<"vendor" | "center">(initialTab)
-  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">(initialStatusFilter)
+  const [activeTab, setActiveTab] = useState<"vendor" | "center">("vendor")
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("all")
 
   // Fetch applications from backend
   const fetchApplications = async () => {
@@ -109,12 +99,11 @@ export function ApplicationsComponent({
   }
 
   // Update application status
-  const updateApplicationStatus = async (id: string, status: "approved" | "rejected", notes?: string) => {
+  const updateApplicationStatus = async (id: string, status: "approved" | "rejected") => {
     try {
       console.log("Updating application status for:", id, "to:", status);
       const response = await axiosInstance.put(`/api/users/${activeTab}s/${id}/status`, {
-        status: status.toUpperCase(),
-        notes: notes || ""
+        status: status.toUpperCase()
       })
       
       console.log("Update status response:", response.data);
@@ -124,11 +113,6 @@ export function ApplicationsComponent({
         setApplications(prev => prev.map(app =>
           app.id === id ? { ...app, status } : app
         ))
-        
-        // Refresh the applications list after a short delay
-        setTimeout(() => {
-          fetchApplications();
-        }, 1000);
       } else {
         throw new Error(response.data.message || "Failed to update application status")
       }
@@ -166,8 +150,6 @@ export function ApplicationsComponent({
 
   const handleReject = (id: string) => {
     console.log("Rejecting application:", id);
-    // For rejection, we could add a modal to collect rejection notes
-    // For now, just reject without notes
     updateApplicationStatus(id, "rejected")
   }
 
@@ -187,47 +169,45 @@ export function ApplicationsComponent({
   return (
     <div className="space-y-6 bg-gradient-to-br from-purple-50/30 to-pink-50/30 min-h-screen -m-6 p-6">
       <div className="bg-gradient-to-r from-purple-600 to-pink-700 text-white p-6 rounded-xl shadow-lg">
-        <h1 className="text-3xl font-bold">{activeTab === "vendor" ? "Vendor" : "Center"} Applications</h1>
-        <p className="text-purple-100 mt-2">Review and manage {activeTab} applications</p>
+        <h1 className="text-3xl font-bold">Applications</h1>
+        <p className="text-purple-100 mt-2">Review and manage vendor and center applications</p>
       </div>
 
       <div className="flex items-center justify-between">
-        {!hideTabSelector && (
-          <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm border">
-            <button
-              onClick={() => setActiveTab("vendor")}
-              className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "vendor"
-                  ? "bg-purple-100 text-purple-700"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`}
-            >
-              <Users className="h-4 w-4 mr-2" />
-              Vendor Applications
-            </button>
-            <button
-              onClick={() => setActiveTab("center")}
-              className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "center"
-                  ? "bg-purple-100 text-purple-700"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`}
-            >
-              <Building className="h-4 w-4 mr-2" />
-              Center Applications
-            </button>
-          </div>
-        )}
+        <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm border">
+          <button
+            onClick={() => setActiveTab("vendor")}
+            className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              activeTab === "vendor"
+                ? "bg-purple-100 text-purple-700"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            <Users className="h-4 w-4 mr-2" />
+            Vendor Applications
+          </button>
+          <button
+            onClick={() => setActiveTab("center")}
+            className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              activeTab === "center"
+                ? "bg-purple-100 text-purple-700"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            <Building className="h-4 w-4 mr-2" />
+            Center Applications
+          </button>
+        </div>
 
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as any)}
           className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
         >
+          <option value="all">All Status</option>
           <option value="pending">Pending</option>
           <option value="approved">Approved</option>
           <option value="rejected">Rejected</option>
-          <option value="all">All Status</option>
         </select>
       </div>
 
@@ -322,6 +302,12 @@ export function ApplicationsComponent({
                             <p className="font-medium text-slate-900">{application.location}</p>
                           </div>
                         )}
+                        <div>
+                          <p className="text-slate-500">Status</p>
+                          <p className="font-medium text-slate-900">
+                            {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
+                          </p>
+                        </div>
                       </div>
                       <div className="mt-3">
                         <p className="text-slate-500 text-sm">Documents Submitted</p>
@@ -339,44 +325,30 @@ export function ApplicationsComponent({
                     </div>
                   </div>
                   <div className="flex flex-col space-y-2 ml-4">
-                    {application.status === "pending" ? (
+                    <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
+                      <Eye className="h-4 w-4 mr-1" />
+                      View
+                    </Button>
+                    {application.status === "pending" && (
                       <div className="flex flex-col space-y-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleApprove(application.id)}
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                          Approve
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="text-blue-600 hover:text-blue-700 flex items-center justify-between w-full"
+                          onClick={() => handleReject(application.id)}
+                          className="border-red-300 text-red-600 hover:bg-red-50"
                         >
-                          <div className="flex items-center">
-                            <Eye className="h-4 w-4 mr-1" />
-                            Review
-                          </div>
-                          <div className="flex space-x-1 ml-2">
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleApprove(application.id);
-                              }}
-                              className="p-1 bg-green-100 text-green-700 rounded-full hover:bg-green-200"
-                            >
-                              <CheckCircle className="h-3 w-3" />
-                            </button>
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleReject(application.id);
-                              }}
-                              className="p-1 bg-red-100 text-red-700 rounded-full hover:bg-red-200"
-                            >
-                              <XCircle className="h-3 w-3" />
-                            </button>
-                          </div>
+                          <XCircle className="h-4 w-4 mr-1" />
+                          Reject
                         </Button>
                       </div>
-                    ) : (
-                      <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
-                      </Button>
                     )}
                   </div>
                 </div>

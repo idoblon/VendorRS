@@ -913,10 +913,6 @@ export default function CenterDashboard() {
               <ShoppingCart className="h-4 w-4" />
               Incoming Orders ({pendingOrders})
             </TabsTrigger>
-            <TabsTrigger value="sales" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              Sales
-            </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Profile
@@ -941,8 +937,8 @@ export default function CenterDashboard() {
                     Total Revenue
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ₹{totalRevenue.toLocaleString()}
-                  </p>
+                                      रू{totalRevenue.toLocaleString()}
+                                    </p>
                 </CardContent>
               </Card>
               <Card>
@@ -997,8 +993,8 @@ export default function CenterDashboard() {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">₹{order.totalAmount}</p>
-                          <Badge
+                                                  <p className="font-medium">रू{order.totalAmount}</p>
+                                                  <Badge
                             variant={getStatusColor(order.status)}
                             className="text-xs"
                           >
@@ -1077,8 +1073,8 @@ export default function CenterDashboard() {
                         </p>
                         <div className="flex items-center justify-between">
                           <span className="text-lg font-bold text-green-600">
-                            ₹{product.price}
-                          </span>
+                                                      रू{product.price}
+                                                    </span>
                           <span
                             className={`text-xs font-medium ${
                               product.stock < 10
@@ -1151,8 +1147,8 @@ export default function CenterDashboard() {
                           <span className="ml-1">{order.status}</span>
                         </Badge>
                         <p className="text-lg font-bold text-gray-900">
-                          ₹{order.totalAmount}
-                        </p>
+                                                  रू{order.totalAmount}
+                                                </p>
                       </div>
                     </div>
 
@@ -1165,7 +1161,7 @@ export default function CenterDashboard() {
                           <span>
                             {item.productName} × {item.quantity}
                           </span>
-                          <span>₹{item.total}</span>
+                          <span>रू{item.total}</span>
                         </div>
                       ))}
                     </div>
@@ -1223,49 +1219,6 @@ export default function CenterDashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="sales" className="space-y-6">
-            {/* Sales content */}
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Sales Analytics
-              </h2>
-              <p className="text-gray-600 mt-1">
-                Track your sales performance and revenue
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card>
-                <CardContent className="text-center p-6">
-                  <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-gray-600">
-                    This Month
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    ₹{totalRevenue.toLocaleString()}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="text-center p-6">
-                  <Users className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-gray-600">
-                    Active Vendors
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">12</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="text-center p-6">
-                  <Package className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-gray-600">
-                    Orders Fulfilled
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">45</p>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
 
           <TabsContent value="profile" className="space-y-6">
             {renderProfileContent()}

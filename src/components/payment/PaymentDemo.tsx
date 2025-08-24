@@ -82,7 +82,7 @@ export function PaymentDemo() {
               
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Payment Amount (₹)
+                  Payment Amount (रू)
                 </label>
                 <input
                   type="number"

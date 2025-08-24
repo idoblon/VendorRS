@@ -67,7 +67,7 @@ export default function ProductCatalog() {
       "/api/payments/create-payment-intent",
       {
         amount: totalAmount,
-        currency: "inr",
+        currency: "npr",
       }
     );
     setClientSecret(data.clientSecret);

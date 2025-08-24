@@ -64,7 +64,7 @@ export function PaymentPage({ amount, orderId, onBack, onComplete }: PaymentPage
               <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-4 rounded-lg border border-orange-200 mb-6">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700">Amount:</span>
-                  <span className="text-xl font-bold text-orange-600">₹{amount.toFixed(2)}</span>
+                  <span className="text-xl font-bold text-orange-600">रू{amount.toFixed(2)}</span>
                 </div>
                 {orderId && (
                   <div className="flex justify-between items-center mt-2">
@@ -90,7 +90,7 @@ export function PaymentPage({ amount, orderId, onBack, onComplete }: PaymentPage
               </h2>
               
               <p className="text-gray-600 mb-6">
-                Your payment of ₹{amount.toFixed(2)} has been processed successfully.
+                Your payment of रू{amount.toFixed(2)} has been processed successfully.
               </p>
               
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 mb-6">
