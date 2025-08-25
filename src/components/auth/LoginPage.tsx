@@ -26,16 +26,16 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
       const response = await axiosInstance.post("/api/auth/login", {
         email,
         password,
-        role, // send role with request
+        role, // This is lowercase 'vendor' from the select dropdown
       });
 
       const data = response.data;
 
       if (response.status === 200 && data.success) {
-        if (data.data.user && data.data.user.role) {
-          data.data.user.role = data.data.user.role.toLowerCase();
+        if (data.user && data.user.role) {
+          data.user.role = data.user.role.toLowerCase();
         }
-        onLogin(data.data.user, data.data.token);
+        onLogin(data.user, data.token);
       } else {
         setError(
           data.message || "Login failed. Please check your credentials."
@@ -122,7 +122,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
               >
                 <option value="">-- Choose Role --</option>
                 <option value="admin">Admin</option>
-                <option value="vendor">Vendor</option>
+                <option value="vendor">Vendor</option> // lowercase value
                 <option value="center">Center</option>
               </select>
             </div>

@@ -71,9 +71,19 @@ const App = () => {
   };
 
   const handleLogout = () => {
+    console.log("App handleLogout called - clearing user state");
+
+    // Clear React state
     setCurrentUser(null);
+
+    // Clear localStorage (using correct token keys)
     localStorage.removeItem("vrs_user");
-    localStorage.removeItem("vrs_token");
+    localStorage.removeItem("vrs_token"); // This is the token the app uses
+
+    // Reset auth view to login
+    setAuthView("login");
+
+    console.log("Logout complete - user should see login page");
   };
 
   if (isLoading) {

@@ -302,7 +302,7 @@ export default function VendorSignupPage({
       formDataToSubmit.append("email", formData.email);
       formDataToSubmit.append("password", formData.password);
       formDataToSubmit.append("phone", formattedPhoneNumber);
-      formDataToSubmit.append("role", "VENDOR");
+      formDataToSubmit.append("role", "VENDOR"); // Uppercase
       formDataToSubmit.append("businessName", formData.vendorName);
       formDataToSubmit.append("panNumber", formData.panNumber);
       formDataToSubmit.append("province", formData.province);

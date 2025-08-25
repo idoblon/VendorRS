@@ -1,630 +1,908 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Users,
   Building,
-  BarChart3,
+  DollarSign,
+  TrendingUp,
+  Bell,
   Search,
-  Eye,
-  FileText,
+  Filter,
   Plus,
-  X,
+  LogOut,
+  Eye,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Store,
+  MapPin,
+  Trash2,
+  Pause,
+  AlertTriangle,
 } from "lucide-react";
-import { DashboardLayout } from "./../layout/DashboardLayout";
-import { Card } from "./../ui/Card";
-import { Button } from "./../ui/Button";
-import {
-  type User,
-  type Vendor,
-  VendorStatus,
-  type Document,
-} from "../../types/index";
-// Remove this import
-// import { ApplicationsComponent } from "./ApplicationsComponent";
-import {
-  getCategories,
-  createCategory,
-  deleteCategory,
-} from "../../utils/categoryApi";
+import { Button } from "../ui/Button";
+import { Card } from "../ui/Card";
+import { ApplicationsComponent } from "./ApplicationsComponent";
 import axiosInstance from "../../utils/axios";
+import { User } from "../../types/index";
 
 interface AdminDashboardProps {
   user: User;
   onLogout: () => void;
 }
 
-interface DistributionCenter {
-  id: string;
-  name: string;
-  location: string;
-  address: string;
-  contactPerson: string;
+interface Vendor {
+  _id: string;
+  businessName: string;
   email: string;
-  phone: string;
-  status: "active" | "inactive" | "maintenance";
-  capacity: number;
-  currentOrders: number;
-  establishedDate: string;
-  region: string;
-  documents?: Document[];
+  status: string;
+  commission?: number;
+  name?: string;
+  phone?: string;
+  address?: string;
+  district?: string;
+  createdAt?: string;
+  bankDetails?: {
+    bankName: string;
+    accountNumber: string;
+    accountHolderName: string;
+  };
+  contactPersons?: Array<{
+    name: string;
+    phone: string;
+    email: string;
+  }>;
 }
 
-export default function AdminDashboard({
-  user,
-  onLogout,
-}: AdminDashboardProps) {
-  const [centers, setCenters] = useState<DistributionCenter[]>([
-    {
-      id: "1",
-      name: "Kathmandu Distribution Center",
-      location: "Kathmandu, Bagmati Province",
-      address: "Industrial Area, Balaju-16, Kathmandu",
-      contactPerson: "Ram Bahadur Sharma",
-      email: "ram@ktm-center.com",
-      phone: "+977-9801234567",
-      status: "active",
-      capacity: 15000,
-      currentOrders: 245,
-      establishedDate: "2018-03-15",
-      region: "Central",
-    },
-    {
-      id: "2",
-      name: "Pokhara Distribution Center",
-      location: "Pokhara, Gandaki Province",
-      address: "Lakeside Road, Pokhara-33, Gandaki Province",
-      contactPerson: "Sunita Shrestha",
-      email: "sunita@pokhara-center.com",
-      phone: "+977-9801234568",
-      status: "active",
-      capacity: 12000,
-      currentOrders: 189,
-      establishedDate: "2019-06-20",
-      region: "Western",
-    },
-    {
-      id: "3",
-      name: "Biratnagar Distribution Center",
-      location: "Biratnagar, Province 1",
-      address: "Main Road, Biratnagar-56613, Province 1",
-      contactPerson: "Prakash Gurung",
-      email: "prakash@biratnagar-center.com",
-      phone: "+977-9801234569",
-      status: "maintenance",
-      capacity: 10000,
-      currentOrders: 0,
-      establishedDate: "2021-03-10",
-      region: "Eastern",
-    },
-    {
-      id: "4",
-      name: "Chitwan Distribution Center",
-      location: "Bharatpur, Chitwan",
-      address: "Narayanghat-Mugling Highway, Bharatpur-10",
-      contactPerson: "Maya Tamang",
-      email: "maya@chitwan-center.com",
-      phone: "+977-9801234570",
-      status: "active",
-      capacity: 8000,
-      currentOrders: 156,
-      establishedDate: "2020-08-12",
-      region: "Central",
-    },
-    {
-      id: "5",
-      name: "Dharan Distribution Center",
-      location: "Dharan, Province 1",
-      address: "BP Highway, Dharan-17, Sunsari",
-      contactPerson: "Bikash Rai",
-      email: "bikash@dharan-center.com",
-      phone: "+977-9801234571",
-      status: "active",
-      capacity: 7500,
-      currentOrders: 98,
-      establishedDate: "2022-01-25",
-      region: "Eastern",
-    },
-  ]);
+interface DistributionCenter {
+  _id: string;
+  name: string;
+  location: string;
+  status: string;
+}
 
-  const [isLoading, setIsLoading] = useState(false);
+interface Notification {
+  _id: string;
+  title: string;
+  message: string;
+  type: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [distributionCenters, setDistributionCenters] = useState<
+    DistributionCenter[]
+  >([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [vendors, setVendors] = useState<Vendor[]>([
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [showVendorModal, setShowVendorModal] = useState(false);
+  const [showCenterModal, setShowCenterModal] = useState(false);
+  const [showCommissionModal, setShowCommissionModal] = useState(false);
+  const [totalVendorsCount, setTotalVendorsCount] = useState(0);
+  const [activeCentersCount, setActiveCentersCount] = useState(0);
+  const [totalCommission, setTotalCommission] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Add new state for vendor details modal
+  const [showVendorDetails, setShowVendorDetails] = useState(false);
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
+
+  // Mock data for fallback
+  const mockVendors: Vendor[] = [
     {
       _id: "1",
-      name: "Himalayan Handicrafts Pvt. Ltd.",
-      email: "info@himalayanhandicrafts.com.np",
-      phone: "+977-9841234567",
-      address: "Thamel, Kathmandu-29, Nepal",
-      businessType: "Handicrafts & Souvenirs",
-      status: VendorStatus.APPROVED,
-      commission: 15000,
-      joinedDate: "2023-01-15",
-      description: "Traditional Nepalese handicrafts and cultural items",
-      documents: [],
+      businessName: "ABC Trading Co.",
+      email: "abc@trading.com",
+      status: "approved",
+      commission: 1500,
     },
     {
       _id: "2",
-      name: "Everest Organic Tea Company",
-      email: "sales@everestorganictea.com",
-      phone: "+977-9851234568",
-      address: "Ilam Tea Garden, Ilam-56700, Nepal",
-      businessType: "Organic Tea & Beverages",
-      status: VendorStatus.APPROVED,
-      commission: 22000,
-      joinedDate: "2023-02-20",
-      description: "Premium organic tea from the hills of Nepal",
-      documents: [],
-    },
-    {
-      _id: "3",
-      name: "Kathmandu Spice Trading",
-      email: "orders@ktmspice.com.np",
-      phone: "+977-9861234569",
-      address: "Asan Bazaar, Kathmandu-31, Nepal",
-      businessType: "Spices & Food Products",
-      status: VendorStatus.PENDING,
-      commission: 8500,
-      joinedDate: "2023-03-10",
-      description: "Authentic Nepalese spices and food ingredients",
-      documents: [],
-    },
-    {
-      _id: "4",
-      name: "Sherpa Adventure Gear",
-      email: "gear@sherpaadventure.com.np",
-      phone: "+977-9871234570",
-      address: "Namche Bazaar, Solukhumbu-56000, Nepal",
-      businessType: "Outdoor & Adventure Equipment",
-      status: VendorStatus.APPROVED,
-      commission: 35000,
-      joinedDate: "2023-01-05",
-      description: "High-quality mountaineering and trekking equipment",
-      documents: [],
-    },
-    {
-      _id: "5",
-      name: "Pashmina Palace Nepal",
-      email: "info@pashminapalace.com.np",
-      phone: "+977-9881234571",
-      address: "Durbar Marg, Kathmandu-44600, Nepal",
-      businessType: "Textiles & Fashion",
-      status: VendorStatus.APPROVED,
-      commission: 18500,
-      joinedDate: "2023-02-28",
-      description: "Authentic Nepalese pashmina and traditional textiles",
-      documents: [],
-    },
-    {
-      _id: "6",
-      name: "Annapurna Organic Farms",
-      email: "harvest@annapurnaorganic.com.np",
-      phone: "+977-9891234572",
-      address: "Gorkha-34000, Gandaki Province, Nepal",
-      businessType: "Organic Agriculture",
-      status: VendorStatus.PENDING,
-      commission: 12000,
-      joinedDate: "2023-03-15",
-      description: "Organic vegetables and fruits from Annapurna region",
-      documents: [],
-    },
-    {
-      _id: "7",
-      name: "Bhaktapur Pottery Works",
-      email: "pottery@bhaktapurworks.com.np",
-      phone: "+977-9801234573",
-      address: "Pottery Square, Bhaktapur-44800, Nepal",
-      businessType: "Ceramics & Pottery",
-      status: VendorStatus.APPROVED,
-      commission: 9500,
-      joinedDate: "2023-01-20",
-      description: "Traditional Newari pottery and ceramic art",
-      documents: [],
-    },
-    {
-      _id: "8",
-      name: "Mustang Yak Cheese Co.",
-      email: "cheese@mustangyak.com.np",
-      phone: "+977-9811234574",
-      address: "Jomsom, Mustang-33100, Nepal",
-      businessType: "Dairy Products",
-      status: VendorStatus.REJECTED,
+      businessName: "XYZ Suppliers",
+      email: "xyz@suppliers.com",
+      status: "pending",
       commission: 0,
-      joinedDate: "2023-02-10",
-      description: "Traditional yak cheese and dairy products from Mustang",
-      documents: [],
     },
-    {
-      _id: "9",
-      name: "Lumbini Meditation Supplies",
-      email: "peace@lumbinimeditation.com.np",
-      phone: "+977-9821234575",
-      address: "Lumbini-32900, Rupandehi, Nepal",
-      businessType: "Spiritual & Wellness",
-      status: VendorStatus.APPROVED,
-      commission: 14000,
-      joinedDate: "2023-03-01",
-      description: "Meditation accessories and spiritual items",
-      documents: [],
-    },
-    {
-      _id: "10",
-      name: "Chitwan Honey Collective",
-      email: "sweet@chitwanhoney.com.np",
-      phone: "+977-9831234576",
-      address: "Sauraha, Chitwan-44200, Nepal",
-      businessType: "Natural Products",
-      status: VendorStatus.PENDING,
-      commission: 7500,
-      joinedDate: "2023-03-20",
-      description: "Pure honey and bee products from Chitwan forests",
-      documents: [],
-    },
-  ]);
-  const [activeTab, setActiveTab] = useState("overview");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [categories, setCategories] = useState<{ _id: string; name: string }[]>(
-    []
-  );
-  const [newCategory, setNewCategory] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showCategoryForm, setShowCategoryForm] = useState(false);
-  // Remove this line
-  // const [pendingApplicationsCount, setPendingApplicationsCount] = useState(0);
-  const [totalCommission, setTotalCommission] = useState(0);
+  ];
 
-  const [categoryError, setCategoryError] = useState<string | null>(null);
-  const [showVendorModal, setShowVendorModal] = useState(false);
-  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
-  const [actionNotes, setActionNotes] = useState("");
-  const [showCenterModal, setShowCenterModal] = useState(false);
-  const [selectedCenter, setSelectedCenter] =
-    useState<DistributionCenter | null>(null);
-  const [showDashboardModal, setShowDashboardModal] = useState(false);
-  const [selectedDashboardCard, setSelectedDashboardCard] = useState<
-    string | null
-  >(null);
-  const [totalVendorsCount, setTotalVendorsCount] = useState(0);
-  const [activeCentersCount, setActiveCentersCount] = useState(0);
+  const mockDistributionCenters: DistributionCenter[] = [
+    {
+      _id: "1",
+      name: "Central Distribution Hub",
+      location: "Kathmandu, Bagmati",
+      status: "active",
+    },
+    {
+      _id: "2",
+      name: "Eastern Regional Center",
+      location: "Biratnagar, Koshi",
+      status: "active",
+    },
+  ];
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch vendors
+      const vendorResponse = await axiosInstance.get("/api/users/vendors");
+      console.log("Vendor API response:", vendorResponse.data);
+
+      if (vendorResponse.data.success && vendorResponse.data.data?.vendors) {
+        const vendorData = vendorResponse.data.data.vendors;
+        setVendors(vendorData);
+        setTotalVendorsCount(vendorData.length);
+
+        // Calculate total commission from approved vendors
+        const approvedVendors = vendorData.filter(
+          (v: Vendor) => v.status === "APPROVED" // Changed from "approved" to "APPROVED"
+        );
+        const commission = approvedVendors.reduce(
+          (sum: number, vendor: Vendor) => {
+            return sum + (vendor.commission || 0);
+          },
+          0
+        );
+        setTotalCommission(commission);
+      } else {
+        console.warn("Using mock vendor data due to API response structure");
+        setVendors(mockVendors);
+        setTotalVendorsCount(mockVendors.length);
+        setTotalCommission(1500);
+      }
+
+      // Fetch distribution centers
+      try {
+        const centerResponse = await axiosInstance.get("/api/users/centers");
+        if (centerResponse.data.success && centerResponse.data.data?.centers) {
+          const centerData = centerResponse.data.data.centers;
+          setDistributionCenters(centerData);
+          const activeCenters = centerData.filter(
+            (c: DistributionCenter) => c.status === "active"
+          );
+          setActiveCentersCount(activeCenters.length);
+        } else {
+          setDistributionCenters(mockDistributionCenters);
+          setActiveCentersCount(mockDistributionCenters.length);
+        }
+      } catch (centerError) {
+        console.warn("Using mock center data:", centerError);
+        setDistributionCenters(mockDistributionCenters);
+        setActiveCentersCount(mockDistributionCenters.length);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setError("Failed to load dashboard data. Using sample data.");
+
+      // Use mock data as fallback
+      setVendors(mockVendors);
+      setDistributionCenters(mockDistributionCenters);
+      setTotalVendorsCount(mockVendors.length);
+      setActiveCentersCount(mockDistributionCenters.length);
+      setTotalCommission(1500);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await axiosInstance.get("/api/notifications", {
+        params: { limit: 10 },
+      });
+      if (response.data.success) {
+        setNotifications(response.data.data.notifications);
+        setUnreadCount(response.data.data.unreadCount);
+      }
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const response = await axiosInstance.put("/api/notifications/read-all");
+      if (response.data.success) {
+        setNotifications((prev) =>
+          prev.map((notif) => ({ ...notif, isRead: true }))
+        );
+        setUnreadCount(0);
+      }
+    } catch (error) {
+      console.error("Failed to mark all notifications as read:", error);
+    }
+  };
+
+  const markAsRead = async (notificationId: string) => {
+    try {
+      const response = await axiosInstance.put(
+        `/api/notifications/${notificationId}/read`
+      );
+      if (response.data.success) {
+        setNotifications((prev) =>
+          prev.map((notif) =>
+            notif._id === notificationId ? { ...notif, isRead: true } : notif
+          )
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      }
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    );
+
+    if (diffInHours < 1) return "Just now";
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
+    return date.toLocaleDateString();
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axiosInstance.get("/vendors");
-        // Only update vendors if we get data from the API
-        if (response.data && response.data.length > 0) {
-          setVendors(response.data);
-        }
-        // If no data from API, keep the mock data that was set in useState
-
-        setTotalVendorsCount(vendors.length); // Use current vendors length
-        setActiveCentersCount(
-          centers.filter((c) => c.status === "active").length
-        );
-
-        const commission = vendors.reduce(
-          (acc: number, vendor: Vendor) => acc + (vendor.commission || 0),
-          0
-        );
-        setTotalCommission(commission);
-
-        const categoriesData = await getCategories();
-        setCategories(categoriesData);
-      } catch (err) {
-        // On error, keep the mock data and don't override vendors
-        console.log("Using mock data due to API error:", err);
-        setError("Using mock data - API not available");
-        
-        // Calculate stats from mock data
-        setTotalVendorsCount(vendors.length);
-        setActiveCentersCount(
-          centers.filter((c) => c.status === "active").length
-        );
-        
-        const commission = vendors.reduce(
-          (acc: number, vendor: Vendor) => acc + (vendor.commission || 0),
-          0
-        );
-        setTotalCommission(commission);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchData();
-  }, [centers]); // Remove vendors from dependency to avoid infinite loop
+    fetchNotifications();
+  }, []);
 
-  const handleAddCategory = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setCategoryError(null);
-
-    try {
-      await createCategory(newCategory);
-      const updatedCategories = await getCategories();
-      setCategories(updatedCategories);
-      setNewCategory("");
-      setShowCategoryForm(false);
-    } catch (err) {
-      setCategoryError("Failed to add category");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteCategory = async (categoryId: string) => {
-    setLoading(true);
-    try {
-      await deleteCategory(categoryId);
-      const updatedCategories = await getCategories();
-      setCategories(updatedCategories);
-    } catch (err) {
-      setCategoryError("Failed to delete category");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredVendors = vendors.filter((vendor) => {
-    const matchesSearch =
-      vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vendor.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      filterStatus === "all" || vendor.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
-
+  // Add new handler functions for vendor and center actions
   const handleVendorAction = async (
     vendorId: string,
-    action: "approve" | "reject"
+    action: "suspend" | "delete"
   ) => {
     try {
-      await axiosInstance.patch(`/vendors/${vendorId}/status`, {
-        status:
-          action === "approve" ? VendorStatus.APPROVED : VendorStatus.REJECTED,
-        notes: actionNotes,
-      });
+      setLoading(true);
 
-      const response = await axiosInstance.get("/vendors");
-      setVendors(response.data);
-      setShowVendorModal(false);
-      setSelectedVendor(null);
-      setActionNotes("");
-    } catch (err) {
-      setError("Failed to update vendor status");
-      console.error(err);
+      if (action === "suspend") {
+        const response = await axiosInstance.put(
+          `/api/users/vendors/${vendorId}/status`,
+          {
+            status: "SUSPENDED", // Use uppercase to match backend
+          }
+        );
+
+        if (response.data.success) {
+          setVendors((prev) =>
+            prev.map((vendor) =>
+              vendor._id === vendorId
+                ? { ...vendor, status: "SUSPENDED" }
+                : vendor
+            )
+          );
+          alert("Vendor suspended successfully");
+        }
+      } else if (action === "delete") {
+        if (
+          window.confirm(
+            "Are you sure you want to delete this vendor? This action cannot be undone."
+          )
+        ) {
+          // Fix: Use the correct endpoint /api/users/:id instead of /api/users/vendors/:id
+          const response = await axiosInstance.delete(`/api/users/${vendorId}`);
+
+          if (response.data.success) {
+            setVendors((prev) =>
+              prev.filter((vendor) => vendor._id !== vendorId)
+            );
+            setTotalVendorsCount((prev) => prev - 1);
+            alert("Vendor deleted successfully");
+            // Close vendor details modal if it's open for the deleted vendor
+            if (selectedVendor && selectedVendor._id === vendorId) {
+              setShowVendorDetails(false);
+              setSelectedVendor(null);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Failed to ${action} vendor:`, error);
+      alert(`Failed to ${action} vendor. Please try again.`);
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <DashboardLayout>
-      {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg text-gray-600">Loading dashboard...</div>
-        </div>
-      ) : (
-        <>
-          {/* AdminDashboard Heading */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">AdminDashboard</h1>
-            <p className="text-gray-600">Manage vendors, centers, and system overview</p>
+  const handleCenterAction = async (
+    centerId: string,
+    action: "suspend" | "delete"
+  ) => {
+    try {
+      setLoading(true);
+
+      if (action === "suspend") {
+        const response = await axiosInstance.put(
+          `/api/users/centers/${centerId}/status`,
+          {
+            status: "suspended",
+          }
+        );
+
+        if (response.data.success) {
+          setDistributionCenters((prev) =>
+            prev.map((center) =>
+              center._id === centerId
+                ? { ...center, status: "suspended" }
+                : center
+            )
+          );
+          alert("Center suspended successfully");
+        }
+      } else if (action === "delete") {
+        if (
+          window.confirm(
+            "Are you sure you want to delete this distribution center? This action cannot be undone."
+          )
+        ) {
+          const response = await axiosInstance.delete(
+            `/api/users/centers/${centerId}`
+          );
+
+          if (response.data.success) {
+            setDistributionCenters((prev) =>
+              prev.filter((center) => center._id !== centerId)
+            );
+            setActiveCentersCount((prev) => prev - 1);
+            alert("Center deleted successfully");
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Failed to ${action} center:`, error);
+      alert(`Failed to ${action} center. Please try again.`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "overview":
+        return (
+          <div className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card
+                className="p-6 cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setShowVendorModal(true)}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">
+                      Total Vendors
+                    </p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {totalVendorsCount}
+                    </p>
+                  </div>
+                  <Users className="h-8 w-8 text-blue-600" />
+                </div>
+              </Card>
+
+              <Card
+                className="p-6 cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setShowCenterModal(true)}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">
+                      Active Centers
+                    </p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {activeCentersCount}
+                    </p>
+                  </div>
+                  <Building className="h-8 w-8 text-green-600" />
+                </div>
+              </Card>
+
+              <Card
+                className="p-6 cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setShowCommissionModal(true)}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">
+                      Total Commission
+                    </p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      Rs. {totalCommission.toLocaleString()}
+                    </p>
+                  </div>
+                  <DollarSign className="h-8 w-8 text-purple-600" />
+                </div>
+              </Card>
+            </div>
+
+            {/* Recent Activity */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <span className="text-sm">
+                    New vendor application approved
+                  </span>
+                  <span className="text-xs text-gray-500 ml-auto">
+                    2 hours ago
+                  </span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Clock className="h-5 w-5 text-yellow-600" />
+                  <span className="text-sm">
+                    Vendor application pending review
+                  </span>
+                  <span className="text-xs text-gray-500 ml-auto">
+                    4 hours ago
+                  </span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Building className="h-5 w-5 text-blue-600" />
+                  <span className="text-sm">
+                    New distribution center registered
+                  </span>
+                  <span className="text-xs text-gray-500 ml-auto">
+                    1 day ago
+                  </span>
+                </div>
+              </div>
+            </Card>
           </div>
+        );
 
-          {/* Dashboard Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-            <Card
-              className="group cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200/50"
-              onClick={() => {
-                setSelectedDashboardCard("vendors");
-                setShowDashboardModal(true);
-              }}
-            >
-              <div className="flex items-center p-8">
-                <div className="p-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                  <Users className="h-8 w-8 text-white" />
-                </div>
-                <div className="ml-6">
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors duration-300">Total Vendors</h3>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{totalVendorsCount}</p>
-                </div>
-              </div>
-            </Card>
+      case "applications":
+        return <ApplicationsComponent />;
 
-            <Card
-              className="group cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-green-50 to-emerald-100 border-green-200/50"
-              onClick={() => {
-                setSelectedDashboardCard("centers");
-                setShowDashboardModal(true);
-              }}
-            >
-              <div className="flex items-center p-8">
-                <div className="p-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                  <Building className="h-8 w-8 text-white" />
-                </div>
-                <div className="ml-6">
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-green-600 transition-colors duration-300">Active Centers</h3>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{activeCentersCount}</p>
-                </div>
-              </div>
-            </Card>
-
-            <Card
-              className="group cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-purple-50 to-pink-100 border-purple-200/50"
-              onClick={() => {
-                setSelectedDashboardCard("commission");
-                setShowDashboardModal(true);
-              }}
-            >
-              <div className="flex items-center p-8">
-                <div className="p-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                  <BarChart3 className="h-8 w-8 text-white" />
-                </div>
-                <div className="ml-6">
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-purple-600 transition-colors duration-300">Total Commission</h3>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">₹{totalCommission.toFixed(2)}</p>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Vendor Categories */}
-          {/* ... keep same code for categories, centers, vendor applications, modals ... */}
-
-          {showDashboardModal && selectedDashboardCard && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <div className="bg-white p-6 rounded-lg w-full max-w-2xl">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold">
-                    {selectedDashboardCard === "vendors" && "Vendor List"}
-                    {selectedDashboardCard === "centers" && "Distribution Center List"}
-                    {selectedDashboardCard === "commission" && "Commission Details"}
-                  </h3>
-                  <button onClick={() => setShowDashboardModal(false)}>
-                    <X className="h-6 w-6" />
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {selectedDashboardCard === "vendors" && (
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-semibold">All Vendors ({vendors.length})</h4>
-                      
-                      {vendors.length === 0 && (
-                        <div className="text-center py-4">
-                          <p className="text-gray-500">Loading vendors...</p>
-                          {error && <p className="text-red-500 mt-2">{error}</p>}
-                        </div>
-                      )}
-                      
-                      <div className="max-h-96 overflow-y-auto">
-                        <ul className="space-y-2">
-                          {vendors.map((vendor) => (
-                            <li key={vendor._id || vendor.id} className="p-3 border rounded-lg hover:bg-gray-50">
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <span className="font-medium text-gray-900">
-                                    {vendor.businessName || vendor.name || 'Unknown Business'}
-                                  </span>
-                                  <span className="ml-2 text-sm text-gray-600">
-                                    ({vendor.email || 'No email'})
-                                  </span>
-                                </div>
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                  vendor.status === VendorStatus.APPROVED ? 'bg-green-100 text-green-800' :
-                                  vendor.status === VendorStatus.PENDING ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-red-100 text-red-800'
-                                }`}>
-                                  {vendor.status || 'Unknown'}
-                                </span>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      
-                      {vendors.length === 0 && (
-                        <p className="text-center text-gray-500 py-8">No vendors found.</p>
-                      )}
-                    </div>
-                  )}
-
-                  {selectedDashboardCard === "centers" && (
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-semibold">All Distribution Centers ({centers.length})</h4>
-                      
-                      <div className="max-h-96 overflow-y-auto">
-                        <ul className="space-y-2">
-                          {centers.map((center) => (
-                            <li key={center.id} className="p-3 border rounded-lg hover:bg-gray-50">
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <span className="font-medium text-gray-900">{center.name}</span>
-                                  <span className="ml-2 text-sm text-gray-600">({center.location})</span>
-                                </div>
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                  center.status === 'active' ? 'bg-green-100 text-green-800' :
-                                  center.status === 'maintenance' ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-red-100 text-red-800'
-                                }`}>
-                                  {center.status}
-                                </span>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      
-                      {centers.length === 0 && (
-                        <p className="text-center text-gray-500 py-8">No centers found.</p>
-                      )}
-                    </div>
-                  )}
-
-                  {selectedDashboardCard === "commission" && (
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-semibold">Commission from Vendor-Center Transactions ({vendors.filter(v => v.status === VendorStatus.APPROVED).length})</h4>
-                      
-                      <div className="max-h-96 overflow-y-auto">
-                        <ul className="space-y-2">
-                          {vendors.filter(vendor => vendor.status === VendorStatus.APPROVED).map((vendor) => {
-                            // Calculate commission based on vendor's total payments to centers
-                            const vendorCenterPayments = vendor.totalPurchases || 0;
-                            const commissionRate = 0.05; // 5% commission
-                            const commissionEarned = vendorCenterPayments * commissionRate;
-                            
-                            return (
-                              <li key={vendor._id || vendor.id} className="p-3 border rounded-lg hover:bg-gray-50">
-                                <div className="flex justify-between items-center">
-                                  <div>
-                                    <span className="font-medium text-gray-900">
-                                      {vendor.businessName || vendor.name || 'Unknown Business'}
-                                    </span>
-                                    <span className="ml-2 text-sm text-gray-600">
-                                      (₹{vendorCenterPayments.toLocaleString()} purchases)
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-semibold text-blue-600">
-                                      ₹{commissionEarned.toLocaleString()}
-                                    </span>
-                                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                      5% Commission
-                                    </span>
-                                  </div>
-                                </div>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
-                      
-                      {/* Total Summary */}
-                      <div className="mt-4 p-3 bg-blue-50 rounded-lg border">
-                        <div className="flex justify-between items-center">
-                          <span className="font-semibold text-blue-800">Total Commission Earned:</span>
-                          <span className="text-xl font-bold text-blue-600">
-                            ₹{vendors.filter(v => v.status === VendorStatus.APPROVED)
-                              .reduce((sum, vendor) => sum + ((vendor.totalPurchases || 0) * 0.05), 0)
-                              .toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {vendors.filter(v => v.status === VendorStatus.APPROVED).length === 0 && (
-                        <p className="text-center text-gray-500 py-8">No commission data found.</p>
-                      )}
-                    </div>
-                  )}
+      case "vendors":
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Approved Vendors
+              </h2>
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search vendors..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
                 </div>
               </div>
             </div>
-          )}
-        </>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {vendors
+                .filter((vendor) => vendor.status === "APPROVED") // Changed from "approved" to "APPROVED"
+                .filter(
+                  (vendor) =>
+                    vendor.businessName
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase()) ||
+                    vendor.email
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                )
+                .map((vendor) => (
+                  <Card
+                    key={vendor._id}
+                    className="p-6 hover:shadow-lg transition-shadow"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="bg-blue-100 p-2 rounded-lg">
+                          <Store className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">
+                            {vendor.businessName}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {vendor.email}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Approved
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">
+                          Commission:
+                        </span>
+                        <span className="font-medium text-gray-900">
+                          Rs. {vendor.commission?.toLocaleString() || 0}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewVendor(vendor._id)}
+                        className="flex-1 flex items-center justify-center space-x-1"
+                      >
+                        <Eye className="h-4 w-4" />
+                        <span>View</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          handleVendorAction(vendor._id, "suspend")
+                        }
+                        className="flex items-center justify-center space-x-1 text-yellow-600 hover:text-yellow-700 hover:border-yellow-300"
+                      >
+                        <Pause className="h-4 w-4" />
+                        <span>Suspend</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleVendorAction(vendor._id, "delete")}
+                        className="flex items-center justify-center space-x-1 text-red-600 hover:text-red-700 hover:border-red-300"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span>Delete</span>
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+            </div>
+
+            {vendors.filter((vendor) => vendor.status === "APPROVED").length ===
+              0 && ( // Also update this condition
+              <Card className="p-8 text-center">
+                <Store className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No Approved Vendors
+                </h3>
+                <p className="text-gray-600">
+                  There are currently no approved vendors in the system.
+                </p>
+              </Card>
+            )}
+          </div>
+        );
+
+      case "centers":
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Distribution Centers
+              </h2>
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search centers..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {distributionCenters
+                .filter((center) => center.status === "active")
+                .filter(
+                  (center) =>
+                    center.name
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase()) ||
+                    center.location
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                )
+                .map((center) => (
+                  <Card
+                    key={center._id}
+                    className="p-6 hover:shadow-lg transition-shadow"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="bg-green-100 p-2 rounded-lg">
+                          <Building className="h-6 w-6 text-green-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">
+                            {center.name}
+                          </h3>
+                          <p className="text-sm text-gray-600 flex items-center">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {center.location}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Active
+                      </span>
+                    </div>
+                    <div className="mt-4 flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 flex items-center justify-center space-x-1"
+                      >
+                        <Eye className="h-4 w-4" />
+                        <span>View</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          handleCenterAction(center._id, "suspend")
+                        }
+                        className="flex items-center justify-center space-x-1 text-yellow-600 hover:text-yellow-700 hover:border-yellow-300"
+                      >
+                        <Pause className="h-4 w-4" />
+                        <span>Suspend</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleCenterAction(center._id, "delete")}
+                        className="flex items-center justify-center space-x-1 text-red-600 hover:text-red-700 hover:border-red-300"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span>Delete</span>
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+            </div>
+
+            {distributionCenters.filter((center) => center.status === "active")
+              .length === 0 && (
+              <Card className="p-8 text-center">
+                <Building className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No Active Centers
+                </h3>
+                <p className="text-gray-600">
+                  There are currently no active distribution centers in the
+                  system.
+                </p>
+              </Card>
+            )}
+          </div>
+        );
+
+      default:
+        return <div>Content for {activeTab}</div>;
+    }
+  };
+
+  // Add handler for viewing vendor details
+  const handleViewVendor = async (vendorId: string) => {
+    try {
+      setLoading(true);
+      console.log("Fetching vendor details for ID:", vendorId);
+
+      const response = await axiosInstance.get(
+        `/api/users/vendors/${vendorId}`
+      );
+
+      console.log("Vendor details response:", response.data);
+
+      if (response.data.success) {
+        setSelectedVendor(response.data.data.vendor);
+        setShowVendorDetails(true);
+      } else {
+        console.error("API returned success: false", response.data);
+        alert("Failed to fetch vendor details");
+      }
+    } catch (error) {
+      console.error("Failed to fetch vendor details:", error);
+      if (error.response) {
+        console.error("Error response:", error.response.data);
+        alert(
+          `Failed to fetch vendor details: ${
+            error.response.data.message || "Unknown error"
+          }`
+        );
+      } else {
+        alert("Failed to fetch vendor details. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
+              <h1 className="text-2xl font-bold text-gray-900">
+                Admin Dashboard
+              </h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              {/* Notifications Button */}
+              <div className="relative">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="flex items-center space-x-2 relative"
+                >
+                  <Bell className="h-4 w-4" />
+                  <span>Notifications</span>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </Button>
+
+                {/* Notifications Dropdown */}
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className="p-4 border-b border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold">Notifications</h3>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={markAllAsRead}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          Mark all read
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="p-4 text-center text-gray-500">
+                          <Bell className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                          <p className="text-sm">No notifications yet</p>
+                        </div>
+                      ) : (
+                        notifications.map((notification) => (
+                          <div
+                            key={notification._id}
+                            className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${
+                              !notification.isRead ? "bg-blue-50" : ""
+                            }`}
+                            onClick={() => markAsRead(notification._id)}
+                          >
+                            <div className="flex items-start space-x-3">
+                              <div className="flex-shrink-0 mt-1">
+                                {notification.type === "VENDOR_APPLICATION" && (
+                                  <Users className="h-4 w-4 text-blue-600" />
+                                )}
+                                {notification.type === "CENTER_APPLICATION" && (
+                                  <Building className="h-4 w-4 text-green-600" />
+                                )}
+                                {notification.type === "ORDER_UPDATE" && (
+                                  <CheckCircle className="h-4 w-4 text-purple-600" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900">
+                                  {notification.title}
+                                </p>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {notification.message}
+                                </p>
+                                <p className="text-xs text-gray-400 mt-1">
+                                  {formatTime(notification.createdAt)}
+                                </p>
+                              </div>
+                              {!notification.isRead && (
+                                <div className="flex-shrink-0">
+                                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <span className="text-sm text-gray-600">
+                Welcome, {user.businessName || user.name}
+              </span>
+              <Button
+                onClick={onLogout}
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-2"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Navigation Tabs */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex space-x-8">
+            {[
+              { id: "overview", label: "Overview", icon: TrendingUp },
+              { id: "applications", label: "Applications", icon: Users },
+              { id: "vendors", label: "Vendors", icon: Store },
+              { id: "centers", label: "Centers", icon: Building },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === tab.id
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {error && (
+          <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-md p-4">
+            <p className="text-yellow-800">{error}</p>
+          </div>
+        )}
+        {renderTabContent()}
+      </main>
+
+      {/* Click outside to close notifications */}
+      {showNotifications && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setShowNotifications(false)}
+        ></div>
       )}
-    </DashboardLayout>
+    </div>
   );
-}
+};
+
+export default AdminDashboard;

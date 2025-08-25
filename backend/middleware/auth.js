@@ -56,6 +56,7 @@ const authenticate = async (req, res, next) => {
 };
 
 // Check if user has required role
+// Update the authorize function to handle lowercase roles
 const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
@@ -65,10 +66,13 @@ const authorize = (...roles) => {
       });
     }
 
-    if (!roles.includes(req.user.role)) {
+    // Convert roles to uppercase for comparison
+    const upperRoles = roles.map(role => role.toUpperCase());
+    
+    if (!upperRoles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: `Access denied. Required role: ${roles.join(' or ')}`
+        message: 'Access denied. Insufficient permissions.'
       });
     }
 

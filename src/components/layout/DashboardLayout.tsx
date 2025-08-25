@@ -33,12 +33,14 @@ type DashboardLayoutProps = {
   children: React.ReactNode;
   activeSection?: string;
   onSectionChange?: (section: string) => void;
+  onLogout?: () => void; // Add this prop
 };
 
 export function DashboardLayout({
   children,
   activeSection = "overview",
   onSectionChange,
+  onLogout, // Add this parameter
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -457,17 +459,27 @@ export function DashboardLayout({
   useEffect(() => {
     const fetchAdminProfile = async () => {
       try {
-        const response = await axiosInstance.get("/api/auth/me");
+        // Change from /api/auth/me to /api/auth/verify-token
+        const response = await axiosInstance.get("/api/auth/verify-token");
         if (response.data.success) {
-          setAdminProfile(response.data.user);
+          // Update to match the backend response structure
+          setAdminProfile(response.data.data.user);
         }
       } catch (error) {
         console.error("Failed to fetch admin profile:", error);
+        // If token is invalid, clear it and trigger logout
+        if (error.response?.status === 401) {
+          localStorage.removeItem("vrs_token");
+          localStorage.removeItem("vrs_user");
+          if (onLogout) {
+            onLogout();
+          }
+        }
       }
     };
 
     fetchAdminProfile();
-  }, []);
+  }, [onLogout]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -567,13 +579,35 @@ export function DashboardLayout({
     return () => clearInterval(interval);
   }, []);
 
-  const handleSignOut = async () => {
+  const handleLogout = () => {
+    console.log("Admin logout clicked");
+
     try {
-      await axiosInstance.post("/api/auth/logout");
-      localStorage.removeItem("token");
-      navigate("/login");
+      // Clear authentication data (using the correct token key)
+      localStorage.removeItem("vrs_token"); // This is the token the app actually uses
+      localStorage.removeItem("vrs_user");
+
+      // Clear admin profile state
+      setAdminProfile(null);
+
+      // Close dropdown
+      setUserMenuOpen(false);
+
+      console.log("LocalStorage cleared, calling onLogout");
+
+      // Call the logout handler
+      if (onLogout) {
+        console.log("Calling App handleLogout");
+        onLogout();
+      } else {
+        console.log("No onLogout prop, forcing page reload");
+        // Force a complete page reload to ensure clean state
+        window.location.href = window.location.origin;
+      }
     } catch (error) {
-      console.error("Failed to sign out:", error);
+      console.error("Error during logout:", error);
+      // Fallback: force page reload
+      window.location.href = window.location.origin;
     }
   };
 
@@ -591,11 +625,11 @@ export function DashboardLayout({
 
   const markAllAsRead = async () => {
     try {
-      await axiosInstance.put('/api/notifications/read-all');
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      await axiosInstance.put("/api/notifications/read-all");
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
       setUnreadCount(0);
     } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
+      console.error("Failed to mark all notifications as read:", error);
     }
   };
 
@@ -610,7 +644,9 @@ export function DashboardLayout({
         <div className="flex items-center justify-between p-6 border-b border-gray-100/50 bg-gradient-to-r from-blue-600 to-indigo-600">
           <div className="flex items-center gap-3">
             <img src="/image/vrslogo.png" alt="VRS Logo" className="h-8 w-8" />
-            <span className="text-xl font-bold text-white tracking-wide">VRS</span>
+            <span className="text-xl font-bold text-white tracking-wide">
+              VRS
+            </span>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -630,9 +666,13 @@ export function DashboardLayout({
             }`}
             onClick={() => onSectionChange && onSectionChange("overview")}
           >
-            <LayoutDashboard className={`h-5 w-5 transition-transform duration-200 ${
-              activeSection === "overview" ? "scale-110" : "group-hover:scale-105"
-            }`} />
+            <LayoutDashboard
+              className={`h-5 w-5 transition-transform duration-200 ${
+                activeSection === "overview"
+                  ? "scale-110"
+                  : "group-hover:scale-105"
+              }`}
+            />
             <span className="font-medium">Overview</span>
           </Link>
 
@@ -657,9 +697,13 @@ export function DashboardLayout({
                 : "text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-purple-50 hover:text-purple-600"
             }`}
           >
-            <Users className={`h-5 w-5 transition-transform duration-200 ${
-              activeSection === "vendors" ? "scale-110" : "group-hover:scale-105"
-            }`} />
+            <Users
+              className={`h-5 w-5 transition-transform duration-200 ${
+                activeSection === "vendors"
+                  ? "scale-110"
+                  : "group-hover:scale-105"
+              }`}
+            />
             <span className="font-medium">Vendors</span>
             <span className="ml-auto bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs rounded-full px-2.5 py-1 font-semibold shadow-md">
               {mockVendors.length}
@@ -674,9 +718,13 @@ export function DashboardLayout({
                 : "text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-green-50 hover:text-green-600"
             }`}
           >
-            <Building className={`h-5 w-5 transition-transform duration-200 ${
-              activeSection === "centers" ? "scale-110" : "group-hover:scale-105"
-            }`} />
+            <Building
+              className={`h-5 w-5 transition-transform duration-200 ${
+                activeSection === "centers"
+                  ? "scale-110"
+                  : "group-hover:scale-105"
+              }`}
+            />
             <span className="font-medium">Centers</span>
             <span className="ml-auto bg-gradient-to-r from-green-500 to-teal-500 text-white text-xs rounded-full px-2.5 py-1 font-semibold shadow-md">
               {mockCenters.length}
@@ -793,7 +841,7 @@ export function DashboardLayout({
                   <User className="h-6 w-6" />
                   {adminProfile && (
                     <span className="hidden md:block text-sm font-medium">
-                      {adminProfile.name || adminProfile.username || 'Admin'}
+                      {adminProfile.name || adminProfile.username || "Admin"}
                     </span>
                   )}
                 </button>
@@ -802,7 +850,9 @@ export function DashboardLayout({
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                     <div className="p-4 border-b">
                       <p className="font-semibold text-gray-900">
-                        {adminProfile?.name || adminProfile?.username || "Admin"}
+                        {adminProfile?.name ||
+                          adminProfile?.username ||
+                          "Admin"}
                       </p>
                       <p className="text-sm text-gray-600 break-words">
                         admin@example.com
@@ -815,10 +865,23 @@ export function DashboardLayout({
                     </div>
                     <div className="py-2">
                       <button
-                        onClick={handleSignOut}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600"
+                        onClick={handleLogout}
+                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 hover:text-red-700 font-medium transition-colors duration-200 flex items-center gap-2"
                       >
-                        Sign Out
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                          />
+                        </svg>
+                        Logout
                       </button>
                     </div>
                   </div>
