@@ -130,6 +130,8 @@ const seedDatabase = async () => {
       {
         name: "Nepal Spices & Herbs Co.",
         email: "spices@vendor.com",
+        role: "VENDOR",
+        status: "APPROVED", // ← Directly approved!
         password: process.env.VENDOR_PASSWORD || "Password@123",
         phone: "+977 9801234567",
         role: "VENDOR",

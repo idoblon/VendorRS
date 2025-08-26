@@ -7,69 +7,997 @@ import {
   TrendingUp,
   DollarSign,
   Plus,
-  Search,
   Star,
   MapPin,
   LogOut,
   X,
   CreditCard,
   BarChart3,
+  Search,
+  Loader2,
+  Percent,
+  HandCoins,
+  MessageCircle,
+  Archive,
 } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
-import {
-  getCentersByCategory,
-  getCenterCategories,
-} from "../../utils/centerApi";
 import { getVendorAnalytics } from "../../utils/vendorApi";
+import { User } from "../../types/index";
 
 interface VendorDashboardProps {
+  user: User;
   vendorName?: string;
   onLogout?: () => void;
 }
 
-export default function VendorDashboard({
+export function VendorDashboard({
+  user,
   vendorName = "ABC Trading Co.",
   onLogout,
 }: VendorDashboardProps) {
+  // Add debug logging
+  console.log("VendorDashboard - User data:", user);
+  console.log("VendorDashboard - User email:", user?.email);
+  console.log("VendorDashboard - Business name:", user?.businessName);
   const [activeTab, setActiveTab] = useState("marketplace");
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [centersByCategory, setCentersByCategory] = useState<any[]>([]);
-  const [showCategorySearch, setShowCategorySearch] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [categories, setCategories] = useState<string[]>([]);
 
-  // Fetch categories when component mounts
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const categoryList = await getCenterCategories();
-        setCategories(categoryList);
-      } catch (err) {
-        console.error("Error fetching categories:", err);
-      }
-    };
+  // Add search state variables
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
-    fetchCategories();
-  }, []);
+  // Add message modal state
+  const [showMessageModal, setShowMessageModal] = useState(false);
 
-  // Mock vendor profile data
+  // Add message composition states
+  const [selectedRecipient, setSelectedRecipient] = useState("");
+  const [messageSubject, setMessageSubject] = useState("");
+  const [messageContent, setMessageContent] = useState("");
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+
+  // Add stats modal states
+  const [showOrdersModal, setShowOrdersModal] = useState(false);
+  const [showSpentModal, setShowSpentModal] = useState(false);
+  const [showCentersModal, setShowCentersModal] = useState(false);
+  const [showPendingModal, setShowPendingModal] = useState(false);
+  const [showDiscountModal, setShowDiscountModal] = useState(false);
+  const [showCommissionModal, setShowCommissionModal] = useState(false);
+  const [showInventoryModal, setShowInventoryModal] = useState(false);
+
+  // Handle message sending
+  const handleSendMessage = async () => {
+    if (
+      !selectedRecipient ||
+      !messageSubject.trim() ||
+      !messageContent.trim()
+    ) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    setIsSendingMessage(true);
+    try {
+      // Simulate API call - replace with actual API endpoint
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      alert(`Message sent successfully to ${selectedRecipient}!`);
+
+      // Reset form
+      setSelectedRecipient("");
+      setMessageSubject("");
+      setMessageContent("");
+      setShowMessageModal(false);
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      alert("Failed to send message. Please try again.");
+    } finally {
+      setIsSendingMessage(false);
+    }
+  };
+
+  // Order details modal
+  const renderOrdersModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Orders Placed Details
+          </h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowOrdersModal(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <p className="text-sm text-blue-600 font-medium">Total Orders</p>
+              <p className="text-2xl font-bold text-blue-900">89</p>
+            </div>
+            <div className="bg-green-50 p-4 rounded-lg">
+              <p className="text-sm text-green-600 font-medium">Completed</p>
+              <p className="text-2xl font-bold text-green-900">76</p>
+            </div>
+            <div className="bg-orange-50 p-4 rounded-lg">
+              <p className="text-sm text-orange-600 font-medium">In Progress</p>
+              <p className="text-2xl font-bold text-orange-900">13</p>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse border border-gray-200">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border border-gray-200 p-3 text-left">
+                    Order ID
+                  </th>
+                  <th className="border border-gray-200 p-3 text-left">
+                    Center
+                  </th>
+                  <th className="border border-gray-200 p-3 text-left">
+                    Amount
+                  </th>
+                  <th className="border border-gray-200 p-3 text-left">
+                    Status
+                  </th>
+                  <th className="border border-gray-200 p-3 text-left">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {myOrders.map((order) => (
+                  <tr key={order.id}>
+                    <td className="border border-gray-200 p-3">{order.id}</td>
+                    <td className="border border-gray-200 p-3">
+                      {order.center}
+                    </td>
+                    <td className="border border-gray-200 p-3">
+                      {order.amount}
+                    </td>
+                    <td className="border border-gray-200 p-3">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          order.status === "Delivered"
+                            ? "bg-green-100 text-green-800"
+                            : order.status === "In Transit"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="border border-gray-200 p-3">{order.date}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSpentModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Total Spent Breakdown
+          </h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowSpentModal(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="space-y-4">
+          <div className="bg-green-50 p-4 rounded-lg">
+            <p className="text-sm text-green-600 font-medium">
+              Total Amount Spent
+            </p>
+            <p className="text-3xl font-bold text-green-900">रू 1,85,000</p>
+            <p className="text-sm text-green-600 mt-1">+8% from last month</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="border rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-2">This Month</h4>
+              <p className="text-xl font-bold text-gray-900">रू 45,000</p>
+            </div>
+            <div className="border rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-2">Last Month</h4>
+              <p className="text-xl font-bold text-gray-900">रू 42,000</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h4 className="font-medium text-gray-900">Category Breakdown</h4>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <span>Rice & Grains</span>
+                <span className="font-medium">रू 85,000</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <span>Pulses & Legumes</span>
+                <span className="font-medium">रू 45,000</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <span>Spices & Seasonings</span>
+                <span className="font-medium">रू 35,000</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <span>Others</span>
+                <span className="font-medium">रू 20,000</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCentersModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Connected Centers
+          </h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowCentersModal(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="space-y-4">
+          <div className="bg-orange-50 p-4 rounded-lg">
+            <p className="text-sm text-orange-600 font-medium">Total Centers</p>
+            <p className="text-3xl font-bold text-orange-900">15</p>
+            <p className="text-sm text-orange-600 mt-1">+3 new this month</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              {
+                name: "Kathmandu Food Center",
+                location: "Kathmandu",
+                orders: 25,
+                status: "Active",
+              },
+              {
+                name: "Pokhara Grain Hub",
+                location: "Pokhara",
+                orders: 18,
+                status: "Active",
+              },
+              {
+                name: "Chitwan Supply Co.",
+                location: "Chitwan",
+                orders: 12,
+                status: "Active",
+              },
+              {
+                name: "Butwal Distribution",
+                location: "Butwal",
+                orders: 8,
+                status: "Active",
+              },
+              {
+                name: "Biratnagar Wholesale",
+                location: "Biratnagar",
+                orders: 15,
+                status: "Active",
+              },
+              {
+                name: "Dharan Food Market",
+                location: "Dharan",
+                orders: 6,
+                status: "Pending",
+              },
+            ].map((center, index) => (
+              <div key={index} className="border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900">{center.name}</h4>
+                <p className="text-sm text-gray-600 flex items-center mt-1">
+                  <MapPin className="h-3 w-3 mr-1" />
+                  {center.location}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  {center.orders} orders
+                </p>
+                <span
+                  className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-2 ${
+                    center.status === "Active"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
+                  {center.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderPendingModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Pending Orders
+          </h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowPendingModal(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="space-y-4">
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <p className="text-sm text-purple-600 font-medium">
+              Pending Orders
+            </p>
+            <p className="text-3xl font-bold text-purple-900">7</p>
+            <p className="text-sm text-purple-600 mt-1">-2 from last week</p>
+          </div>
+          <div className="space-y-3">
+            {[
+              {
+                id: "PO-004",
+                center: "Lalitpur Food Center",
+                amount: "रू 15,000",
+                items: "Organic Rice, Lentils",
+                date: "2024-01-16",
+              },
+              {
+                id: "PO-005",
+                center: "Bhaktapur Grain Store",
+                amount: "रू 22,000",
+                items: "Wheat Flour, Spices",
+                date: "2024-01-16",
+              },
+              {
+                id: "PO-006",
+                center: "Janakpur Supply Hub",
+                amount: "रू 18,500",
+                items: "Basmati Rice, Oil",
+                date: "2024-01-17",
+              },
+              {
+                id: "PO-007",
+                center: "Hetauda Distribution",
+                amount: "रू 12,000",
+                items: "Pulses, Salt",
+                date: "2024-01-17",
+              },
+              {
+                id: "PO-008",
+                center: "Birgunj Wholesale",
+                amount: "रू 28,000",
+                items: "Mixed Grains",
+                date: "2024-01-18",
+              },
+              {
+                id: "PO-009",
+                center: "Nepalgunj Food Market",
+                amount: "रू 16,500",
+                items: "Rice, Spices",
+                date: "2024-01-18",
+              },
+              {
+                id: "PO-010",
+                center: "Dhangadhi Supply Co.",
+                amount: "रू 20,000",
+                items: "Wheat, Lentils",
+                date: "2024-01-19",
+              },
+            ].map((order) => (
+              <div key={order.id} className="border rounded-lg p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="font-medium text-gray-900">{order.id}</h4>
+                  <span className="text-lg font-bold text-purple-600">
+                    {order.amount}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600">{order.center}</p>
+                <p className="text-sm text-gray-500 mt-1">{order.items}</p>
+                <p className="text-xs text-gray-400 mt-2">{order.date}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderDiscountModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Discount Received
+          </h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowDiscountModal(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="space-y-4">
+          <div className="bg-indigo-50 p-4 rounded-lg">
+            <p className="text-sm text-indigo-600 font-medium">
+              Total Discounts
+            </p>
+            <p className="text-3xl font-bold text-indigo-900">रू 12,500</p>
+            <p className="text-sm text-indigo-600 mt-1">+5% from last month</p>
+          </div>
+          <div className="space-y-3">
+            <h4 className="font-medium text-gray-900">Recent Discounts</h4>
+            {[
+              {
+                type: "Bulk Order Discount",
+                amount: "रू 3,500",
+                percentage: "15%",
+                date: "2024-01-15",
+              },
+              {
+                type: "Seasonal Discount",
+                amount: "रू 2,800",
+                percentage: "10%",
+                date: "2024-01-12",
+              },
+              {
+                type: "Loyalty Discount",
+                amount: "रू 2,200",
+                percentage: "8%",
+                date: "2024-01-10",
+              },
+              {
+                type: "Early Payment Discount",
+                amount: "रू 1,900",
+                percentage: "5%",
+                date: "2024-01-08",
+              },
+              {
+                type: "Volume Discount",
+                amount: "रू 2,100",
+                percentage: "12%",
+                date: "2024-01-05",
+              },
+            ].map((discount, index) => (
+              <div
+                key={index}
+                className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+              >
+                <div>
+                  <p className="font-medium text-gray-900">{discount.type}</p>
+                  <p className="text-sm text-gray-600">{discount.date}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-indigo-600">{discount.amount}</p>
+                  <p className="text-sm text-gray-500">{discount.percentage}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCommissionModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Commission Paid to Admin
+          </h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowCommissionModal(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="space-y-4">
+          <div className="bg-red-50 p-4 rounded-lg">
+            <p className="text-sm text-red-600 font-medium">
+              Total Commission Paid
+            </p>
+            <p className="text-3xl font-bold text-red-900">रू 8,750</p>
+            <p className="text-sm text-red-600 mt-1">+3% from last month</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="border rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-2">
+                Commission Rate
+              </h4>
+              <p className="text-xl font-bold text-gray-900">5%</p>
+            </div>
+            <div className="border rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-2">This Month</h4>
+              <p className="text-xl font-bold text-gray-900">रू 2,250</p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <h4 className="font-medium text-gray-900">Commission History</h4>
+            {[
+              {
+                month: "January 2024",
+                sales: "रू 45,000",
+                commission: "रू 2,250",
+                date: "2024-01-31",
+              },
+              {
+                month: "December 2023",
+                sales: "रू 42,000",
+                commission: "रू 2,100",
+                date: "2023-12-31",
+              },
+              {
+                month: "November 2023",
+                sales: "रू 38,000",
+                commission: "रू 1,900",
+                date: "2023-11-30",
+              },
+              {
+                month: "October 2023",
+                sales: "रू 41,000",
+                commission: "रू 2,050",
+                date: "2023-10-31",
+              },
+              {
+                month: "September 2023",
+                sales: "रू 36,000",
+                commission: "रू 1,800",
+                date: "2023-09-30",
+              },
+            ].map((record, index) => (
+              <div
+                key={index}
+                className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+              >
+                <div>
+                  <p className="font-medium text-gray-900">{record.month}</p>
+                  <p className="text-sm text-gray-600">Sales: {record.sales}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-red-600">{record.commission}</p>
+                  <p className="text-sm text-gray-500">{record.date}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderInventoryModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Total Inventory
+          </h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowInventoryModal(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="space-y-4">
+          <div className="bg-teal-50 p-4 rounded-lg">
+            <p className="text-sm text-teal-600 font-medium">
+              Total Inventory Items
+            </p>
+            <p className="text-3xl font-bold text-teal-900">1,245</p>
+            <p className="text-sm text-teal-600 mt-1">
+              +15 new items this month
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="border rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-2">In Stock</h4>
+              <p className="text-xl font-bold text-green-600">1,180</p>
+            </div>
+            <div className="border rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-2">Low Stock</h4>
+              <p className="text-xl font-bold text-yellow-600">45</p>
+            </div>
+            <div className="border rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-2">Out of Stock</h4>
+              <p className="text-xl font-bold text-red-600">20</p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <h4 className="font-medium text-gray-900">Inventory by Category</h4>
+            {[
+              {
+                category: "Rice & Grains",
+                items: 450,
+                inStock: 425,
+                lowStock: 15,
+                outOfStock: 10,
+              },
+              {
+                category: "Pulses & Legumes",
+                items: 320,
+                inStock: 305,
+                lowStock: 12,
+                outOfStock: 3,
+              },
+              {
+                category: "Spices & Seasonings",
+                items: 280,
+                inStock: 270,
+                lowStock: 8,
+                outOfStock: 2,
+              },
+              {
+                category: "Oils & Fats",
+                items: 125,
+                inStock: 115,
+                lowStock: 7,
+                outOfStock: 3,
+              },
+              {
+                category: "Others",
+                items: 70,
+                inStock: 65,
+                lowStock: 3,
+                outOfStock: 2,
+              },
+            ].map((category, index) => (
+              <div key={index} className="border rounded-lg p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <h5 className="font-medium text-gray-900">
+                    {category.category}
+                  </h5>
+                  <span className="text-lg font-bold text-gray-900">
+                    {category.items} items
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-sm">
+                  <div className="text-center">
+                    <p className="text-green-600 font-medium">
+                      {category.inStock}
+                    </p>
+                    <p className="text-gray-500">In Stock</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-yellow-600 font-medium">
+                      {category.lowStock}
+                    </p>
+                    <p className="text-gray-500">Low Stock</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-red-600 font-medium">
+                      {category.outOfStock}
+                    </p>
+                    <p className="text-gray-500">Out of Stock</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Message Modal
+  const renderMessageModal = () => (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200">
+        {/* Header with Cross Mark */}
+        <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-orange-500 to-red-500 text-white">
+          <div className="flex items-center">
+            <MessageCircle className="h-6 w-6 mr-3" />
+            <h3 className="text-xl font-bold">Compose Message</h3>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setShowMessageModal(false);
+              setSelectedRecipient("");
+              setMessageSubject("");
+              setMessageContent("");
+            }}
+            className="text-white border-white hover:bg-white hover:text-orange-600"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Message Composition Form */}
+        <div className="p-6 max-h-[calc(90vh-120px)] overflow-y-auto">
+          <div className="space-y-6">
+            {/* Recipient Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Send To *
+              </label>
+              <select
+                value={selectedRecipient}
+                onChange={(e) => setSelectedRecipient(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              >
+                <option value="">Select recipient...</option>
+                <option value="admin">System Administrator</option>
+                <optgroup label="Distribution Centers">
+                  <option value="center-kathmandu">
+                    Kathmandu Distribution Center
+                  </option>
+                  <option value="center-pokhara">
+                    Pokhara Distribution Center
+                  </option>
+                  <option value="center-chitwan">
+                    Chitwan Distribution Center
+                  </option>
+                  <option value="center-butwal">
+                    Butwal Distribution Center
+                  </option>
+                  <option value="center-biratnagar">
+                    Biratnagar Distribution Center
+                  </option>
+                </optgroup>
+              </select>
+            </div>
+
+            {/* Subject Field */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Subject *
+              </label>
+              <input
+                type="text"
+                value={messageSubject}
+                onChange={(e) => setMessageSubject(e.target.value)}
+                placeholder="Enter message subject"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Message Content */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Message *
+              </label>
+              <textarea
+                value={messageContent}
+                onChange={(e) => setMessageContent(e.target.value)}
+                placeholder="Type your message here..."
+                rows={8}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+              />
+            </div>
+
+            {/* Quick Message Templates */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quick Templates
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setMessageSubject("Product Inquiry");
+                    setMessageContent(
+                      "Hello,\n\nI would like to inquire about the availability of specific products in your center. Could you please provide information about current stock levels and pricing?\n\nThank you."
+                    );
+                  }}
+                  className="text-left justify-start"
+                >
+                  Product Inquiry
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setMessageSubject("Order Support");
+                    setMessageContent(
+                      "Hello,\n\nI need assistance with my recent order. Could you please help me with the status and any issues that might have occurred?\n\nThank you."
+                    );
+                  }}
+                  className="text-left justify-start"
+                >
+                  Order Support
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setMessageSubject("Partnership Opportunity");
+                    setMessageContent(
+                      "Hello,\n\nI would like to discuss potential partnership opportunities and how we can work together to improve our business relationship.\n\nThank you."
+                    );
+                  }}
+                  className="text-left justify-start"
+                >
+                  Partnership
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setMessageSubject("Technical Support");
+                    setMessageContent(
+                      "Hello,\n\nI am experiencing technical difficulties with the platform. Could you please provide assistance or guidance?\n\nThank you."
+                    );
+                  }}
+                  className="text-left justify-start"
+                >
+                  Technical Support
+                </Button>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end space-x-3 pt-4 border-t">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowMessageModal(false);
+                  setSelectedRecipient("");
+                  setMessageSubject("");
+                  setMessageContent("");
+                }}
+                disabled={isSendingMessage}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSendMessage}
+                disabled={
+                  isSendingMessage ||
+                  !selectedRecipient ||
+                  !messageSubject.trim() ||
+                  !messageContent.trim()
+                }
+                className="bg-orange-600 hover:bg-orange-700"
+              >
+                {isSendingMessage ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Send Message
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Analytics rendering function
+  const renderAnalytics = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-gray-900">
+          Business Analytics
+        </h3>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">
+                Total Orders Placed
+              </p>
+              <p className="text-2xl font-bold text-gray-900">89</p>
+            </div>
+            <ShoppingCart className="h-8 w-8 text-blue-600" />
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">
+                Total Amount Spent
+              </p>
+              <p className="text-2xl font-bold text-gray-900">रू 1,85,000</p>
+            </div>
+            <DollarSign className="h-8 w-8 text-green-600" />
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">
+                Total Discounts Received
+              </p>
+              <p className="text-2xl font-bold text-gray-900">रू 12,000</p>
+            </div>
+            <TrendingUp className="h-8 w-8 text-orange-600" />
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">
+                Total Commission Paid
+              </p>
+              <p className="text-2xl font-bold text-gray-900">रू 9,250</p>
+            </div>
+            <CreditCard className="h-8 w-8 text-purple-600" />
+          </div>
+        </Card>
+      </div>
+
+      <Card className="p-6">
+        <h4 className="text-md font-semibold text-gray-900 mb-4">
+          Analytics Breakdown
+        </h4>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <span className="font-medium">Total Orders Placed</span>
+            <span className="font-bold">89</span>
+          </div>
+          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <span className="font-medium">Total Amount Spent</span>
+            <span className="font-bold">रू 1,85,000</span>
+          </div>
+          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <span className="font-medium">Total Discounts Received</span>
+            <span className="font-bold text-green-600">रू 12,000</span>
+          </div>
+          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <span className="font-medium">Total Commission Paid</span>
+            <span className="font-bold text-red-600">रू 9,250</span>
+          </div>
+          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <span className="font-medium">Total Products Ordered</span>
+            <span className="font-bold">450</span>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+
+  // Use real vendor profile data from the logged-in user
   const vendorProfile = {
-    businessName: vendorName,
-    ownerName: "John Doe",
-    email: "vendor@example.com",
-    phone: "+977-9801234567",
-    address: "123 Business Street, Kathmandu",
-    district: "Kathmandu",
-    panNumber: "ABCDE1234F",
-    joinedDate: "2023-05-15",
-    status: "Approved",
-    bankDetails: {
-      bankName: "Nepal Bank Ltd",
-      accountNumber: "1234567890",
-      holderName: "ABC Trading Co.",
+    businessName: user.businessName || vendorName,
+    ownerName: user.name || "Unknown",
+    email: user.email || "No email provided",
+    phone: user.phone || "No phone provided",
+    address: user.address || "No address provided",
+    district: user.district || "No district provided",
+    panNumber: user.panNumber || "No PAN provided",
+    joinedDate: user.createdAt
+      ? new Date(user.createdAt).toLocaleDateString()
+      : "Unknown",
+    status: user.status || "Unknown",
+    bankDetails: user.bankDetails || {
+      bankName: "No bank details provided",
+      accountNumber: "N/A",
+      holderName: "N/A",
     },
     documents: [
       { name: "PAN Card", type: "PDF Document", id: "doc1" },
@@ -77,6 +1005,9 @@ export default function VendorDashboard({
       { name: "Bank Statement", type: "PDF Document", id: "doc3" },
     ],
   };
+
+  // Add debug logging for vendorProfile
+  console.log("VendorDashboard - Vendor profile:", vendorProfile);
   const [cart, setCart] = useState<any[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -117,6 +1048,27 @@ export default function VendorDashboard({
       icon: Package,
       color: "text-purple-600",
     },
+    {
+      title: "Discount Received",
+      value: "रू 12,500",
+      change: "+5%",
+      icon: Percent,
+      color: "text-indigo-600",
+    },
+    {
+      title: "Commission Paid to Admin",
+      value: "रू 8,750",
+      change: "+3%",
+      icon: HandCoins,
+      color: "text-red-600",
+    },
+    {
+      title: "Total Inventory",
+      value: "1,245",
+      change: "+15",
+      icon: Archive,
+      color: "text-teal-600",
+    },
   ];
 
   const myOrders = [
@@ -154,344 +1106,7 @@ export default function VendorDashboard({
     },
   ];
 
-  const centerProducts = [
-    // Spices
-    {
-      id: "CTR-001",
-      name: "Turmeric Powder Premium",
-      center: "Spice Hub Kathmandu",
-      price: "रू 180/kg",
-      stock: 200,
-      rating: 4.8,
-      location: "Kathmandu",
-      image: "/turmeric-powder.png",
-      category: "Spices",
-    },
-    {
-      id: "CTR-002",
-      name: "Cardamom Green Large",
-      center: "Mountain Spices Ilam",
-      price: "रू 3,500/kg",
-      stock: 50,
-      rating: 4.9,
-      location: "Ilam",
-      image: "/green-cardamom.png",
-      category: "Spices",
-    },
-    {
-      id: "CTR-003",
-      name: "Cinnamon Bark Organic",
-      center: "Organic Spices Dolakha",
-      price: "रू 800/kg",
-      stock: 100,
-      rating: 4.7,
-      location: "Dolakha",
-      image: "/cinnamon-bark.png",
-      category: "Spices",
-    },
-    {
-      id: "CTR-004",
-      name: "Black Pepper Whole",
-      center: "Spice Valley Gulmi",
-      price: "रू 1,200/kg",
-      stock: 80,
-      rating: 4.6,
-      location: "Gulmi",
-      image: "/black-pepper-pile.png",
-      category: "Spices",
-    },
-    {
-      id: "CTR-005",
-      name: "Cumin Seeds Premium",
-      center: "Spice Hub Kathmandu",
-      price: "रू 450/kg",
-      stock: 150,
-      rating: 4.5,
-      location: "Kathmandu",
-      image: "/cumin-seeds.png",
-      category: "Spices",
-    },
-    // Gadgets
-    {
-      id: "CTR-006",
-      name: "Wireless Bluetooth Earbuds",
-      center: "Tech Zone Pokhara",
-      price: "रू 3,500",
-      stock: 40,
-      rating: 4.4,
-      location: "Pokhara",
-      image: "/placeholder-kql3d.png",
-      category: "Gadgets",
-    },
-    {
-      id: "CTR-007",
-      name: "Power Bank 20000mAh",
-      center: "Electronics Hub Kathmandu",
-      price: "रू 2,800",
-      stock: 60,
-      rating: 4.6,
-      location: "Kathmandu",
-      image: "/portable-power-bank.png",
-      category: "Gadgets",
-    },
-    {
-      id: "CTR-008",
-      name: "Smart Watch Fitness Tracker",
-      center: "Gadget Store Lalitpur",
-      price: "रू 8,500",
-      stock: 25,
-      rating: 4.3,
-      location: "Lalitpur",
-      image: "/smartwatch-lifestyle.png",
-      category: "Gadgets",
-    },
-    {
-      id: "CTR-009",
-      name: "USB-C Fast Charger",
-      center: "Tech Accessories Bhaktapur",
-      price: "रू 1,200",
-      stock: 100,
-      rating: 4.5,
-      location: "Bhaktapur",
-      image: "/placeholder-am111.png",
-      category: "Gadgets",
-    },
-    {
-      id: "CTR-010",
-      name: "Wireless Mouse Gaming",
-      center: "Gaming Hub Pokhara",
-      price: "रू 2,200",
-      stock: 35,
-      rating: 4.7,
-      location: "Pokhara",
-      image: "/gaming-mouse.png",
-      category: "Gadgets",
-    },
-    // Beverages
-    {
-      id: "CTR-011",
-      name: "Himalayan Green Tea",
-      center: "Tea Garden Ilam",
-      price: "रू 800/250g",
-      stock: 120,
-      rating: 4.8,
-      location: "Ilam",
-      image: "/cup-of-green-tea.png",
-      category: "Beverages",
-    },
-    {
-      id: "CTR-012",
-      name: "Organic Coffee Beans",
-      center: "Coffee Roasters Gulmi",
-      price: "रू 1,500/kg",
-      stock: 80,
-      rating: 4.9,
-      location: "Gulmi",
-      image: "/pile-of-coffee-beans.png",
-      category: "Beverages",
-    },
-    {
-      id: "CTR-013",
-      name: "Herbal Tea Mix",
-      center: "Herbal Products Dolpa",
-      price: "रू 600/200g",
-      stock: 90,
-      rating: 4.6,
-      location: "Dolpa",
-      image: "/herbal-tea.png",
-      category: "Beverages",
-    },
-    {
-      id: "CTR-014",
-      name: "Black Tea Premium",
-      center: "Tea Estate Jhapa",
-      price: "रू 450/250g",
-      stock: 150,
-      rating: 4.7,
-      location: "Jhapa",
-      image: "/black-tea.png",
-      category: "Beverages",
-    },
-    {
-      id: "CTR-015",
-      name: "Honey Pure Wild",
-      center: "Bee Farm Chitwan",
-      price: "रू 1,200/kg",
-      stock: 60,
-      rating: 4.8,
-      location: "Chitwan",
-      image: "/wild-honey.png",
-      category: "Beverages",
-    },
-    // Handicrafts
-    {
-      id: "CTR-016",
-      name: "Pashmina Shawl Handwoven",
-      center: "Handicraft Center Manang",
-      price: "रू 4,500",
-      stock: 30,
-      rating: 4.9,
-      location: "Manang",
-      image: "/pashmina-shawl.png",
-      category: "Handicrafts",
-    },
-    {
-      id: "CTR-017",
-      name: "Singing Bowl Tibetan",
-      center: "Buddhist Crafts Mustang",
-      price: "रू 3,200",
-      stock: 20,
-      rating: 4.8,
-      location: "Mustang",
-      image: "/placeholder-t286u.png",
-      category: "Handicrafts",
-    },
-    {
-      id: "CTR-018",
-      name: "Wooden Mask Traditional",
-      center: "Wood Craft Bhaktapur",
-      price: "रू 2,800",
-      stock: 25,
-      rating: 4.7,
-      location: "Bhaktapur",
-      image: "/wooden-mask.png",
-      category: "Handicrafts",
-    },
-    {
-      id: "CTR-019",
-      name: "Khukuri Knife Authentic",
-      center: "Metal Craft Gorkha",
-      price: "रू 5,500",
-      stock: 15,
-      rating: 4.9,
-      location: "Gorkha",
-      image: "/khukuri-knife.png",
-      category: "Handicrafts",
-    },
-    {
-      id: "CTR-020",
-      name: "Prayer Flags Colorful",
-      center: "Tibetan Crafts Solukhumbu",
-      price: "रू 800",
-      stock: 100,
-      rating: 4.6,
-      location: "Solukhumbu",
-      image: "/placeholder-zewbr.png",
-      category: "Handicrafts",
-    },
-    // Foods
-    {
-      id: "CTR-021",
-      name: "Basmati Rice Premium",
-      center: "Rice Mill Jhapa",
-      price: "रू 120/kg",
-      stock: 500,
-      rating: 4.8,
-      location: "Jhapa",
-      image: "/basmati-rice.png",
-      category: "Foods",
-    },
-    {
-      id: "CTR-022",
-      name: "Lentils Mixed Dal",
-      center: "Grain Center Bara",
-      price: "रू 180/kg",
-      stock: 300,
-      rating: 4.7,
-      location: "Bara",
-      image: "/mixed-lentils.png",
-      category: "Foods",
-    },
-    {
-      id: "CTR-023",
-      name: "Mustard Oil Cold Pressed",
-      center: "Oil Mill Rupandehi",
-      price: "रू 280/liter",
-      stock: 200,
-      rating: 4.6,
-      location: "Rupandehi",
-      image: "/placeholder.svg?height=150&width=200",
-      category: "Foods",
-    },
-    {
-      id: "CTR-024",
-      name: "Dried Fish Sukuti",
-      center: "Fish Processing Kailali",
-      price: "रू 1,800/kg",
-      stock: 40,
-      rating: 4.5,
-      location: "Kailali",
-      image: "/placeholder.svg?height=150&width=200",
-      category: "Foods",
-    },
-    {
-      id: "CTR-025",
-      name: "Buckwheat Flour",
-      center: "Flour Mill Mustang",
-      price: "रू 150/kg",
-      stock: 80,
-      rating: 4.7,
-      location: "Mustang",
-      image: "/placeholder.svg?height=150&width=200",
-      category: "Foods",
-    },
-    // Additional items
-    {
-      id: "CTR-026",
-      name: "Yak Cheese Aged",
-      center: "Dairy Farm Langtang",
-      price: "रू 2,500/kg",
-      stock: 20,
-      rating: 4.9,
-      location: "Langtang",
-      image: "/placeholder.svg?height=150&width=200",
-      category: "Foods",
-    },
-    {
-      id: "CTR-027",
-      name: "Cordyceps Himalayan",
-      center: "Herbal Collection Dolpa",
-      price: "रू 25,000/100g",
-      stock: 5,
-      rating: 5.0,
-      location: "Dolpa",
-      image: "/placeholder.svg?height=150&width=200",
-      category: "Herbs",
-    },
-    {
-      id: "CTR-028",
-      name: "Felt Bag Handmade",
-      center: "Felt Factory Kathmandu",
-      price: "रू 1,800",
-      stock: 45,
-      rating: 4.6,
-      location: "Kathmandu",
-      image: "/placeholder.svg?height=150&width=200",
-      category: "Handicrafts",
-    },
-    {
-      id: "CTR-029",
-      name: "Solar Lantern Portable",
-      center: "Solar Tech Chitwan",
-      price: "रू 2,200",
-      stock: 30,
-      rating: 4.4,
-      location: "Chitwan",
-      image: "/placeholder.svg?height=150&width=200",
-      category: "Gadgets",
-    },
-    {
-      id: "CTR-030",
-      name: "Rhododendron Honey",
-      center: "Mountain Honey Gorkha",
-      price: "रू 1,800/kg",
-      stock: 35,
-      rating: 4.8,
-      location: "Gorkha",
-      image: "/placeholder.svg?height=150&width=200",
-      category: "Beverages",
-    },
-  ];
+  const centerProducts = [];
 
   const notifications = [
     {
@@ -574,56 +1189,90 @@ export default function VendorDashboard({
     return getCartSubtotal() > 5000 ? 0 : 200; // Free shipping over रू 5000
   };
 
+  // Add new calculation functions for discount and commission
+  const getDiscount = () => {
+    const subtotal = getCartSubtotal();
+    // 10% discount for orders over रू 10,000
+    return subtotal > 10000 ? Math.round(subtotal * 0.1) : 0;
+  };
+
+  const getCommission = () => {
+    const subtotal = getCartSubtotal();
+    // 5% commission to admin
+    return Math.round(subtotal * 0.05);
+  };
+
   const getFinalTotal = () => {
-    return getCartSubtotal() + getTax() + getShipping();
+    return (
+      getCartSubtotal() +
+      getTax() +
+      getShipping() -
+      getDiscount() +
+      getCommission()
+    );
   };
 
   const renderCartModal = () => (
-    <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-orange-500 to-red-500 text-white">
-          <div className="flex items-center">
-            <ShoppingCart className="h-6 w-6 mr-3" />
-            <h3 className="text-xl font-bold">Shopping Cart</h3>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[95vh] overflow-hidden shadow-2xl">
+        {/* Simple Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-white">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <ShoppingCart className="h-6 w-6 text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Your Cart</h2>
+              <p className="text-sm text-gray-500">{cart.length} items</p>
+            </div>
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowCart(false)}
-            className="text-white border-white hover:bg-white hover:text-orange-600"
+            className="h-10 w-10 p-0 rounded-full hover:bg-gray-100"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </Button>
         </div>
 
         {cart.length === 0 ? (
-          <div className="p-12 text-center bg-white">
-            <ShoppingCart className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-            <p className="text-gray-500 text-lg mb-4">Your cart is empty</p>
+          <div className="p-16 text-center">
+            <div className="p-4 bg-gray-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+              <ShoppingCart className="h-10 w-10 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Your cart is empty
+            </h3>
+            <p className="text-gray-500 mb-6">
+              Add some products to get started
+            </p>
             <Button
               onClick={() => setShowCart(false)}
-              className="bg-orange-600 hover:bg-orange-700"
+              className="bg-blue-600 hover:bg-blue-700 px-8"
             >
               Continue Shopping
             </Button>
           </div>
         ) : (
-          <div className="flex flex-col h-full max-h-[calc(90vh-80px)] bg-white">
-            {/* Cart Items */}
-            <div className="flex-1 overflow-y-auto p-6 bg-white">
+          <div className="flex h-full max-h-[calc(95vh-100px)]">
+            {/* Cart Items - Left Side */}
+            <div className="flex-1 p-6 overflow-y-auto">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Items in Cart
+              </h3>
               <div className="space-y-4">
                 {cart.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center space-x-4 p-4 bg-white border border-gray-200 rounded-xl hover:shadow-lg hover:border-orange-200 transition-all duration-200 shadow-sm"
+                    className="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                   >
                     <img
                       src={item.image || "/placeholder.svg"}
                       alt={item.name}
-                      className="w-16 h-16 object-cover rounded-lg border border-gray-100"
+                      className="w-16 h-16 object-cover rounded-lg"
                     />
-                    <div className="flex-1 bg-white">
+                    <div className="flex-1">
                       <h4 className="font-semibold text-gray-900">
                         {item.name}
                       </h4>
@@ -631,140 +1280,155 @@ export default function VendorDashboard({
                         <MapPin className="h-3 w-3 mr-1" />
                         {item.center}
                       </p>
-                      <p className="text-sm font-medium text-orange-600">
+                      <p className="text-sm font-medium text-blue-600 mt-1">
                         {item.price}
                       </p>
                     </div>
-                    <div className="flex items-center space-x-2 bg-white">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          updateCartQuantity(item.id, item.quantity - 1)
-                        }
-                        className="h-8 w-8 p-0 border-gray-300 hover:border-orange-400 hover:bg-orange-50 bg-white"
-                      >
-                        -
-                      </Button>
-                      <span className="w-8 text-center font-medium bg-gray-50 py-1 px-2 rounded text-gray-900">
-                        {item.quantity}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          updateCartQuantity(item.id, item.quantity + 1)
-                        }
-                        className="h-8 w-8 p-0 border-gray-300 hover:border-orange-400 hover:bg-orange-50 bg-white"
-                      >
-                        +
-                      </Button>
-                    </div>
-                    <div className="text-right bg-white">
-                      <p className="font-semibold text-gray-900">
-                        रू{" "}
-                        {(
-                          Number.parseInt(
-                            item.price
-                              .replace("रू ", "")
-                              .replace(",", "")
-                              .split("/")[0]
-                          ) * item.quantity
-                        ).toLocaleString()}
-                      </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removeFromCart(item.id)}
-                        className="mt-1 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 bg-white"
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-2 bg-white rounded-lg border border-gray-200 p-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            updateCartQuantity(item.id, item.quantity - 1)
+                          }
+                          className="h-8 w-8 p-0 border-0 hover:bg-gray-100"
+                        >
+                          -
+                        </Button>
+                        <span className="w-8 text-center font-medium text-gray-900">
+                          {item.quantity}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            updateCartQuantity(item.id, item.quantity + 1)
+                          }
+                          className="h-8 w-8 p-0 border-0 hover:bg-gray-100"
+                        >
+                          +
+                        </Button>
+                      </div>
+                      <div className="text-right min-w-[80px]">
+                        <p className="font-bold text-gray-900">
+                          रू{" "}
+                          {(
+                            Number.parseInt(
+                              item.price
+                                .replace("रू ", "")
+                                .replace(",", "")
+                                .split("/")[0]
+                            ) * item.quantity
+                          ).toLocaleString()}
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => removeFromCart(item.id)}
+                          className="mt-1 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 h-7 w-7 p-0"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Cart Summary */}
-            <div className="border-t bg-white p-4">
-              <div className="bg-gradient-to-br from-gray-50 to-orange-50 rounded-lg shadow-md border border-orange-200 p-4 space-y-3">
-                <div className="flex items-center justify-between border-b border-orange-200 pb-2">
-                  <h3 className="text-lg font-bold text-gray-900 flex items-center">
-                    <ShoppingCart className="h-5 w-5 mr-2 text-orange-600" />
-                    Order Summary
-                  </h3>
-                  <span className="text-xs text-orange-700 bg-orange-100 px-2 py-1 rounded-full font-medium">
-                    {cart.length} {cart.length === 1 ? "item" : "items"}
+            {/* Payment Summary - Right Side */}
+            <div className="w-96 bg-gray-50 border-l border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                Order Summary
+              </h3>
+
+              {/* Simple Payment Breakdown */}
+              <div className="space-y-4 mb-6">
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Subtotal</span>
+                  <span className="font-semibold text-gray-900">
+                    रू {getCartSubtotal().toLocaleString()}
                   </span>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center py-2 px-3 bg-white rounded-md border border-gray-100">
-                    <span className="text-gray-800 font-medium">Subtotal:</span>
-                    <span className="font-bold text-gray-900">
-                      रू {getCartSubtotal().toLocaleString()}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center py-2 px-3 bg-white rounded-md border border-gray-100">
-                    <span className="text-gray-800 font-medium flex items-center">
-                      VAT (13%):
-                      <span className="ml-1 text-xs text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full font-medium">
-                        Tax
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700 flex items-center">
+                    Discount
+                    {getDiscount() > 0 && (
+                      <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                        10% off
                       </span>
-                    </span>
-                    <span className="font-bold text-gray-900">
-                      रू {getTax().toLocaleString()}
-                    </span>
-                  </div>
+                    )}
+                  </span>
+                  <span className="font-semibold text-green-600">
+                    {getDiscount() > 0
+                      ? `-रू ${getDiscount().toLocaleString()}`
+                      : "रू 0"}
+                  </span>
+                </div>
 
-                  <div className="flex justify-between items-center py-2 px-3 bg-white rounded-md border border-gray-100">
-                    <span className="text-gray-800 font-medium flex items-center">
-                      Shipping:
-                      {getShipping() === 0 && (
-                        <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
-                          Free
-                        </span>
-                      )}
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700 flex items-center">
+                    VAT (13%)
+                    <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                      Tax
                     </span>
-                    <span
-                      className={`font-bold ${
-                        getShipping() === 0 ? "text-green-600" : "text-gray-900"
-                      }`}
-                    >
-                      {getShipping() === 0 ? "FREE" : `रू ${getShipping()}`}
-                    </span>
-                  </div>
+                  </span>
+                  <span className="font-semibold text-gray-900">
+                    रू {getTax().toLocaleString()}
+                  </span>
+                </div>
 
-                  <div className="bg-gradient-to-r from-orange-100 to-red-100 rounded-lg p-3 border-2 border-orange-300 shadow-sm">
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-gray-900">
-                        Total:
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700 flex items-center">
+                    Commission (5%)
+                    <span className="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
+                      Admin
+                    </span>
+                  </span>
+                  <span className="font-semibold text-orange-600">
+                    रू {getCommission().toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700 flex items-center">
+                    Shipping
+                    {getShipping() === 0 && (
+                      <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                        Free
                       </span>
-                      <div className="text-right">
-                        <span className="text-xl font-bold text-orange-600 block">
-                          रू {getFinalTotal().toLocaleString()}
-                        </span>
-                        <span className="text-xs font-medium text-gray-600">
-                          NPR
-                        </span>
-                      </div>
+                    )}
+                  </span>
+                  <span
+                    className={`font-semibold ${
+                      getShipping() === 0 ? "text-green-600" : "text-gray-900"
+                    }`}
+                  >
+                    {getShipping() === 0 ? "FREE" : `रू ${getShipping()}`}
+                  </span>
+                </div>
+
+                <div className="border-t border-gray-300 pt-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-gray-900">
+                      Total
+                    </span>
+                    <div className="text-right">
+                      <span className="text-2xl font-bold text-blue-600">
+                        रू {getFinalTotal().toLocaleString()}
+                      </span>
+                      <p className="text-xs text-gray-500">NPR</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex space-x-3 mt-4">
+              {/* Action Buttons */}
+              <div className="space-y-3">
                 <Button
-                  variant="outline"
-                  className="flex-1 bg-white border-gray-300 hover:bg-gray-50 text-gray-700"
-                  onClick={() => setShowCart(false)}
-                >
-                  Continue Shopping
-                </Button>
-                <Button
-                  className="flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-semibold shadow-lg"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 text-lg"
                   onClick={() => {
                     setShowCart(false);
                     setShowPayment(true);
@@ -772,6 +1436,27 @@ export default function VendorDashboard({
                 >
                   Proceed to Payment
                 </Button>
+                <Button
+                  variant="outline"
+                  className="w-full border-gray-300 hover:bg-gray-50 text-gray-700 py-3"
+                  onClick={() => setShowCart(false)}
+                >
+                  Continue Shopping
+                </Button>
+              </div>
+
+              {/* Trust Indicators */}
+              <div className="mt-6 pt-6 border-t border-gray-300">
+                <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                    Secure Payment
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-1"></div>
+                    Fast Delivery
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1000,189 +1685,170 @@ export default function VendorDashboard({
     </div>
   );
 
+  // Handle search functionality
+  const handleSearch = () => {
+    if (!searchTerm.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      // Simulate search API call
+      console.log("Searching for:", searchTerm);
+      // Here you would make an actual API call to search products/centers
+      // const results = await searchProducts(searchTerm);
+
+      // For now, show a mock result
+      setTimeout(() => {
+        // Mock search results - in a real app, this would be an API call
+        const mockResults = [
+          {
+            id: "prod1",
+            name: "Premium Basmati Rice",
+            center: "Kathmandu Food Center",
+            price: "रू 2,500/bag",
+            description: "High-quality basmati rice from the Himalayan region",
+            image: "/rice.jpg",
+          },
+          {
+            id: "prod2",
+            name: "Organic Wheat Flour",
+            center: "Pokhara Grain Hub",
+            price: "रू 1,800/bag",
+            description: "Stone-ground organic wheat flour, perfect for baking",
+            image: "/wheat.jpg",
+          },
+          {
+            id: "prod3",
+            name: "Mixed Spices Pack",
+            center: "Lalitpur Organics",
+            price: "रू 950/kg",
+            description: "Traditional Nepali spice blend for authentic flavors",
+            image: "/spices.jpg",
+          },
+        ].filter(
+          (item) =>
+            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.center.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        setSearchResults(mockResults);
+        setIsSearching(false);
+      }, 800);
+    } catch (error) {
+      console.error("Search error:", error);
+      alert("Search failed. Please try again.");
+      setIsSearching(false);
+    }
+  };
+
+  // Add useEffect for real-time search
+  useEffect(() => {
+    if (searchTerm.trim().length > 2) {
+      const timeoutId = setTimeout(() => {
+        handleSearch();
+      }, 500); // Debounce search by 500ms
+
+      return () => clearTimeout(timeoutId);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchTerm]);
+
   const renderMarketplace = () => (
     <div className="space-y-6">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <Card key={index} className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  {stat.title}
-                </p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                <p className="text-sm text-green-600 flex items-center mt-1">
-                  <TrendingUp className="h-4 w-4 mr-1" />
-                  {stat.change}
-                </p>
+        {stats.map((stat, index) => {
+          const IconComponent = stat.icon;
+          const handleCardClick = () => {
+            switch (stat.title) {
+              case "Orders Placed":
+                setShowOrdersModal(true);
+                break;
+              case "Total Spent":
+                setShowSpentModal(true);
+                break;
+              case "Centers":
+                setShowCentersModal(true);
+                break;
+              case "Pending Orders":
+                setShowPendingModal(true);
+                break;
+              case "Discount Received":
+                setShowDiscountModal(true);
+                break;
+              case "Commission Paid to Admin":
+                setShowCommissionModal(true);
+                break;
+              case "Total Inventory":
+                setShowInventoryModal(true);
+                break;
+              default:
+                break;
+            }
+          };
+
+          return (
+            <Card
+              key={index}
+              className="p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:scale-105 transform"
+              onClick={handleCardClick}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">
+                    {stat.title}
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {stat.value}
+                  </p>
+                  <p className="text-sm text-green-600 mt-1">{stat.change}</p>
+                </div>
+                <IconComponent className={`h-8 w-8 ${stat.color}`} />
               </div>
-              <stat.icon className={`h-8 w-8 ${stat.color}`} />
-            </div>
-          </Card>
-        ))}
+            </Card>
+          );
+        })}
       </div>
 
-      <Card className="p-4">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <input
-              type="text"
-              placeholder="Search products from centers..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
-          </div>
-          <Button
-            onClick={() => setShowCategorySearch(!showCategorySearch)}
-            className="bg-orange-600 hover:bg-orange-700"
-          >
-            Search by Category
-          </Button>
-        </div>
-
-        {showCategorySearch && (
-          <div className="mt-4 p-4 bg-orange-50 rounded-lg border border-orange-200">
-            <h4 className="font-medium text-gray-900 mb-2">
-              Search Centers by Category
-            </h4>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+      {/* Search Results */}
+      {searchResults.length > 0 && (
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Search Results ({searchResults.length})
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {searchResults.map((result) => (
+              <div
+                key={result.id}
+                className="border rounded-lg p-4 hover:shadow-md transition-shadow"
               >
-                <option value="">Select a category</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-              <Button
-                onClick={async () => {
-                  if (!selectedCategory) return;
-
-                  try {
-                    setLoading(true);
-                    setError(null);
-                    const data = await getCentersByCategory(selectedCategory);
-                    setCentersByCategory(data);
-                  } catch (err) {
-                    setError("Failed to fetch centers");
-                    console.error("Error fetching centers:", err);
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
-                className="bg-orange-600 hover:bg-orange-700"
-                disabled={loading}
-              >
-                {loading ? "Searching..." : "Search Centers"}
-              </Button>
-            </div>
-
-            {error && (
-              <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200">
-                {error}
-              </div>
-            )}
-
-            {centersByCategory.length > 0 && (
-              <div className="mt-4">
-                <h5 className="font-medium text-gray-900 mb-2">
-                  Matching Centers
-                </h5>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {centersByCategory.map((center) => (
-                    <div
-                      key={center._id}
-                      className="flex items-center p-3 bg-white rounded-lg border border-orange-200 shadow-sm"
-                    >
-                      <img
-                        src={center.image || "/placeholder-0undu.png"}
-                        alt={center.name}
-                        className="w-12 h-12 object-cover rounded-lg mr-3"
-                      />
-                      <div className="flex-1">
-                        <h6 className="font-medium text-gray-900">
-                          {center.name}
-                        </h6>
-                        <p className="text-sm text-gray-600">
-                          {center.location}
-                        </p>
-                        <div className="flex items-center mt-1">
-                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                          <span className="text-sm text-gray-600 ml-1">
-                            {center.rating}
-                          </span>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm" className="ml-2">
-                        View
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </Card>
-
-      {/* Products from Centers */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {centerProducts.map((product) => (
-          <Card
-            key={product.id}
-            className="p-6 hover:shadow-lg transition-shadow"
-          >
-            <div className="space-y-4">
-              <img
-                src={product.image || "/placeholder.svg"}
-                alt={product.name}
-                className="w-full h-32 object-cover rounded-lg"
-              />
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
-                    {product.category}
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-medium text-gray-900">{result.name}</h4>
+                  <span className="text-sm font-semibold text-orange-600">
+                    {result.price}
                   </span>
                 </div>
-                <h4 className="font-semibold text-gray-900">{product.name}</h4>
-                <p className="text-sm text-gray-600 flex items-center mt-1">
-                  <MapPin className="h-3 w-3 mr-1" />
-                  {product.center} • {product.location}
+                <p className="text-sm text-gray-600 mb-2">
+                  {result.description}
                 </p>
-                <div className="flex items-center mt-2">
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                    <span className="text-sm text-gray-600 ml-1">
-                      {product.rating}
-                    </span>
-                  </div>
-                  <span className="text-sm text-gray-500 ml-4">
-                    {product.stock} available
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-lg font-bold text-orange-600">
-                  {product.price}
-                </span>
+                <p className="text-xs text-gray-500 mb-3">
+                  Available at: {result.center}
+                </p>
                 <Button
-                  onClick={() => addToCart(product)}
-                  className="bg-orange-600 hover:bg-orange-700"
                   size="sm"
+                  className="w-full"
+                  onClick={() => addToCart(result)}
                 >
-                  <Plus className="h-4 w-4 mr-1" />
                   Add to Cart
                 </Button>
               </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+            ))}
+          </div>
+        </Card>
+      )}
     </div>
   );
 
@@ -1244,6 +1910,40 @@ export default function VendorDashboard({
               ))}
             </tbody>
           </table>
+        </div>
+      </Card>
+    </div>
+  );
+
+  // Messages content
+  const renderMessages = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-gray-900">Messages</h3>
+        <Button
+          className="bg-orange-600 hover:bg-orange-700"
+          onClick={() => setShowMessageModal(true)}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          New Message
+        </Button>
+      </div>
+
+      <Card className="p-6">
+        <div className="text-center py-8">
+          <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No Messages Yet
+          </h3>
+          <p className="text-gray-600">
+            Start a conversation with centers or other vendors.
+          </p>
+          <Button
+            className="mt-4 bg-orange-600 hover:bg-orange-700"
+            onClick={() => setShowMessageModal(true)}
+          >
+            Open Message Box
+          </Button>
         </div>
       </Card>
     </div>
@@ -1540,14 +2240,18 @@ export default function VendorDashboard({
 
               <div className="relative group">
                 <div className="text-sm cursor-pointer">
-                  <p className="font-medium text-gray-900">{vendorName}</p>
+                  <p className="font-medium text-gray-900">
+                    {vendorProfile.businessName}
+                  </p>
                   <p className="text-gray-500">Vendor</p>
                 </div>
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
                   <div className="py-2">
                     <div className="px-4 py-2 text-sm text-gray-700 border-b">
-                      <p className="font-medium">{vendorName}</p>
-                      <p className="text-gray-500">vendor@example.com</p>
+                      <p className="font-medium">
+                        {vendorProfile.businessName}
+                      </p>
+                      <p className="text-gray-500">{vendorProfile.email}</p>
                     </div>
                     <button
                       onClick={
@@ -1567,26 +2271,59 @@ export default function VendorDashboard({
       </div>
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
-            {[
-              { id: "marketplace", label: "Marketplace", icon: Package },
-              { id: "orders", label: "My Orders", icon: ShoppingCart },
-              { id: "profile", label: "My Profile", icon: Users },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center px-1 py-4 border-b-2 font-medium text-sm ${
-                  activeTab === tab.id
-                    ? "border-orange-500 text-orange-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
+          <div className="flex items-center justify-between">
+            <nav className="flex space-x-8">
+              {[
+                { id: "marketplace", label: "Marketplace", icon: Package },
+                { id: "orders", label: "My Orders", icon: ShoppingCart },
+                { id: "profile", label: "My Profile", icon: Users },
+                { id: "messages", label: "Messages", icon: MessageCircle },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center px-1 py-4 border-b-2 font-medium text-sm ${
+                    activeTab === tab.id
+                      ? "border-orange-500 text-orange-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
+                >
+                  <tab.icon className="h-4 w-4 mr-2" />
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
+
+            {/* Search Section */}
+            <div className="flex items-center space-x-2">
+              <div className="relative">
+                <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search products, centers, or categories..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearch();
+                    }
+                  }}
+                  className="pl-10 pr-4 py-2 w-80 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                />
+              </div>
+              <Button
+                onClick={handleSearch}
+                className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2"
+                disabled={isSearching}
               >
-                <tab.icon className="h-4 w-4 mr-2" />
-                {tab.label}
-              </button>
-            ))}
-          </nav>
+                {isSearching ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Search className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
       {/* Main Content */}
@@ -1594,100 +2331,20 @@ export default function VendorDashboard({
         {activeTab === "marketplace" && renderMarketplace()}
         {activeTab === "orders" && renderOrders()}
         {activeTab === "profile" && renderProfileContent()}
+        {activeTab === "messages" && renderMessages()}
+        {activeTab === "analytics" && renderAnalytics()}
       </div>
       {showCart && renderCartModal()}
       {showPayment && renderPaymentModal()}
-      {/* Analytics content */}
-      const renderAnalytics = () = (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Business Analytics
-          </h3>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Total Orders Placed
-                </p>
-                <p className="text-2xl font-bold text-gray-900">89</p>
-              </div>
-              <ShoppingCart className="h-8 w-8 text-blue-600" />
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Total Amount Spent
-                </p>
-                <p className="text-2xl font-bold text-gray-900">रू 1,85,000</p>
-              </div>
-              <DollarSign className="h-8 w-8 text-green-600" />
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Total Discounts Received
-                </p>
-                <p className="text-2xl font-bold text-gray-900">रू 12,000</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-orange-600" />
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Total Commission Paid
-                </p>
-                <p className="text-2xl font-bold text-gray-900">रू 9,250</p>
-              </div>
-              <CreditCard className="h-8 w-8 text-purple-600" />
-            </div>
-          </Card>
-        </div>
-
-        <Card className="p-6">
-          <h4 className="text-md font-semibold text-gray-900 mb-4">
-            Analytics Breakdown
-          </h4>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="font-medium">Total Orders Placed</span>
-              <span className="font-bold">89</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="font-medium">Total Amount Spent</span>
-              <span className="font-bold">रू 1,85,000</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="font-medium">Total Discounts Received</span>
-              <span className="font-bold text-green-600">रू 12,000</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="font-medium">Total Commission Paid</span>
-              <span className="font-bold text-red-600">रू 9,250</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="font-medium">Total Products Ordered</span>
-              <span className="font-bold">450</span>
-            </div>
-          </div>
-        </Card>
-      </div>
-      );
+      {showMessageModal && renderMessageModal()}
       {renderProfileModal()}
+      {showOrdersModal && renderOrdersModal()}
+      {showSpentModal && renderSpentModal()}
+      {showCentersModal && renderCentersModal()}
+      {showPendingModal && renderPendingModal()}
+      {showDiscountModal && renderDiscountModal()}
+      {showCommissionModal && renderCommissionModal()}
+      {showInventoryModal && renderInventoryModal()}
     </div>
   );
 }
-
-export { VendorDashboard };

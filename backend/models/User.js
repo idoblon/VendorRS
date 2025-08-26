@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ["PENDING", "APPROVED", "REJECTED", "SUSPENDED"],
-    default: "PENDING",
+    default: "PENDING", // ← Real registrations start as PENDING
   },
   // Vendor-specific fields
   businessName: {
@@ -99,7 +99,7 @@ const userSchema = new mongoose.Schema({
     required: function () {
       return this.role === "CENTER";
     },
-    default: []
+    default: [],
   },
   isActive: {
     type: Boolean,
@@ -124,7 +124,7 @@ userSchema.pre("save", async function (next) {
 
   try {
     const salt = await bcrypt.genSalt(12);
-    this.password = await bcrypt.hash(this.password, salt);
+    this.password = await bcrypt.hash(this.password, salt); // ← This hashes the password
     next();
   } catch (error) {
     next(error);

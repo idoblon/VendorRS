@@ -184,8 +184,9 @@ router.post(
 
       user = new User(userData);
 
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
+      // REMOVE these lines - User model pre-save hook handles password hashing
+      // const salt = await bcrypt.genSalt(10);
+      // user.password = await bcrypt.hash(password, salt);
 
       await user.save();
 

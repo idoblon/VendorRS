@@ -18,6 +18,7 @@ import {
   Trash2,
   Pause,
   AlertTriangle,
+  X,
 } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
@@ -901,8 +902,232 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
           onClick={() => setShowNotifications(false)}
         ></div>
       )}
+
+      {/* Modal Renderings */}
+      {showVendorModal && renderVendorModal()}
+      {showCenterModal && renderCenterModal()}
+      {showCommissionModal && renderCommissionModal()}
     </div>
   );
+
+  // Modal rendering functions
+  function renderVendorModal() {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Total Vendors Overview
+            </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowVendorModal(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="space-y-4">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <p className="text-sm text-blue-600 font-medium">
+                Total Registered Vendors
+              </p>
+              <p className="text-3xl font-bold text-blue-900">{totalVendorsCount}</p>
+              <p className="text-sm text-blue-600 mt-1">Active in the system</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-2">Approved Vendors</h4>
+                <p className="text-xl font-bold text-green-600">
+                  {vendors.filter(v => v.status === 'APPROVED').length}
+                </p>
+              </div>
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-2">Pending Approval</h4>
+                <p className="text-xl font-bold text-yellow-600">
+                  {vendors.filter(v => v.status === 'PENDING').length}
+                </p>
+              </div>
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-2">Suspended</h4>
+                <p className="text-xl font-bold text-red-600">
+                  {vendors.filter(v => v.status === 'SUSPENDED').length}
+                </p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-900">Recent Vendors</h4>
+              {vendors.slice(0, 5).map((vendor, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                >
+                  <div>
+                    <p className="font-medium text-gray-900">{vendor.businessName}</p>
+                    <p className="text-sm text-gray-600">{vendor.email}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      vendor.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
+                      vendor.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {vendor.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function renderCenterModal() {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Distribution Centers Overview
+            </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCenterModal(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="space-y-4">
+            <div className="bg-green-50 p-4 rounded-lg">
+              <p className="text-sm text-green-600 font-medium">
+                Active Distribution Centers
+              </p>
+              <p className="text-3xl font-bold text-green-900">{activeCentersCount}</p>
+              <p className="text-sm text-green-600 mt-1">Currently operational</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-2">Active Centers</h4>
+                <p className="text-xl font-bold text-green-600">
+                  {distributionCenters.filter(c => c.status === 'active').length}
+                </p>
+              </div>
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-2">Under Maintenance</h4>
+                <p className="text-xl font-bold text-yellow-600">
+                  {distributionCenters.filter(c => c.status === 'maintenance').length}
+                </p>
+              </div>
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-2">Coverage Areas</h4>
+                <p className="text-xl font-bold text-blue-600">
+                  {new Set(distributionCenters.map(c => c.location.split(',')[1]?.trim())).size} Provinces
+                </p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-900">Distribution Centers</h4>
+              {distributionCenters.map((center, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                >
+                  <div>
+                    <p className="font-medium text-gray-900">{center.name}</p>
+                    <p className="text-sm text-gray-600 flex items-center">
+                      <MapPin className="h-3 w-3 mr-1" />
+                      {center.location}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      center.status === 'active' ? 'bg-green-100 text-green-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      {center.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function renderCommissionModal() {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Commission Revenue Overview
+            </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCommissionModal(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="space-y-4">
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <p className="text-sm text-purple-600 font-medium">
+                Total Commission Collected
+              </p>
+              <p className="text-3xl font-bold text-purple-900">Rs. {totalCommission.toLocaleString()}</p>
+              <p className="text-sm text-purple-600 mt-1">From approved vendors</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-2">Commission Rate</h4>
+                <p className="text-xl font-bold text-gray-900">5%</p>
+              </div>
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-2">This Month</h4>
+                <p className="text-xl font-bold text-gray-900">Rs. {Math.round(totalCommission * 0.15).toLocaleString()}</p>
+              </div>
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-2">Active Contributors</h4>
+                <p className="text-xl font-bold text-gray-900">
+                  {vendors.filter(v => v.status === 'APPROVED' && v.commission > 0).length}
+                </p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-900">Top Contributing Vendors</h4>
+              {vendors
+                .filter(v => v.commission > 0)
+                .sort((a, b) => (b.commission || 0) - (a.commission || 0))
+                .slice(0, 5)
+                .map((vendor, index) => (
+                  <div
+                    key={index}
+                    className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div>
+                      <p className="font-medium text-gray-900">{vendor.businessName}</p>
+                      <p className="text-sm text-gray-600">{vendor.email}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-purple-600">Rs. {vendor.commission?.toLocaleString() || 0}</p>
+                      <p className="text-sm text-gray-500">Commission paid</p>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default AdminDashboard;

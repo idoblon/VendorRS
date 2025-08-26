@@ -39,8 +39,8 @@ const App = () => {
         const data = await response.data;
 
         if (response.status === 200 && data.success) {
-          // Normalize role to lowercase to match our type
-          const user = data.data.user;
+          // Fix: Access user directly from data, not data.data.user
+          const user = data.user;
           if (user?.role) {
             user.role = user.role.toLowerCase() as UserRole;
           }
@@ -51,6 +51,9 @@ const App = () => {
         }
       } catch (error) {
         console.error("Token verification error:", error);
+        // Clear invalid tokens
+        localStorage.removeItem("vrs_token");
+        localStorage.removeItem("vrs_user");
       } finally {
         setIsLoading(false);
       }
