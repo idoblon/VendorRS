@@ -72,7 +72,7 @@ const validateNepalPhoneNumber = (phone: string): boolean => {
   if (!phone || phone.trim() === "" || phone.trim() === "+977") {
     return false;
   }
-  
+
   const cleanPhone = phone.replace(/\D/g, "");
 
   if (cleanPhone.length === 13 && cleanPhone.startsWith("977")) {
@@ -90,11 +90,11 @@ const getPhoneNumberValidationError = (phone: string): string | null => {
   if (!phone || phone.trim() === "") {
     return "Phone number is required";
   }
-  
+
   if (phone.trim() === "+977") {
     return "Please enter a complete phone number";
   }
-  
+
   const cleanPhone = phone.replace(/\D/g, "");
 
   if (cleanPhone.length === 13 && cleanPhone.startsWith("977")) {
@@ -255,14 +255,18 @@ export default function VendorSignupPage({
     }
     // Validate contact person phone numbers
     if (formData.contactPerson1.phone) {
-      const contact1PhoneError = getPhoneNumberValidationError(formData.contactPerson1.phone);
+      const contact1PhoneError = getPhoneNumberValidationError(
+        formData.contactPerson1.phone
+      );
       if (contact1PhoneError) {
         newErrors.push(`Contact person 1: ${contact1PhoneError}`);
       }
     }
-    
+
     if (formData.contactPerson2.phone) {
-      const contact2PhoneError = getPhoneNumberValidationError(formData.contactPerson2.phone);
+      const contact2PhoneError = getPhoneNumberValidationError(
+        formData.contactPerson2.phone
+      );
       if (contact2PhoneError) {
         newErrors.push(`Contact person 2: ${contact2PhoneError}`);
       }
@@ -294,8 +298,12 @@ export default function VendorSignupPage({
 
       // Format phone numbers
       const formattedPhoneNumber = formatPhoneNumber(formData.phoneNumber);
-      const formattedContact1Phone = formatPhoneNumber(formData.contactPerson1.phone);
-      const formattedContact2Phone = formatPhoneNumber(formData.contactPerson2.phone);
+      const formattedContact1Phone = formatPhoneNumber(
+        formData.contactPerson1.phone
+      );
+      const formattedContact2Phone = formatPhoneNumber(
+        formData.contactPerson2.phone
+      );
 
       // Basic Information
       formDataToSubmit.append("name", formData.vendorName);
@@ -308,11 +316,16 @@ export default function VendorSignupPage({
       formDataToSubmit.append("province", formData.province);
       formDataToSubmit.append("district", formData.district);
       // Get display names for district and province
-      const selectedProvince = provinces.find(p => p.id === formData.province);
-      const selectedDistrict = districts.find(d => d.id === formData.district);
-      const address = selectedDistrict && selectedProvince
-        ? `${selectedDistrict.displayName}, ${selectedProvince.displayName}`
-        : `${formData.district}, ${formData.province}`;
+      const selectedProvince = provinces.find(
+        (p) => p.id === formData.province
+      );
+      const selectedDistrict = districts.find(
+        (d) => d.id === formData.district
+      );
+      const address =
+        selectedDistrict && selectedProvince
+          ? `${selectedDistrict.displayName}, ${selectedProvince.displayName}`
+          : `${formData.district}, ${formData.province}`;
       formDataToSubmit.append("address", address);
 
       // Contact Persons
@@ -359,9 +372,9 @@ export default function VendorSignupPage({
         address: address,
         contactPersons: contactPersons,
         bankDetails: bankDetails,
-        panDocument: panDocument ? panDocument.name : null
+        panDocument: panDocument ? panDocument.name : null,
       });
-      
+
       const response = await axiosInstance.post(
         "/api/auth/register",
         formDataToSubmit,
@@ -383,11 +396,11 @@ export default function VendorSignupPage({
     } catch (error: any) {
       console.error("Registration error:", error);
       let errorMessages: string[] = [];
-      
+
       if (error.response?.data?.errors) {
         // Handle validation errors from backend
-        errorMessages = error.response.data.errors.map((err: any) =>
-          `${err.field}: ${err.message}`
+        errorMessages = error.response.data.errors.map(
+          (err: any) => `${err.field}: ${err.message}`
         );
       } else {
         // Handle other errors
@@ -397,7 +410,7 @@ export default function VendorSignupPage({
           "Registration failed. Please try again.";
         errorMessages = [errorMessage];
       }
-      
+
       setErrors(errorMessages);
       setSubmitState("error");
     } finally {
@@ -536,7 +549,7 @@ export default function VendorSignupPage({
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <img
-              src="/vrslogo.png"
+              src="/image/vrslogo.png"
               alt="Vendor Request System Logo"
               className="w-20 h-20 object-contain"
               onError={(e) => {

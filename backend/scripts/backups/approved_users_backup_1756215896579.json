@@ -1,0 +1,158 @@
+{
+  "timestamp": "2025-08-26T13:44:56.578Z",
+  "users": [
+    {
+      "_id": "68ad87dab7ed44ce512d0e2e",
+      "name": "System Administrator",
+      "email": "admin@example.com",
+      "password": "$2a$12$OZNQouttL65PjdwRXrUNo.clnhBlCnYRlB1PIJBH1esl3k9p9Zbua",
+      "phone": "+91 9999999999",
+      "role": "ADMIN",
+      "status": "APPROVED",
+      "categories": [],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-26T10:09:30.234Z",
+      "updatedAt": "2025-08-26T10:09:30.520Z",
+      "__v": 0
+    },
+    {
+      "_id": "68ad87dab7ed44ce512d0e3f",
+      "name": "Kathmandu Distribution Center",
+      "email": "kathmandu@center.com",
+      "password": "$2a$12$JlWNRmUNr2F.9Fs0ubJyhOuh.ipLi71s8YVFpxJLR0VdA/x0.Ylna",
+      "phone": "+977 1 1234567",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "PANC123456789",
+      "district": "Kathmandu",
+      "province": "Bagmati",
+      "categories": [
+        "Spices & Herbs",
+        "Grains & Pulses",
+        "Beverages"
+      ],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-26T10:09:30.664Z",
+      "updatedAt": "2025-08-26T10:09:30.921Z",
+      "__v": 0
+    },
+    {
+      "_id": "68ad87dab7ed44ce512d0e41",
+      "name": "Pokhara Distribution Center",
+      "email": "pokhara@center.com",
+      "password": "$2a$12$SDk8JzeMUFHnT/Ef2JBKO.ddJs6le6LHe.4uemm91gl6XAyI8H.te",
+      "phone": "+977 61 123456",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "PANC987654321",
+      "district": "Pokhara",
+      "province": "Gandaki",
+      "categories": [
+        "Clothing",
+        "Footwear",
+        "Accessories"
+      ],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-26T10:09:30.998Z",
+      "updatedAt": "2025-08-26T10:09:31.258Z",
+      "__v": 0
+    },
+    {
+      "_id": "68ad87dbb7ed44ce512d0e43",
+      "name": "Biratnagar Distribution Center",
+      "email": "biratnagar@center.com",
+      "password": "$2a$12$tuXwWHRH6zc5FofcV8.RpuXi/dLL9W.MS/NDtAUCgfyUEaj5MwV2u",
+      "phone": "+977 1 1234567",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "PANC456789123",
+      "district": "Biratnagar",
+      "province": "Koshi",
+      "categories": [
+        "Electronics",
+        "Home & Garden",
+        "Sports"
+      ],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-26T10:09:31.303Z",
+      "updatedAt": "2025-08-26T10:09:31.568Z",
+      "__v": 0
+    },
+    {
+      "_id": "68ad87dbb7ed44ce512d0e45",
+      "name": "Nepal Spices & Herbs Co.",
+      "email": "spices@vendor.com",
+      "password": "$2a$12$m6.fWgVJnwiDoK2uypLMMeRqovBvkZ/L8qADoYTY7oKtwTdKry0kq",
+      "phone": "+977 9801234567",
+      "role": "VENDOR",
+      "status": "APPROVED",
+      "businessName": "Nepal Spices & Herbs Co.",
+      "panNumber": "PAN123456789",
+      "address": "123 Spice Street",
+      "district": "Kathmandu",
+      "bankDetails": {
+        "bankName": "Nepal Bank Ltd.",
+        "accountNumber": "1234567890",
+        "ifscCode": "NB000012345",
+        "branch": "Kathmandu Branch",
+        "holderName": "Nepal Spices & Herbs Co."
+      },
+      "contactPersons": [
+        {
+          "name": "Rajesh Thapa",
+          "phone": "+977 9801234567",
+          "isPrimary": true,
+          "_id": "68ad87dbb7ed44ce512d0e46"
+        }
+      ],
+      "categories": [],
+      "isActive": true,
+      "documents": [],
+      "createdAt": "2025-08-26T10:09:31.614Z",
+      "updatedAt": "2025-08-26T10:09:31.886Z",
+      "__v": 0
+    },
+    {
+      "_id": "68ad87dbb7ed44ce512d0e48",
+      "name": "Trekking Gear Nepal",
+      "email": "trekking@vendor.com",
+      "password": "$2a$12$QODOPC/KakFCNMXm64CUiuPGVZUM4moEhAVTWNfrmKwlDaJj74rou",
+      "phone": "+977 9801234568",
+      "role": "VENDOR",
+      "status": "APPROVED",
+      "businessName": "Trekking Gear Nepal",
+      "panNumber": "PAN987654321",
+      "address": "456 Trekking Road",
+      "district": "Pokhara",
+      "bankDetails": {
+        "bankName": "Nepal Investment Bank",
+        "accountNumber": "0987654321",
+        "ifscCode": "NIB000098765",
+        "branch": "Pokhara Branch",
+        "holderName": "Trekking Gear Nepal"
+      },
+      "contactPersons": [
+        {
+          "name": "Sunita Shrestha",
+          "phone": "+977 9801234568",
+          "isPrimary": true,
+          "_id": "68ad87dbb7ed44ce512d0e49"
+        }
+      ],
+      "categories": [],
+      "isActive": true,
+      "documents": [],
+      "createdAt": "2025-08-26T10:09:31.935Z",
+      "updatedAt": "2025-08-26T10:09:32.194Z",
+      "__v": 0
+    }
+  ]
+}

@@ -130,8 +130,6 @@ const seedDatabase = async () => {
       {
         name: "Nepal Spices & Herbs Co.",
         email: "spices@vendor.com",
-        role: "VENDOR",
-        status: "APPROVED", // ← Directly approved!
         password: process.env.VENDOR_PASSWORD || "Password@123",
         phone: "+977 9801234567",
         role: "VENDOR",
@@ -203,8 +201,62 @@ const seedDatabase = async () => {
         },
         contactPersons: [
           {
-            name: "Prakash Gurung",
+            name: "Karma Sherpa",
             phone: "+977 9801234569",
+            isPrimary: true,
+          },
+        ],
+        isActive: true,
+      },
+      {
+        name: "Organic Farm Nepal",
+        email: "organic@vendor.com",
+        password: process.env.VENDOR_PASSWORD || "Password@123",
+        phone: "+977 9801234570",
+        role: "VENDOR",
+        status: "APPROVED",
+        businessName: "Organic Farm Nepal",
+        panNumber: "PAN789123456",
+        address: "321 Farm Road",
+        district: "Chitwan",
+        bankDetails: {
+          bankName: "Agricultural Development Bank",
+          accountNumber: "5566778899",
+          ifscCode: "ADB00055667",
+          branch: "Chitwan Branch",
+          holderName: "Organic Farm Nepal",
+        },
+        contactPersons: [
+          {
+            name: "Bishnu Prasad",
+            phone: "+977 9801234570",
+            isPrimary: true,
+          },
+        ],
+        isActive: true,
+      },
+      {
+        name: "Tech Solutions Nepal",
+        email: "tech@vendor.com",
+        password: process.env.VENDOR_PASSWORD || "Password@123",
+        phone: "+977 9801234571",
+        role: "VENDOR",
+        status: "APPROVED",
+        businessName: "Tech Solutions Nepal",
+        panNumber: "PAN321654987",
+        address: "654 Tech Park",
+        district: "Lalitpur",
+        bankDetails: {
+          bankName: "Standard Chartered Bank",
+          accountNumber: "9988776655",
+          ifscCode: "SCB00099887",
+          branch: "Lalitpur Branch",
+          holderName: "Tech Solutions Nepal",
+        },
+        contactPersons: [
+          {
+            name: "Anita Gurung",
+            phone: "+977 9801234571",
             isPrimary: true,
           },
         ],
@@ -220,444 +272,714 @@ const seedDatabase = async () => {
       console.log(`🏪 Created vendor user: ${vendor.name}`);
     }
 
-    // Create conversations between vendors and centers
+    // Define categories
+    const categories = [
+      {
+        name: "Electronics",
+        description: "Electronic devices and gadgets",
+        subcategories: ["Mobile Phones", "Laptops", "Audio", "Cameras"],
+        isActive: true,
+      },
+      {
+        name: "Clothing",
+        description: "Apparel and fashion items",
+        subcategories: [
+          "Men's Wear",
+          "Women's Wear",
+          "Ethnic Wear",
+          "Kids Wear",
+        ],
+        isActive: true,
+      },
+      {
+        name: "Books",
+        description: "Books and educational materials",
+        subcategories: [
+          "Fiction",
+          "Non-Fiction",
+          "Educational",
+          "Children's Books",
+        ],
+        isActive: true,
+      },
+      {
+        name: "Sports",
+        description: "Sports equipment and accessories",
+        subcategories: ["Outdoor Sports", "Indoor Sports", "Fitness", "Yoga"],
+        isActive: true,
+      },
+      {
+        name: "Home & Garden",
+        description: "Home improvement and garden supplies",
+        subcategories: ["Furniture", "Decor", "Garden Tools", "Storage"],
+        isActive: true,
+      },
+      {
+        name: "Footwear",
+        description: "Shoes and footwear",
+        subcategories: ["Casual Shoes", "Formal Shoes", "Boots", "Sandals"],
+        isActive: true,
+      },
+      {
+        name: "Accessories",
+        description: "Fashion and lifestyle accessories",
+        subcategories: ["Bags", "Jewelry", "Watches", "Scarves"],
+        isActive: true,
+      },
+    ];
+
+    // Create categories
+    const createdCategories = [];
+    for (const category of categories) {
+      const createdCategory = await Category.create(category);
+      createdCategories.push(createdCategory);
+      console.log(`📂 Created category: ${category.name}`);
+    }
+
+    // Define comprehensive product list (combining original and additional products)
+    const allProducts = [
+      // Original products
+      {
+        name: "Organic Turmeric Powder",
+        description: "Premium quality organic turmeric powder from Nepal",
+        category: "Food & Beverages",
+        subcategory: "Spices",
+        price: 250,
+        currency: "NPR",
+        vendorId: vendorUsers[0]._id,
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Kathmandu",
+            stock: 100,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          weight: "500g",
+          organic: true,
+          brand: "Nepal Spices",
+        },
+        images: [
+          {
+            filename: "turmeric.jpg",
+            originalName: "turmeric.jpg",
+            path: "/images/turmeric.jpg",
+            url: "https://example.com/images/turmeric.jpg",
+            isPrimary: true,
+          },
+        ],
+        tags: ["organic", "spices", "turmeric", "healthy"],
+        status: "available",
+      },
+      {
+        name: "Himalayan Black Tea",
+        description: "High-altitude black tea from the Himalayas",
+        category: "Food & Beverages",
+        subcategory: "Tea",
+        price: 800,
+        currency: "NPR",
+        vendorId: vendorUsers[0]._id,
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Kathmandu",
+            stock: 50,
+            reservedStock: 5,
+          },
+        ],
+        specifications: {
+          weight: "250g",
+          type: "Black Tea",
+          origin: "Nepal Himalayas",
+        },
+        images: [
+          {
+            filename: "black_tea.jpg",
+            originalName: "black_tea.jpg",
+            path: "/images/black_tea.jpg",
+            url: "https://example.com/images/black_tea.jpg",
+            isPrimary: true,
+          },
+        ],
+        tags: ["tea", "himalayan", "black tea", "premium"],
+        status: "available",
+      },
+      {
+        name: "Trekking Backpack 40L",
+        description: "Durable 40L trekking backpack for outdoor adventures",
+        category: "Sports",
+        subcategory: "Outdoor Sports",
+        price: 2500,
+        currency: "NPR",
+        vendorId: vendorUsers[1]._id,
+        availability: [
+          {
+            province: "Gandaki",
+            district: "Pokhara",
+            stock: 25,
+            reservedStock: 2,
+          },
+        ],
+        specifications: {
+          capacity: "40L",
+          material: "Ripstop Nylon",
+          waterproof: true,
+          brand: "Trekking Gear Nepal",
+        },
+        images: [
+          {
+            filename: "backpack.jpg",
+            originalName: "backpack.jpg",
+            path: "/images/backpack.jpg",
+            url: "https://example.com/images/backpack.jpg",
+            isPrimary: true,
+          },
+        ],
+        tags: ["trekking", "backpack", "outdoor", "adventure"],
+        status: "available",
+      },
+      // Additional products from addMoreProducts.js
+      {
+        name: "Wireless Bluetooth Headphones",
+        description: "High-quality wireless headphones with noise cancellation",
+        category: "Electronics",
+        subcategory: "Audio",
+        price: 2500,
+        currency: "NPR",
+        vendorId: vendorUsers[4]._id, // Tech Solutions Nepal
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Kathmandu",
+            stock: 30,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          connectivity: "Bluetooth 5.0",
+          batteryLife: "20 hours",
+          noiseCancellation: true,
+          brand: "Tech Solutions",
+        },
+        images: [
+          {
+            filename: "bluetooth_headphones.jpg",
+            originalName: "bluetooth_headphones.jpg",
+            path: "/images/bluetooth_headphones.jpg",
+            url: "https://example.com/images/bluetooth_headphones.jpg",
+            isPrimary: true,
+          },
+        ],
+        tags: ["wireless", "bluetooth", "headphones", "audio"],
+        status: "available",
+      },
+      {
+        name: "Traditional Dhaka Top",
+        description:
+          "Handwoven traditional Nepali dhaka top with intricate patterns",
+        category: "Clothing",
+        subcategory: "Ethnic Wear",
+        price: 1200,
+        currency: "NPR",
+        vendorId: vendorUsers[2]._id, // Nepal Handicrafts
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Kathmandu",
+            stock: 50,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          material: "Cotton",
+          color: "Multicolor",
+          brand: "Nepali Textiles",
+          size: "M",
+        },
+        images: [
+          {
+            filename: "dhaka_top.jpg",
+            originalName: "dhaka_top.jpg",
+            path: "/images/dhaka_top.jpg",
+            url: "https://example.com/images/dhaka_top.jpg",
+            isPrimary: true,
+          },
+        ],
+        tags: ["traditional", "dhaka", "ethnic", "women"],
+        status: "available",
+      },
+      {
+        name: "Handcrafted Leather Boots",
+        description: "Premium leather boots made by skilled artisans in Nepal",
+        category: "Footwear",
+        subcategory: "Boots",
+        price: 3500,
+        currency: "NPR",
+        vendorId: vendorUsers[2]._id, // Nepal Handicrafts
+        availability: [
+          {
+            province: "Koshi",
+            district: "Biratnagar",
+            stock: 25,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          material: "Genuine Leather",
+          color: "Brown",
+          size: "8",
+          brand: "Nepal Leather Works",
+        },
+        images: [
+          {
+            filename: "leather_boots.jpg",
+            originalName: "leather_boots.jpg",
+            path: "/images/leather_boots.jpg",
+            url: "https://example.com/images/leather_boots.jpg",
+            isPrimary: true,
+          },
+        ],
+        tags: ["leather", "boots", "handcrafted", "footwear"],
+        status: "available",
+      },
+      {
+        name: "Pashmina Shawl",
+        description: "Luxurious 100% pure pashmina shawl from Nepal",
+        category: "Accessories",
+        subcategory: "Scarves",
+        price: 4500,
+        currency: "NPR",
+        vendorId: vendorUsers[2]._id, // Nepal Handicrafts
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Kathmandu",
+            stock: 40,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          material: "100% Pashmina",
+          color: "Royal Blue",
+          dimensions: {
+            length: 80,
+            width: 200,
+            unit: "cm",
+          },
+          brand: "Nepal Pashmina House",
+        },
+        images: [
+          {
+            filename: "pashmina_shawl.jpg",
+            originalName: "pashmina_shawl.jpg",
+            path: "/images/pashmina_shawl.jpg",
+            url: "https://example.com/images/pashmina_shawl.jpg",
+            isPrimary: true,
+          },
+        ],
+        tags: ["pashmina", "shawl", "luxury", "accessory"],
+        status: "available",
+      },
+      {
+        name: "Nepali Folk Tales",
+        description: "Collection of traditional Nepali folk tales for all ages",
+        category: "Books",
+        subcategory: "Fiction",
+        price: 500,
+        currency: "NPR",
+        vendorId: vendorUsers[2]._id, // Nepal Handicrafts
+        availability: [
+          {
+            province: "Gandaki",
+            district: "Pokhara",
+            stock: 100,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          author: "Various Authors",
+          publisher: "Nepal Publications",
+          language: "Nepali",
+          pages: 250,
+          isbn: "978-9999999999",
+        },
+        images: [
+          {
+            filename: "folk_tales.jpg",
+            originalName: "folk_tales.jpg",
+            path: "/images/folk_tales.jpg",
+            url: "https://example.com/images/folk_tales.jpg",
+            isPrimary: true,
+          },
+        ],
+        tags: ["folk tales", "nepali", "literature", "stories"],
+        status: "available",
+      },
+      {
+        name: "Yoga Mat",
+        description:
+          "Eco-friendly non-slip yoga mat for all types of yoga practice",
+        category: "Sports",
+        subcategory: "Yoga",
+        price: 1200,
+        currency: "NPR",
+        vendorId: vendorUsers[1]._id, // Trekking Gear Nepal
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Kathmandu",
+            stock: 60,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          material: "Natural Rubber",
+          color: "Purple",
+          dimensions: {
+            length: 173,
+            width: 61,
+            unit: "cm",
+          },
+          brand: "Nepal Sports Gear",
+        },
+        images: [
+          {
+            filename: "yoga_mat.jpg",
+            originalName: "yoga_mat.jpg",
+            path: "/images/yoga_mat.jpg",
+            url: "https://example.com/images/yoga_mat.jpg",
+            isPrimary: true,
+          },
+        ],
+        tags: ["yoga", "fitness", "eco-friendly", "sports"],
+        status: "available",
+      },
+      {
+        name: "Handwoven Basket Set",
+        description:
+          "Set of 3 handwoven baskets made from locally sourced materials",
+        category: "Home & Garden",
+        subcategory: "Storage",
+        price: 1800,
+        currency: "NPR",
+        vendorId: vendorUsers[2]._id, // Nepal Handicrafts
+        availability: [
+          {
+            province: "Koshi",
+            district: "Biratnagar",
+            stock: 35,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          material: "Bamboo",
+          color: "Natural",
+          setSize: 3,
+          brand: "Nepal Handicrafts",
+        },
+        images: [
+          {
+            filename: "basket_set.jpg",
+            originalName: "basket_set.jpg",
+            path: "/images/basket_set.jpg",
+            url: "https://example.com/images/basket_set.jpg",
+            isPrimary: true,
+          },
+        ],
+        tags: ["handwoven", "baskets", "storage", "eco-friendly"],
+        status: "available",
+      },
+      {
+        name: "Organic Honey",
+        description: "Pure organic honey harvested from Himalayan wildflowers",
+        category: "Food & Beverages",
+        subcategory: "Natural Products",
+        price: 600,
+        currency: "NPR",
+        vendorId: vendorUsers[3]._id, // Organic Farm Nepal
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Chitwan",
+            stock: 80,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          weight: "500g",
+          organic: true,
+          source: "Himalayan Wildflowers",
+          brand: "Organic Farm Nepal",
+        },
+        images: [
+          {
+            filename: "organic_honey.jpg",
+            originalName: "organic_honey.jpg",
+            path: "/images/organic_honey.jpg",
+            url: "https://example.com/images/organic_honey.jpg",
+            isPrimary: true,
+          },
+        ],
+        tags: ["organic", "honey", "natural", "himalayan"],
+        status: "available",
+      },
+      {
+        name: "Smartphone Case",
+        description:
+          "Durable protective case for smartphones with shock absorption",
+        category: "Electronics",
+        subcategory: "Mobile Phones",
+        price: 800,
+        currency: "NPR",
+        vendorId: vendorUsers[4]._id, // Tech Solutions Nepal
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Lalitpur",
+            stock: 150,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          material: "TPU + PC",
+          color: "Black",
+          compatibility: "Universal",
+          brand: "Tech Solutions",
+        },
+        images: [
+          {
+            filename: "phone_case.jpg",
+            originalName: "phone_case.jpg",
+            path: "/images/phone_case.jpg",
+            url: "https://example.com/images/phone_case.jpg",
+            isPrimary: true,
+          },
+        ],
+        tags: ["smartphone", "case", "protection", "accessories"],
+        status: "available",
+      },
+    ];
+
+    // Create products
+    const createdProducts = [];
+    for (const product of allProducts) {
+      const createdProduct = await Product.create(product);
+      createdProducts.push(createdProduct);
+      console.log(`📦 Created product: ${product.name}`);
+    }
+
+    // Create sample conversations
     const conversations = [];
 
-    // Create conversation between Kathmandu Center and Nepal Spices & Herbs
+    // Conversation 1: Kathmandu Center with Nepal Spices
     const conversation1 = await Conversation.create({
-      participants: [
-        {
-          user: centerUsers[0]._id,
-          role: "CENTER",
-        },
-        {
-          user: vendorUsers[0]._id,
-          role: "VENDOR",
-        },
-      ],
-      conversationType: "VENDOR_CENTER",
-      title: "Spices & Herbs Order Discussion",
-      description:
-        "Discussion about spice orders between Kathmandu Center and Nepal Spices & Herbs",
+      participants: [centerUsers[0]._id, vendorUsers[0]._id],
+      type: "VENDOR_CENTER",
+      title: "Spice Order Discussion",
+      lastMessage: "Thank you for the quick response!",
+      lastMessageAt: new Date(),
       isActive: true,
     });
     conversations.push(conversation1);
-    console.log(
-      "💬 Created conversation between Kathmandu Center and Nepal Spices & Herbs"
-    );
 
-    // Create conversation between Pokhara Center and Trekking Gear Nepal
+    // Conversation 2: Pokhara Center with Trekking Gear Nepal
     const conversation2 = await Conversation.create({
-      participants: [
-        {
-          user: centerUsers[1]._id,
-          role: "CENTER",
-        },
-        {
-          user: vendorUsers[1]._id,
-          role: "VENDOR",
-        },
-      ],
-      conversationType: "VENDOR_CENTER",
-      title: "Trekking Gear Order Discussion",
-      description:
-        "Discussion about trekking gear orders between Pokhara Center and Trekking Gear Nepal",
+      participants: [centerUsers[1]._id, vendorUsers[1]._id],
+      type: "VENDOR_CENTER",
+      title: "Trekking Equipment Inquiry",
+      lastMessage: "We can provide bulk discount for orders above 50 units.",
+      lastMessageAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
       isActive: true,
     });
     conversations.push(conversation2);
-    console.log(
-      "💬 Created conversation between Pokhara Center and Trekking Gear Nepal"
-    );
 
-    // Create conversation between Biratnagar Center and Nepal Handicrafts
-    const conversation3 = await Conversation.create({
-      participants: [
-        {
-          user: centerUsers[2]._id,
-          role: "CENTER",
-        },
-        {
-          user: vendorUsers[2]._id,
-          role: "VENDOR",
-        },
-      ],
-      conversationType: "VENDOR_CENTER",
-      title: "Handicrafts Order Discussion",
-      description:
-        "Discussion about handicrafts orders between Biratnagar Center and Nepal Handicrafts",
-      isActive: true,
-    });
-    conversations.push(conversation3);
-    console.log(
-      "💬 Created conversation between Biratnagar Center and Nepal Handicrafts"
-    );
+    console.log(`💬 Created ${conversations.length} sample conversations`);
 
-    // Create sample messages for conversations
+    // Create sample messages
     const messages = [];
 
-    // Messages for conversation 1 (Kathmandu Center - Nepal Spices & Herbs)
+    // Messages for conversation 1
     const message1 = await Message.create({
-      conversationId: conversation1._id.toString(),
-      sender: centerUsers[0]._id,
-      receiver: vendorUsers[0]._id,
-      content:
-        "Hello! We are interested in placing an order for your premium spices. Could you please share your latest catalog?",
+      conversationId: conversation1._id,
+      senderId: centerUsers[0]._id,
+      receiverId: vendorUsers[0]._id,
+      content: "Hello, we're interested in ordering turmeric powder in bulk.",
       messageType: "text",
+      status: "delivered",
+      readBy: [centerUsers[0]._id, vendorUsers[0]._id],
     });
     messages.push(message1);
 
     const message2 = await Message.create({
-      conversationId: conversation1._id.toString(),
-      sender: vendorUsers[0]._id,
-      receiver: centerUsers[0]._id,
+      conversationId: conversation1._id,
+      senderId: vendorUsers[0]._id,
+      receiverId: centerUsers[0]._id,
       content:
-        "Hello! Thank you for your interest. Please find attached our latest catalog with all our premium spices.",
+        "Thank you for your interest! We can offer competitive prices for bulk orders. How many units are you looking for?",
       messageType: "text",
-      attachments: [
-        {
-          filename: "spices_catalog.pdf",
-          originalName: "spices_catalog.pdf",
-          path: "/uploads/spices_catalog.pdf",
-          size: 1024000,
-          mimeType: "application/pdf",
-        },
-      ],
+      status: "delivered",
+      readBy: [centerUsers[0]._id, vendorUsers[0]._id],
     });
     messages.push(message2);
 
     const message3 = await Message.create({
-      conversationId: conversation1._id.toString(),
-      sender: centerUsers[0]._id,
-      receiver: vendorUsers[0]._id,
-      content:
-        "Thank you for sharing the catalog. We are interested in ordering 50kg of Turmeric Powder and 30kg of Cumin Seeds.",
+      conversationId: conversation1._id,
+      senderId: centerUsers[0]._id,
+      receiverId: vendorUsers[0]._id,
+      content: "We need around 100 units. What's your best price?",
       messageType: "text",
+      status: "delivered",
+      readBy: [centerUsers[0]._id, vendorUsers[0]._id],
     });
     messages.push(message3);
 
-    // Update conversation with last message
-    conversation1.lastMessage = {
-      content: message3.content,
-      sender: centerUsers[0]._id,
-      timestamp: message3.createdAt,
-      messageType: message3.messageType,
-    };
-    conversation1.metadata.totalMessages = 3;
-    conversation1.metadata.lastActivityAt = message3.createdAt;
-    await conversation1.save();
-
-    // Messages for conversation 2 (Pokhara Center - Trekking Gear Nepal)
     const message4 = await Message.create({
-      conversationId: conversation2._id.toString(),
-      sender: centerUsers[1]._id,
-      receiver: vendorUsers[1]._id,
+      conversationId: conversation1._id,
+      senderId: vendorUsers[0]._id,
+      receiverId: centerUsers[0]._id,
       content:
-        "Hi there! We'd like to know about your trekking backpack options.",
+        "For 100 units, we can offer NPR 200 per unit. This includes free delivery within Kathmandu.",
       messageType: "text",
+      status: "delivered",
+      readBy: [centerUsers[0]._id, vendorUsers[0]._id],
     });
     messages.push(message4);
 
     const message5 = await Message.create({
-      conversationId: conversation2._id.toString(),
-      sender: vendorUsers[1]._id,
-      receiver: centerUsers[1]._id,
-      content:
-        "Sure! We have various backpacks ranging from 30L to 80L capacity. Would you like to see our selection?",
+      conversationId: conversation1._id,
+      senderId: centerUsers[0]._id,
+      receiverId: vendorUsers[0]._id,
+      content: "That sounds great! Thank you for the quick response!",
       messageType: "text",
+      status: "delivered",
+      readBy: [centerUsers[0]._id, vendorUsers[0]._id],
     });
     messages.push(message5);
 
-    // Update conversation with last message
-    conversation2.lastMessage = {
-      content: message5.content,
-      sender: vendorUsers[1]._id,
-      timestamp: message5.createdAt,
-      messageType: message5.messageType,
-    };
-    conversation2.metadata.totalMessages = 2;
-    conversation2.metadata.lastActivityAt = message5.createdAt;
-    await conversation2.save();
+    // Messages for conversation 2
+    const message6 = await Message.create({
+      conversationId: conversation2._id,
+      senderId: centerUsers[1]._id,
+      receiverId: vendorUsers[1]._id,
+      content:
+        "Hi, we're looking for trekking backpacks for our distribution center.",
+      messageType: "text",
+      status: "delivered",
+      readBy: [centerUsers[1]._id, vendorUsers[1]._id],
+    });
+    messages.push(message6);
+
+    const message7 = await Message.create({
+      conversationId: conversation2._id,
+      senderId: vendorUsers[1]._id,
+      receiverId: centerUsers[1]._id,
+      content:
+        "Hello! We have various trekking backpacks available. What capacity and quantity are you interested in?",
+      messageType: "text",
+      status: "delivered",
+      readBy: [centerUsers[1]._id, vendorUsers[1]._id],
+    });
+    messages.push(message7);
+
+    const message8 = await Message.create({
+      conversationId: conversation2._id,
+      senderId: centerUsers[1]._id,
+      receiverId: vendorUsers[1]._id,
+      content: "We need 40L capacity backpacks, around 50 units.",
+      messageType: "text",
+      status: "delivered",
+      readBy: [centerUsers[1]._id, vendorUsers[1]._id],
+    });
+    messages.push(message8);
+
+    const message9 = await Message.create({
+      conversationId: conversation2._id,
+      senderId: vendorUsers[1]._id,
+      receiverId: centerUsers[1]._id,
+      content:
+        "Perfect! We have 40L trekking backpacks in stock. We can provide bulk discount for orders above 50 units.",
+      messageType: "text",
+      status: "delivered",
+      readBy: [centerUsers[1]._id, vendorUsers[1]._id],
+    });
+    messages.push(message9);
+
+    console.log(`📨 Created ${messages.length} sample messages`);
 
     // Create sample notifications
     const notifications = [];
 
-    // Notification for admin about new vendor application
+    // Notification for vendor about new message
     const notification1 = await Notification.create({
-      recipient: adminUser._id,
-      sender: vendorUsers[0]._id,
-      type: "VENDOR_APPLICATION",
-      title: "New Vendor Application",
-      message: "Nepal Spices & Herbs Co. has applied to join the platform.",
-      relatedId: vendorUsers[0]._id,
-      onModel: "User",
+      userId: vendorUsers[0]._id,
+      title: "New Message",
+      message: "You have a new message from Kathmandu Distribution Center",
+      type: "message",
+      relatedId: conversation1._id,
+      isRead: false,
     });
     notifications.push(notification1);
 
-    // Notification for admin about new center application
+    // Notification for center about new message
     const notification2 = await Notification.create({
-      recipient: adminUser._id,
-      sender: centerUsers[0]._id,
-      type: "CENTER_APPLICATION",
-      title: "New Center Application",
-      message:
-        "Kathmandu Distribution Center has applied to join the platform.",
-      relatedId: centerUsers[0]._id,
-      onModel: "User",
+      userId: centerUsers[1]._id,
+      title: "New Message",
+      message: "You have a new message from Trekking Gear Nepal",
+      type: "message",
+      relatedId: conversation2._id,
+      isRead: false,
     });
     notifications.push(notification2);
 
-    // Notification for center about order status update
+    // System notification for admin
     const notification3 = await Notification.create({
-      recipient: centerUsers[0]._id,
-      sender: vendorUsers[0]._id,
-      type: "ORDER_UPDATE",
-      title: "Order Status Update",
-      message:
-        "Your order for spices has been confirmed and is now in processing.",
-      relatedId: null, // Will be set when order is created
-      onModel: null,
+      userId: adminUser._id,
+      title: "System Update",
+      message: "Database has been successfully seeded with sample data",
+      type: "system",
+      isRead: false,
     });
     notifications.push(notification3);
 
     console.log(`🔔 Created ${notifications.length} sample notifications`);
 
-    // Create sample products for vendors
-    const products = [];
-
-    // Products for Nepal Spices & Herbs (using valid category)
-    const product1 = await Product.create({
-      name: "Premium Turmeric Powder",
-      description:
-        "High-quality turmeric powder sourced from organic farms in Nepal",
-      category: "Health & Beauty", // Using valid category
-      subcategory: "Turmeric",
-      price: 500,
-      currency: "NPR",
-      vendorId: vendorUsers[0]._id,
-      availability: [
-        {
-          province: "Bagmati",
-          district: "Kathmandu",
-          stock: 100,
-          reservedStock: 0,
-        },
-        {
-          province: "Gandaki",
-          district: "Pokhara",
-          stock: 50,
-          reservedStock: 0,
-        },
-      ],
-      specifications: {
-        weight: {
-          value: 1000,
-          unit: "g",
-        },
-        color: "Golden Yellow",
-        brand: "Nepal Spices",
-        warranty: {
-          duration: 12,
-          unit: "months",
-          terms: "12-month shelf life from manufacturing date",
-        },
-      },
-      images: [
-        {
-          filename: "turmeric_powder.jpg",
-          originalName: "turmeric_powder.jpg",
-          path: "/images/turmeric_powder.jpg",
-          url: "https://example.com/images/turmeric_powder.jpg",
-          isPrimary: true,
-        },
-      ],
-      tags: ["organic", "premium", "spice"],
-      status: "available",
-    });
-    products.push(product1);
-
-    const product2 = await Product.create({
-      name: "Cumin Seeds",
-      description: "Freshly ground cumin seeds with rich aroma and flavor",
-      category: "Health & Beauty", // Using valid category
-      subcategory: "Cumin",
-      price: 300,
-      currency: "NPR",
-      vendorId: vendorUsers[0]._id,
-      availability: [
-        {
-          province: "Bagmati",
-          district: "Kathmandu",
-          stock: 150,
-          reservedStock: 0,
-        },
-      ],
-      specifications: {
-        weight: {
-          value: 500,
-          unit: "g",
-        },
-        color: "Dark Brown",
-        brand: "Nepal Spices",
-        warranty: {
-          duration: 12,
-          unit: "months",
-          terms: "12-month shelf life from manufacturing date",
-        },
-      },
-      images: [
-        {
-          filename: "cumin_seeds.jpg",
-          originalName: "cumin_seeds.jpg",
-          path: "/images/cumin_seeds.jpg",
-          url: "https://example.com/images/cumin_seeds.jpg",
-          isPrimary: true,
-        },
-      ],
-      tags: ["organic", "spice", "seasoning"],
-      status: "available",
-    });
-    products.push(product2);
-
-    // Products for Trekking Gear Nepal (using valid category)
-    const product3 = await Product.create({
-      name: "Trekking Backpack 40L",
-      description:
-        "Durable trekking backpack with multiple compartments and comfortable straps",
-      category: "Sports", // Using valid category
-      subcategory: "Backpacks",
-      price: 2500,
-      currency: "NPR",
-      vendorId: vendorUsers[1]._id,
-      availability: [
-        {
-          province: "Gandaki",
-          district: "Pokhara",
-          stock: 20,
-          reservedStock: 0,
-        },
-      ],
-      specifications: {
-        dimensions: {
-          length: 40,
-          width: 25,
-          height: 15,
-          unit: "cm",
-        },
-        weight: {
-          value: 1200,
-          unit: "g",
-        },
-        color: "Black",
-        material: "Water-resistant nylon",
-        brand: "Trekking Gear Nepal",
-        warranty: {
-          duration: 24,
-          unit: "months",
-          terms: "2-year warranty on stitching and zippers",
-        },
-      },
-      images: [
-        {
-          filename: "trekking_backpack.jpg",
-          originalName: "trekking_backpack.jpg",
-          path: "/images/trekking_backpack.jpg",
-          url: "https://example.com/images/trekking_backpack.jpg",
-          isPrimary: true,
-        },
-      ],
-      tags: ["trekking", "outdoor", "backpack"],
-      status: "available",
-    });
-    products.push(product3);
-
-    // Products for Nepal Handicrafts (using valid category)
-    const product4 = await Product.create({
-      name: "Handwoven Thangka Painting",
-      description: "Authentic handwoven thangka painting from Tibet",
-      category: "Accessories", // Using valid category
-      subcategory: "Art & Craft",
-      price: 15000,
-      currency: "NPR",
-      vendorId: vendorUsers[2]._id,
-      availability: [
-        {
-          province: "Koshi",
-          district: "Biratnagar",
-          stock: 5,
-          reservedStock: 0,
-        },
-      ],
-      specifications: {
-        dimensions: {
-          length: 30,
-          width: 20,
-          unit: "cm",
-        },
-        weight: {
-          value: 200,
-          unit: "g",
-        },
-        color: "Multicolor",
-        material: "Cotton and silk",
-        brand: "Nepal Handicrafts",
-        warranty: {
-          duration: 6,
-          unit: "months",
-          terms: "6-month warranty on fabric and colors",
-        },
-      },
-      images: [
-        {
-          filename: "thangka_painting.jpg",
-          originalName: "thangka_painting.jpg",
-          path: "/images/thangka_painting.jpg",
-          url: "https://example.com/images/thangka_painting.jpg",
-          isPrimary: true,
-        },
-      ],
-      tags: ["handmade", "art", "tibetan"],
-      status: "available",
-    });
-    products.push(product4);
-
-    console.log(`📦 Created ${products.length} sample products`);
-
     // Create sample orders
     const orders = [];
 
-    // Order from Kathmandu Center to Nepal Spices & Herbs
+    // Order from Kathmandu Center to Nepal Spices
     const order1 = await Order.create({
       centerId: centerUsers[0]._id,
       vendorId: vendorUsers[0]._id,
       items: [
         {
-          productId: product1._id,
-          productName: "Premium Turmeric Powder",
+          productId: createdProducts[0]._id, // Organic Turmeric Powder
+          productName: "Organic Turmeric Powder",
           quantity: 50,
-          unitPrice: 500,
-          totalPrice: 25000,
+          unitPrice: 250,
+          totalPrice: 12500,
           specifications: {
-            color: "Golden Yellow",
-            size: "1000g",
+            weight: "500g",
+            organic: true,
           },
         },
         {
-          productId: product2._id,
-          productName: "Cumin Seeds",
-          quantity: 30,
-          unitPrice: 300,
-          totalPrice: 9000,
+          productId: createdProducts[1]._id, // Himalayan Black Tea
+          productName: "Himalayan Black Tea",
+          quantity: 20,
+          unitPrice: 800,
+          totalPrice: 16000,
           specifications: {
-            color: "Dark Brown",
-            size: "500g",
+            weight: "250g",
+            type: "Black Tea",
           },
         },
       ],
       orderSummary: {
-        subtotal: 34000,
+        subtotal: 28500,
         tax: {
           rate: 13,
-          amount: 4420,
+          amount: 3705,
         },
         shipping: {
           method: "Standard",
@@ -666,38 +988,36 @@ const seedDatabase = async () => {
         discount: {
           type: "percentage",
           value: 5,
-          amount: 1700,
+          amount: 1425,
         },
-        totalAmount: 37220,
+        totalAmount: 31280,
       },
       status: "CONFIRMED",
       deliveryDetails: {
         expectedDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         address: {
-          street: "123 Main Street",
+          street: "123 Distribution Street",
           city: "Kathmandu",
           state: "Bagmati",
           pincode: "44600",
           country: "Nepal",
         },
-        instructions: "Deliver to the main office",
+        instructions: "Please deliver during business hours",
       },
       payment: {
         method: "Bank Transfer",
-        status: "COMPLETED",
-        transactionId: "BANK123456789",
-        paidAmount: 37220,
+        status: "PAID",
+        transactionId: "TXN123456789",
+        paidAmount: 31280,
         paidDate: new Date(),
         dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
       priority: "HIGH",
-      tags: ["spices", "premium"],
-      notes: "Special order for festival season",
+      tags: ["spices", "organic", "bulk"],
+      notes: "First order from this center",
     });
     orders.push(order1);
-    console.log(
-      "📦 Created order from Kathmandu Center to Nepal Spices & Herbs"
-    );
+    console.log("📦 Created order from Kathmandu Center to Nepal Spices");
 
     // Update conversation with order reference
     conversation1.orderReference = order1._id;
@@ -709,7 +1029,7 @@ const seedDatabase = async () => {
       vendorId: vendorUsers[1]._id,
       items: [
         {
-          productId: product3._id,
+          productId: createdProducts[2]._id, // Trekking Backpack 40L
           productName: "Trekking Backpack 40L",
           quantity: 10,
           unitPrice: 2500,
@@ -770,7 +1090,51 @@ const seedDatabase = async () => {
 
     console.log(`📦 Created ${orders.length} sample orders`);
 
-    console.log("✅ Database seeding completed successfully!");
+    // Create backup of seeded data
+    const backupData = {
+      timestamp: new Date().toISOString(),
+      users: {
+        admin: 1,
+        vendors: vendorUsers.length,
+        centers: centerUsers.length,
+      },
+      categories: createdCategories.length,
+      products: createdProducts.length,
+      conversations: conversations.length,
+      messages: messages.length,
+      notifications: notifications.length,
+      orders: orders.length,
+    };
+
+    // Save backup to file
+    const backupPath = path.join(
+      __dirname,
+      `../backups/seed_backup_${Date.now()}.json`
+    );
+    const backupDir = path.dirname(backupPath);
+
+    // Create backups directory if it doesn't exist
+    if (!fs.existsSync(backupDir)) {
+      fs.mkdirSync(backupDir, { recursive: true });
+    }
+
+    fs.writeFileSync(backupPath, JSON.stringify(backupData, null, 2));
+    console.log(`💾 Backup saved to: ${backupPath}`);
+
+    console.log("\n✅ Comprehensive database seeding completed successfully!");
+    console.log("\n📊 Seeding Summary:");
+    console.log(`   👤 Admin Users: 1`);
+    console.log(`   🏢 Distribution Centers: ${centerUsers.length}`);
+    console.log(`   🏪 Vendors: ${vendorUsers.length}`);
+    console.log(`   📂 Categories: ${createdCategories.length}`);
+    console.log(`   📦 Products: ${createdProducts.length}`);
+    console.log(`   💬 Conversations: ${conversations.length}`);
+    console.log(`   📨 Messages: ${messages.length}`);
+    console.log(`   🔔 Notifications: ${notifications.length}`);
+    console.log(`   📋 Orders: ${orders.length}`);
+    console.log(
+      "\n🎉 Your VendorRS application is now ready with comprehensive sample data!"
+    );
   } catch (error) {
     console.error("❌ Error seeding database:", error);
     console.error(error.stack);

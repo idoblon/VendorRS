@@ -19,12 +19,15 @@ import {
   Pause,
   AlertTriangle,
   X,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { ApplicationsComponent } from "./ApplicationsComponent";
 import axiosInstance from "../../utils/axios";
 import { User } from "../../types/index";
+import { MessageBox } from "../ui/MessageBox";
+import { getUnreadCount } from "../../utils/messageApi";
 
 interface AdminDashboardProps {
   user: User;
@@ -93,6 +96,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   // Add new state for vendor details modal
   const [showVendorDetails, setShowVendorDetails] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
+
+  // Add MessageBox state
+  const [isMessageBoxOpen, setIsMessageBoxOpen] = useState(false);
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
 
   // Mock data for fallback
   const mockVendors: Vendor[] = [
@@ -255,6 +262,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   useEffect(() => {
     fetchData();
     fetchNotifications();
+  }, []);
+
+  // Add useEffect to fetch unread message count
+  useEffect(() => {
+    const fetchUnreadMessageCount = async () => {
+      try {
+        const count = await getUnreadCount();
+        setUnreadMessageCount(count);
+      } catch (error) {
+        console.error("Error fetching unread message count:", error);
+      }
+    };
+
+    fetchUnreadMessageCount();
+    // Set up interval to refresh count every 30 seconds
+    const interval = setInterval(fetchUnreadMessageCount, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   // Add new handler functions for vendor and center actions
@@ -858,29 +882,49 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
       {/* Navigation Tabs */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
-            {[
-              { id: "overview", label: "Overview", icon: TrendingUp },
-              { id: "applications", label: "Applications", icon: Users },
-              { id: "vendors", label: "Vendors", icon: Store },
-              { id: "centers", label: "Centers", icon: Building },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab.id
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
-                >
-                  <Icon className="h-5 w-5" />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
+          <nav className="flex items-center justify-between">
+            <div className="flex space-x-8">
+              {[
+                { id: "overview", label: "Overview", icon: TrendingUp },
+                { id: "applications", label: "Applications", icon: Users },
+                { id: "vendors", label: "Vendors", icon: Store },
+                { id: "centers", label: "Centers", icon: Building },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm ${
+                      activeTab === tab.id
+                        ? "border-blue-500 text-blue-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Messages Button positioned next to Centers */}
+            <div className="flex items-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsMessageBoxOpen(true)}
+                className="flex items-center space-x-2 relative"
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span>Messages</span>
+                {unreadMessageCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {unreadMessageCount > 9 ? "9+" : unreadMessageCount}
+                  </span>
+                )}
+              </Button>
+            </div>
           </nav>
         </div>
       </div>
@@ -907,6 +951,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
       {showVendorModal && renderVendorModal()}
       {showCenterModal && renderCenterModal()}
       {showCommissionModal && renderCommissionModal()}
+
+      {/* MessageBox Component */}
+      <MessageBox
+        isOpen={isMessageBoxOpen}
+        onClose={() => {
+          setIsMessageBoxOpen(false);
+          // Refresh unread count when closing
+          getUnreadCount().then(setUnreadMessageCount).catch(console.error);
+        }}
+      />
     </div>
   );
 
@@ -932,26 +986,32 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
               <p className="text-sm text-blue-600 font-medium">
                 Total Registered Vendors
               </p>
-              <p className="text-3xl font-bold text-blue-900">{totalVendorsCount}</p>
+              <p className="text-3xl font-bold text-blue-900">
+                {totalVendorsCount}
+              </p>
               <p className="text-sm text-blue-600 mt-1">Active in the system</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="border rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-2">Approved Vendors</h4>
+                <h4 className="font-medium text-gray-900 mb-2">
+                  Approved Vendors
+                </h4>
                 <p className="text-xl font-bold text-green-600">
-                  {vendors.filter(v => v.status === 'APPROVED').length}
+                  {vendors.filter((v) => v.status === "APPROVED").length}
                 </p>
               </div>
               <div className="border rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-2">Pending Approval</h4>
+                <h4 className="font-medium text-gray-900 mb-2">
+                  Pending Approval
+                </h4>
                 <p className="text-xl font-bold text-yellow-600">
-                  {vendors.filter(v => v.status === 'PENDING').length}
+                  {vendors.filter((v) => v.status === "PENDING").length}
                 </p>
               </div>
               <div className="border rounded-lg p-4">
                 <h4 className="font-medium text-gray-900 mb-2">Suspended</h4>
                 <p className="text-xl font-bold text-red-600">
-                  {vendors.filter(v => v.status === 'SUSPENDED').length}
+                  {vendors.filter((v) => v.status === "SUSPENDED").length}
                 </p>
               </div>
             </div>
@@ -963,15 +1023,21 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                   className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
                 >
                   <div>
-                    <p className="font-medium text-gray-900">{vendor.businessName}</p>
+                    <p className="font-medium text-gray-900">
+                      {vendor.businessName}
+                    </p>
                     <p className="text-sm text-gray-600">{vendor.email}</p>
                   </div>
                   <div className="text-right">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      vendor.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
-                      vendor.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        vendor.status === "APPROVED"
+                          ? "bg-green-100 text-green-800"
+                          : vendor.status === "PENDING"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
                       {vendor.status}
                     </span>
                   </div>
@@ -1005,31 +1071,57 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
               <p className="text-sm text-green-600 font-medium">
                 Active Distribution Centers
               </p>
-              <p className="text-3xl font-bold text-green-900">{activeCentersCount}</p>
-              <p className="text-sm text-green-600 mt-1">Currently operational</p>
+              <p className="text-3xl font-bold text-green-900">
+                {activeCentersCount}
+              </p>
+              <p className="text-sm text-green-600 mt-1">
+                Currently operational
+              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="border rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-2">Active Centers</h4>
+                <h4 className="font-medium text-gray-900 mb-2">
+                  Active Centers
+                </h4>
                 <p className="text-xl font-bold text-green-600">
-                  {distributionCenters.filter(c => c.status === 'active').length}
+                  {
+                    distributionCenters.filter((c) => c.status === "active")
+                      .length
+                  }
                 </p>
               </div>
               <div className="border rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-2">Under Maintenance</h4>
+                <h4 className="font-medium text-gray-900 mb-2">
+                  Under Maintenance
+                </h4>
                 <p className="text-xl font-bold text-yellow-600">
-                  {distributionCenters.filter(c => c.status === 'maintenance').length}
+                  {
+                    distributionCenters.filter(
+                      (c) => c.status === "maintenance"
+                    ).length
+                  }
                 </p>
               </div>
               <div className="border rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-2">Coverage Areas</h4>
+                <h4 className="font-medium text-gray-900 mb-2">
+                  Coverage Areas
+                </h4>
                 <p className="text-xl font-bold text-blue-600">
-                  {new Set(distributionCenters.map(c => c.location.split(',')[1]?.trim())).size} Provinces
+                  {
+                    new Set(
+                      distributionCenters.map((c) =>
+                        c.location.split(",")[1]?.trim()
+                      )
+                    ).size
+                  }{" "}
+                  Provinces
                 </p>
               </div>
             </div>
             <div className="space-y-3">
-              <h4 className="font-medium text-gray-900">Distribution Centers</h4>
+              <h4 className="font-medium text-gray-900">
+                Distribution Centers
+              </h4>
               {distributionCenters.map((center, index) => (
                 <div
                   key={index}
@@ -1043,10 +1135,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      center.status === 'active' ? 'bg-green-100 text-green-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        center.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
                       <CheckCircle className="h-3 w-3 mr-1" />
                       {center.status}
                     </span>
@@ -1081,29 +1176,45 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
               <p className="text-sm text-purple-600 font-medium">
                 Total Commission Collected
               </p>
-              <p className="text-3xl font-bold text-purple-900">Rs. {totalCommission.toLocaleString()}</p>
-              <p className="text-sm text-purple-600 mt-1">From approved vendors</p>
+              <p className="text-3xl font-bold text-purple-900">
+                Rs. {totalCommission.toLocaleString()}
+              </p>
+              <p className="text-sm text-purple-600 mt-1">
+                From approved vendors
+              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="border rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-2">Commission Rate</h4>
+                <h4 className="font-medium text-gray-900 mb-2">
+                  Commission Rate
+                </h4>
                 <p className="text-xl font-bold text-gray-900">5%</p>
               </div>
               <div className="border rounded-lg p-4">
                 <h4 className="font-medium text-gray-900 mb-2">This Month</h4>
-                <p className="text-xl font-bold text-gray-900">Rs. {Math.round(totalCommission * 0.15).toLocaleString()}</p>
+                <p className="text-xl font-bold text-gray-900">
+                  Rs. {Math.round(totalCommission * 0.15).toLocaleString()}
+                </p>
               </div>
               <div className="border rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-2">Active Contributors</h4>
+                <h4 className="font-medium text-gray-900 mb-2">
+                  Active Contributors
+                </h4>
                 <p className="text-xl font-bold text-gray-900">
-                  {vendors.filter(v => v.status === 'APPROVED' && v.commission > 0).length}
+                  {
+                    vendors.filter(
+                      (v) => v.status === "APPROVED" && v.commission > 0
+                    ).length
+                  }
                 </p>
               </div>
             </div>
             <div className="space-y-3">
-              <h4 className="font-medium text-gray-900">Top Contributing Vendors</h4>
+              <h4 className="font-medium text-gray-900">
+                Top Contributing Vendors
+              </h4>
               {vendors
-                .filter(v => v.commission > 0)
+                .filter((v) => v.commission > 0)
                 .sort((a, b) => (b.commission || 0) - (a.commission || 0))
                 .slice(0, 5)
                 .map((vendor, index) => (
@@ -1112,16 +1223,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                     className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
                   >
                     <div>
-                      <p className="font-medium text-gray-900">{vendor.businessName}</p>
+                      <p className="font-medium text-gray-900">
+                        {vendor.businessName}
+                      </p>
                       <p className="text-sm text-gray-600">{vendor.email}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-purple-600">Rs. {vendor.commission?.toLocaleString() || 0}</p>
+                      <p className="font-bold text-purple-600">
+                        Rs. {vendor.commission?.toLocaleString() || 0}
+                      </p>
                       <p className="text-sm text-gray-500">Commission paid</p>
                     </div>
                   </div>
-                ))
-              }
+                ))}
             </div>
           </div>
         </div>

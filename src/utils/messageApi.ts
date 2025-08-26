@@ -150,3 +150,21 @@ export const getUnreadCount = async (): Promise<number> => {
     throw error;
   }
 };
+
+// Start a new conversation by sending the first message
+export const startConversation = async (receiverId: string, initialMessage: string): Promise<{ message: Message; conversationId: string }> => {
+  try {
+    const response = await axiosInstance.post('/api/messages', {
+      receiver: receiverId,
+      content: initialMessage,
+      messageType: 'text'
+    });
+    return {
+      message: response.data.data.message,
+      conversationId: response.data.data.conversationId
+    };
+  } catch (error) {
+    console.error('Error starting conversation:', error);
+    throw error;
+  }
+};

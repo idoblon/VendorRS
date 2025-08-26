@@ -18,6 +18,7 @@ import {
   sendMessage,
   markConversationAsRead,
   getUnreadCount,
+  startConversation,
   type Conversation as ConversationType,
   type Message as MessageType,
 } from "../../utils/messageApi";
@@ -207,11 +208,10 @@ export function MessageBox({ isOpen, onClose }: MessageBoxProps) {
             {filteredVendors.map((vendor) => (
               <div
                 key={vendor._id}
-                className="flex items-center gap-2 p-2 hover:bg-white rounded-lg cursor-pointer"
-                onClick={() => {
-                  // Handle creating new conversation with vendor
-                  setShowNewConversation(false);
-                }}
+                className="flex items-center gap-2 p-2 hover:bg-white rounded-lg cursor-pointer transition-colors"
+                onClick={() =>
+                  handleStartConversation(vendor._id, vendor.name, "vendor")
+                }
               >
                 <Store className="h-4 w-4 text-green-600" />
                 <div className="flex-1 min-w-0">
@@ -221,17 +221,19 @@ export function MessageBox({ isOpen, onClose }: MessageBoxProps) {
                   <p className="text-xs text-gray-500 truncate">
                     {vendor.email}
                   </p>
+                  <p className="text-xs text-blue-600 truncate">
+                    {vendor.businessType || "Vendor"} • {vendor.status}
+                  </p>
                 </div>
               </div>
             ))}
             {filteredCenters.map((center) => (
               <div
                 key={center._id}
-                className="flex items-center gap-2 p-2 hover:bg-white rounded-lg cursor-pointer"
-                onClick={() => {
-                  // Handle creating new conversation with center
-                  setShowNewConversation(false);
-                }}
+                className="flex items-center gap-2 p-2 hover:bg-white rounded-lg cursor-pointer transition-colors"
+                onClick={() =>
+                  handleStartConversation(center._id, center.name, "center")
+                }
               >
                 <Building className="h-4 w-4 text-blue-600" />
                 <div className="flex-1 min-w-0">
@@ -241,9 +243,22 @@ export function MessageBox({ isOpen, onClose }: MessageBoxProps) {
                   <p className="text-xs text-gray-500 truncate">
                     {center.email}
                   </p>
+                  <p className="text-xs text-blue-600 truncate">
+                    {center.district}, {center.province} • {center.status}
+                  </p>
                 </div>
               </div>
             ))}
+            {filteredVendors.length === 0 &&
+              filteredCenters.length === 0 &&
+              searchTerm && (
+                <div className="p-4 text-center text-gray-500">
+                  <Search className="h-6 w-6 mx-auto mb-2 text-gray-300" />
+                  <p className="text-sm">
+                    No users found matching "{searchTerm}"
+                  </p>
+                </div>
+              )}
           </div>
         </div>
       )}
@@ -375,3 +390,29 @@ export function MessageBox({ isOpen, onClose }: MessageBoxProps) {
     </div>
   );
 }
+
+const handleStartConversation = async (
+  userId: string,
+  userName: string,
+  userType: "vendor" | "center"
+) => {
+  try {
+    const initialMessage = `Hello ${userName}, I'd like to start a conversation with you.`;
+    const result = await startConversation(userId, initialMessage);
+
+    // Refresh conversations to show the new one
+    await fetchConversations();
+
+    // Select the new conversation
+    setSelectedConversation(result.conversationId);
+
+    // Close the new conversation panel
+    setShowNewConversation(false);
+
+    // Clear search
+    setSearchTerm("");
+  } catch (error) {
+    console.error("Error starting conversation:", error);
+    // You might want to show an error message to the user
+  }
+};

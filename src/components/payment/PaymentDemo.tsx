@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { PaymentPage } from './PaymentPage';
-import { Button } from '../ui/Button';
-import { Card } from '../ui/Card';
+import React, { useState } from "react";
+import { PaymentPage } from "./PaymentPage";
+import { Button } from "../ui/Button";
+import { Card } from "../ui/Card";
 
 export function PaymentDemo() {
   const [showPayment, setShowPayment] = useState(false);
@@ -28,10 +28,10 @@ export function PaymentDemo() {
 
   if (showPayment) {
     return (
-      <PaymentPage 
-        amount={amount} 
-        onBack={handleBack} 
-        onComplete={handleComplete} 
+      <PaymentPage
+        amount={amount}
+        onBack={handleBack}
+        onComplete={handleComplete}
       />
     );
   }
@@ -41,13 +41,13 @@ export function PaymentDemo() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center">
-            <img 
-              src="/vrslogo.png" 
-              alt="Vendor Request System Logo" 
+            <img
+              src="/image/vrslogo.png"
+              alt="Vendor Request System Logo"
               className="w-20 h-20 object-contain"
               onError={(e) => {
-                console.log('Logo failed to load');
-                e.currentTarget.style.display = 'none';
+                console.log("Logo failed to load");
+                e.currentTarget.style.display = "none";
               }}
             />
           </div>
@@ -62,11 +62,11 @@ export function PaymentDemo() {
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
                 Thank You!
               </h2>
-              
+
               <p className="text-gray-600 mb-6">
                 Your payment has been processed successfully.
               </p>
-              
+
               <Button
                 onClick={handleReset}
                 className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0 py-3 text-base font-medium"
@@ -79,7 +79,7 @@ export function PaymentDemo() {
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 Test Payment
               </h2>
-              
+
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Payment Amount (रू)
@@ -87,15 +87,19 @@ export function PaymentDemo() {
                 <input
                   type="number"
                   value={amount}
-                  onChange={(e) => setAmount(Math.max(1, parseInt(e.target.value) || 0))}
+                  onChange={(e) =>
+                    setAmount(Math.max(1, parseInt(e.target.value) || 0))
+                  }
                   className="w-full px-4 py-3 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-all"
                   min="1"
                   step="1"
                 />
               </div>
-              
+
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
-                <h3 className="font-semibold text-blue-900 mb-2">Test Card Information</h3>
+                <h3 className="font-semibold text-blue-900 mb-2">
+                  Test Card Information
+                </h3>
                 <ul className="text-sm text-blue-800 space-y-1">
                   <li>• Card Number: 4242 4242 4242 4242</li>
                   <li>• Expiry: Any future date</li>
@@ -103,7 +107,7 @@ export function PaymentDemo() {
                   <li>• ZIP: Any 5 digits</li>
                 </ul>
               </div>
-              
+
               <Button
                 onClick={handleStartPayment}
                 className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0 py-3 text-base font-medium"

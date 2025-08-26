@@ -69,7 +69,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center">
             <img
-              src="/vrslogo.png"
+              src="/image/vrslogo.png"
               alt="Vendor Request System Logo"
               className="w-20 h-20 object-contain"
               onError={handleImageError}

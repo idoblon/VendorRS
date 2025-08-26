@@ -172,7 +172,7 @@ export default function CenterSignupPage({
       setLoadingCategories(true);
       try {
         const categoriesData = await getCategories();
-        setCategories(categoriesData.map(cat => cat.name));
+        setCategories(categoriesData.map((cat) => cat.name));
       } catch (error) {
         console.error("Failed to load categories:", error);
       } finally {
@@ -220,7 +220,8 @@ export default function CenterSignupPage({
     if (!formData.password.trim()) newErrors.push("Password is required");
     if (!formData.province) newErrors.push("Province is required");
     if (!formData.district) newErrors.push("District is required");
-    if (formData.categories.length === 0) newErrors.push("At least one category must be selected");
+    if (formData.categories.length === 0)
+      newErrors.push("At least one category must be selected");
     if (!formData.contactPerson1.name.trim())
       newErrors.push("Contact person name is required");
     if (!formData.contactPerson1.phone.trim())
@@ -276,7 +277,10 @@ export default function CenterSignupPage({
       formDataToSubmit.append("address", formData.district);
       formDataToSubmit.append("district", formData.district);
       formDataToSubmit.append("province", formData.province);
-      formDataToSubmit.append("categories", JSON.stringify(formData.categories));
+      formDataToSubmit.append(
+        "categories",
+        JSON.stringify(formData.categories)
+      );
 
       // Append contact persons
       formDataToSubmit.append(
@@ -369,14 +373,14 @@ export default function CenterSignupPage({
   };
 
   const handleCategoryChange = (category: string) => {
-    setFormData(prevData => {
+    setFormData((prevData) => {
       const newCategories = prevData.categories.includes(category)
-        ? prevData.categories.filter(c => c !== category)
+        ? prevData.categories.filter((c) => c !== category)
         : [...prevData.categories, category];
-      
+
       return {
         ...prevData,
-        categories: newCategories
+        categories: newCategories,
       };
     });
   };
@@ -488,7 +492,7 @@ export default function CenterSignupPage({
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <img
-              src="/vrslogo.png"
+              src="/image/vrslogo.png"
               alt="Center Request System Logo"
               className="w-20 h-20 object-contain"
               onError={(e) => {
@@ -585,7 +589,9 @@ export default function CenterSignupPage({
                   <input
                     type="text"
                     value={formData.panNumber}
-                    onChange={(e) => handleInputChange("panNumber", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("panNumber", e.target.value)
+                    }
                     required
                     placeholder="Enter PAN number"
                     className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
@@ -792,16 +798,21 @@ export default function CenterSignupPage({
                     Select Categories *
                   </label>
                   <p className="text-sm text-gray-600 mb-3">
-                    Select the categories that best describe your center's products/services
+                    Select the categories that best describe your center's
+                    products/services
                   </p>
-                  
+
                   {loadingCategories ? (
                     <div className="flex items-center justify-center p-4">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500"></div>
-                      <span className="ml-2 text-gray-600">Loading categories...</span>
+                      <span className="ml-2 text-gray-600">
+                        Loading categories...
+                      </span>
                     </div>
                   ) : categories.length === 0 ? (
-                    <p className="text-gray-500 text-center py-4">No categories available</p>
+                    <p className="text-gray-500 text-center py-4">
+                      No categories available
+                    </p>
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                       {categories.map((category) => (
@@ -815,11 +826,13 @@ export default function CenterSignupPage({
                           }`}
                         >
                           <div className="flex items-center">
-                            <div className={`w-4 h-4 rounded-full border mr-2 flex items-center justify-center ${
-                              formData.categories.includes(category)
-                                ? "bg-purple-500 border-purple-500"
-                                : "border-gray-400"
-                            }`}>
+                            <div
+                              className={`w-4 h-4 rounded-full border mr-2 flex items-center justify-center ${
+                                formData.categories.includes(category)
+                                  ? "bg-purple-500 border-purple-500"
+                                  : "border-gray-400"
+                              }`}
+                            >
                               {formData.categories.includes(category) && (
                                 <div className="w-2 h-2 bg-white rounded-full"></div>
                               )}
@@ -830,10 +843,12 @@ export default function CenterSignupPage({
                       ))}
                     </div>
                   )}
-                  
+
                   {formData.categories.length > 0 && (
                     <div className="mt-4">
-                      <p className="text-sm text-gray-700 mb-2">Selected categories:</p>
+                      <p className="text-sm text-gray-700 mb-2">
+                        Selected categories:
+                      </p>
                       <div className="flex flex-wrap gap-2">
                         {formData.categories.map((category) => (
                           <span

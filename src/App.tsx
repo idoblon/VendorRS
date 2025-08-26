@@ -63,9 +63,17 @@ const App = () => {
   }, []);
 
   const handleLogin = (user: User, token: string) => {
-    // Ensure role matches our type
+    // Map backend roles to frontend roles
     if (user?.role) {
-      user.role = user.role.toLowerCase() as UserRole;
+      const roleMapping: { [key: string]: UserRole } = {
+        ADMIN: "admin",
+        VENDOR: "vendor",
+        CENTER: "user", // Map CENTER to 'user' for CenterDashboard
+      };
+
+      user.role =
+        roleMapping[user.role.toUpperCase()] ||
+        (user.role.toLowerCase() as UserRole);
     }
     setCurrentUser(user);
     localStorage.setItem("vrs_user", JSON.stringify(user));

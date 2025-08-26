@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import {
   LayoutDashboard,
   Package,
@@ -27,6 +26,7 @@ import {
   createCategory,
   deleteCategory,
 } from "../../utils/categoryApi";
+import { User as UserType } from "../../types/index";
 
 interface Product {
   id: string;
@@ -65,11 +65,29 @@ interface IncomingOrder {
   };
 }
 
-export default function CenterDashboard() {
+interface CenterDashboardProps {
+  user: UserType;
+  onLogout: () => void;
+}
+
+export default function CenterDashboard({
+  user,
+  onLogout,
+}: CenterDashboardProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    description: "",
+    price: "",
+    category: "",
+    stock: "",
+    status: "available" as const,
+    images: [""],
+  });
   const [categories, setCategories] = useState<{ _id: string; name: string }[]>(
     []
   );
@@ -77,20 +95,22 @@ export default function CenterDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Mock center profile data
+  // Use real user data instead of mock data
   const centerProfile = {
-    name: "Kathmandu Distribution Center",
-    managerName: "Rajesh Sharma",
-    email: "center@example.com",
-    phone: "+977-9801234567",
-    address: "123 Distribution Street, Kathmandu",
-    district: "Kathmandu",
-    region: "Bagmati",
-    establishedDate: "2022-03-15",
-    status: "Active",
-    capacity: "5000 kg",
-    currentOrders: 28,
-    utilization: "75%",
+    name: user.businessName || user.name || "Distribution Center",
+    managerName: user.name || "Manager",
+    email: user.email,
+    phone: user.phone || "N/A",
+    address: user.address || "N/A",
+    district: user.district || "N/A",
+    region: user.region || "N/A",
+    establishedDate: user.createdAt
+      ? new Date(user.createdAt).toLocaleDateString()
+      : "N/A",
+    status: user.status || "Active",
+    capacity: "5000 kg", // This might need to come from user data if available
+    currentOrders: 28, // This should come from actual order data
+    utilization: "75%", // This should be calculated from actual data
     documents: [
       { name: "Registration Certificate", type: "PDF Document", id: "doc1" },
       { name: "Facility Layout", type: "PDF Document", id: "doc2" },
@@ -108,7 +128,9 @@ export default function CenterDashboard() {
       category: "Food",
       stock: 50,
       status: "available",
-      images: ["/bowl-of-steamed-rice.png"],
+      images: [
+        "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-15",
       updatedDate: "2024-01-20",
     },
@@ -120,7 +142,9 @@ export default function CenterDashboard() {
       category: "Food",
       stock: 25,
       status: "available",
-      images: ["/assorted-vegetables.png"],
+      images: [
+        "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-10",
       updatedDate: "2024-01-18",
     },
@@ -132,7 +156,9 @@ export default function CenterDashboard() {
       category: "Food",
       stock: 15,
       status: "available",
-      images: ["/assorted-spices.png"],
+      images: [
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-12",
       updatedDate: "2024-01-19",
     },
@@ -144,7 +170,9 @@ export default function CenterDashboard() {
       category: "Spices",
       stock: 30,
       status: "available",
-      images: ["/turmeric-powder.png"],
+      images: [
+        "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-14",
       updatedDate: "2024-01-21",
     },
@@ -156,7 +184,9 @@ export default function CenterDashboard() {
       category: "Spices",
       stock: 20,
       status: "available",
-      images: ["/green-cardamom.png"],
+      images: [
+        "https://images.unsplash.com/photo-1599909533730-f4b6c89bf9b5?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-16",
       updatedDate: "2024-01-22",
     },
@@ -168,7 +198,9 @@ export default function CenterDashboard() {
       category: "Electronics",
       stock: 18,
       status: "available",
-      images: ["/cinnamon-bark.png"],
+      images: [
+        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-13",
       updatedDate: "2024-01-20",
     },
@@ -180,7 +212,9 @@ export default function CenterDashboard() {
       category: "Spices",
       stock: 25,
       status: "available",
-      images: ["/black-pepper-pile.png"],
+      images: [
+        "https://images.unsplash.com/photo-1599909533730-f4b6c89bf9b5?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-17",
       updatedDate: "2024-01-23",
     },
@@ -192,7 +226,9 @@ export default function CenterDashboard() {
       category: "Spices",
       stock: 35,
       status: "available",
-      images: ["/cumin-seeds.png"],
+      images: [
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-11",
       updatedDate: "2024-01-19",
     },
@@ -204,7 +240,9 @@ export default function CenterDashboard() {
       category: "Electronics",
       stock: 12,
       status: "available",
-      images: ["/portable-power-bank.png"],
+      images: [
+        "https://images.unsplash.com/photo-1609592806787-3d9c1b8b6b5e?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-18",
       updatedDate: "2024-01-24",
     },
@@ -216,7 +254,9 @@ export default function CenterDashboard() {
       category: "Electronics",
       stock: 8,
       status: "available",
-      images: ["/smartwatch-lifestyle.png"],
+      images: [
+        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-19",
       updatedDate: "2024-01-25",
     },
@@ -228,7 +268,9 @@ export default function CenterDashboard() {
       category: "Beverages",
       stock: 40,
       status: "available",
-      images: ["/herbal-tea.png"],
+      images: [
+        "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-15",
       updatedDate: "2024-01-21",
     },
@@ -240,7 +282,9 @@ export default function CenterDashboard() {
       category: "Handicrafts",
       stock: 15,
       status: "available",
-      images: ["/woven-bamboo-basket.png"],
+      images: [
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-12",
       updatedDate: "2024-01-18",
     },
@@ -252,7 +296,9 @@ export default function CenterDashboard() {
       category: "Food",
       stock: 22,
       status: "available",
-      images: ["/golden-honey-jar.png"],
+      images: [
+        "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-20",
       updatedDate: "2024-01-26",
     },
@@ -264,7 +310,9 @@ export default function CenterDashboard() {
       category: "Handicrafts",
       stock: 18,
       status: "available",
-      images: ["/wooden-cutting-board.png"],
+      images: [
+        "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-14",
       updatedDate: "2024-01-20",
     },
@@ -276,7 +324,9 @@ export default function CenterDashboard() {
       category: "Beverages",
       stock: 28,
       status: "available",
-      images: ["/cup-of-green-tea.png"],
+      images: [
+        "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=300&fit=crop",
+      ],
       createdDate: "2024-01-16",
       updatedDate: "2024-01-22",
     },
@@ -421,8 +471,8 @@ export default function CenterDashboard() {
   const totalProducts = mockProducts.length;
 
   const handleLogout = () => {
-    // In real app, this would handle logout logic
-    console.log("Logging out...");
+    // Call the onLogout prop function
+    onLogout();
   };
 
   // Category management functions
@@ -474,6 +524,182 @@ export default function CenterDashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAddProduct = () => {
+    if (!newProduct.name || !newProduct.price || !newProduct.category || !newProduct.stock) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    const productToAdd: Product = {
+      id: `prod-${Date.now()}`,
+      name: newProduct.name,
+      description: newProduct.description,
+      price: parseFloat(newProduct.price),
+      category: newProduct.category,
+      stock: parseInt(newProduct.stock),
+      status: newProduct.status,
+      images: newProduct.images.filter(img => img.trim() !== ""),
+      createdDate: new Date().toISOString().split('T')[0],
+      updatedDate: new Date().toISOString().split('T')[0],
+    };
+
+    // In a real app, this would make an API call to create the product
+    console.log("Adding new product:", productToAdd);
+    alert(`Product "${productToAdd.name}" added successfully!`);
+    
+    // Reset form and close modal
+    setNewProduct({
+      name: "",
+      description: "",
+      price: "",
+      category: "",
+      stock: "",
+      status: "available",
+      images: [""],
+    });
+    setShowAddProductModal(false);
+  };
+
+  // Add Product Modal
+  const renderAddProductModal = () => {
+    if (!showAddProductModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="p-6 border-b sticky top-0 bg-white z-10 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Add New Product
+            </h2>
+            <button
+              onClick={() => setShowAddProductModal(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="p-6 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Product Name
+              </label>
+              <input
+                type="text"
+                value={newProduct.name}
+                onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter product name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Description
+              </label>
+              <textarea
+                value={newProduct.description}
+                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                rows={3}
+                placeholder="Enter product description"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Price (NPR)
+                </label>
+                <input
+                  type="number"
+                  value={newProduct.price}
+                  onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="0"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Stock Quantity
+                </label>
+                <input
+                  type="number"
+                  value={newProduct.stock}
+                  onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Category
+              </label>
+              <select
+                value={newProduct.category}
+                onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                <option value="">Select a category</option>
+                {categories.map((category) => (
+                  <option key={category._id} value={category.name}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Status
+              </label>
+              <select
+                value={newProduct.status}
+                onChange={(e) => setNewProduct({ ...newProduct, status: e.target.value as "available" | "out_of_stock" | "discontinued" })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                <option value="available">Available</option>
+                <option value="out_of_stock">Out of Stock</option>
+                <option value="discontinued">Discontinued</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Product Image URL
+              </label>
+              <input
+                type="url"
+                value={newProduct.images[0]}
+                onChange={(e) => setNewProduct({ ...newProduct, images: [e.target.value] })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowAddProductModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAddProduct}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                Add Product
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   // Load categories when component mounts
@@ -872,15 +1098,27 @@ export default function CenterDashboard() {
                     <div className="py-1">
                       <div className="px-4 py-2 border-b">
                         <p className="text-sm font-medium text-gray-900">
-                          Mountain Fresh Center
+                          {centerProfile.name}
                         </p>
                         <p className="text-xs text-gray-600">
-                          center@mountainfresh.com
+                          {centerProfile.email}
                         </p>
                       </div>
                       <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                        onClick={() => {
+                          setShowProfileModal(true);
+                          setShowProfileDropdown(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        View Profile
+                      </button>
+                      <button
+                        onClick={() => {
+                          onLogout();
+                          setShowProfileDropdown(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                       >
                         <LogOut className="h-4 w-4" />
                         Logout
@@ -937,8 +1175,8 @@ export default function CenterDashboard() {
                     Total Revenue
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
-                                      रू{totalRevenue.toLocaleString()}
-                                    </p>
+                    रू{totalRevenue.toLocaleString()}
+                  </p>
                 </CardContent>
               </Card>
               <Card>
@@ -993,8 +1231,8 @@ export default function CenterDashboard() {
                           </p>
                         </div>
                         <div className="text-right">
-                                                  <p className="font-medium">रू{order.totalAmount}</p>
-                                                  <Badge
+                          <p className="font-medium">रू{order.totalAmount}</p>
+                          <Badge
                             variant={getStatusColor(order.status)}
                             className="text-xs"
                           >
@@ -1020,7 +1258,7 @@ export default function CenterDashboard() {
                   items)
                 </p>
               </div>
-              <Button>
+              <Button onClick={() => setShowAddProductModal(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Product
               </Button>
@@ -1073,8 +1311,8 @@ export default function CenterDashboard() {
                         </p>
                         <div className="flex items-center justify-between">
                           <span className="text-lg font-bold text-green-600">
-                                                      रू{product.price}
-                                                    </span>
+                            रू{product.price}
+                          </span>
                           <span
                             className={`text-xs font-medium ${
                               product.stock < 10
@@ -1094,6 +1332,7 @@ export default function CenterDashboard() {
                               variant="outline"
                               size="sm"
                               className="h-8 w-8 p-0 bg-transparent"
+                              title="Edit Product"
                             >
                               <Edit className="h-3 w-3" />
                             </Button>
@@ -1101,8 +1340,23 @@ export default function CenterDashboard() {
                               variant="outline"
                               size="sm"
                               className="h-8 w-8 p-0 bg-transparent"
+                              title="View Details"
                             >
                               <Eye className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="default"
+                              size="sm"
+                              className="h-8 w-8 p-0 bg-blue-500 hover:bg-blue-600 text-white"
+                              title="Process Order"
+                              onClick={() => {
+                                // Handle order processing for this product
+                                console.log(`Processing orders for ${product.name}`);
+                                // This would typically open a modal showing pending orders for this product
+                                // and allow the center to fulfill them
+                              }}
+                            >
+                              <ShoppingCart className="h-3 w-3" />
                             </Button>
                           </div>
                         </div>
@@ -1147,8 +1401,8 @@ export default function CenterDashboard() {
                           <span className="ml-1">{order.status}</span>
                         </Badge>
                         <p className="text-lg font-bold text-gray-900">
-                                                  रू{order.totalAmount}
-                                                </p>
+                          रू{order.totalAmount}
+                        </p>
                       </div>
                     </div>
 
@@ -1172,44 +1426,24 @@ export default function CenterDashboard() {
                         <p>Order Date: {order.createdDate}</p>
                       </div>
                       <div className="flex space-x-2">
-                        {order.status === "pending" && (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                updateOrderStatus(order.id, "confirmed")
-                              }
-                            >
-                              Confirm Order
-                            </Button>
-                            <Button variant="danger" size="sm">
-                              Decline
-                            </Button>
-                          </>
-                        )}
-                        {order.status === "confirmed" && (
-                          <Button
-                            size="sm"
-                            onClick={() =>
-                              updateOrderStatus(order.id, "processing")
-                            }
-                          >
-                            Start Processing
-                          </Button>
-                        )}
-                        {order.status === "processing" && (
-                          <Button
-                            size="sm"
-                            onClick={() =>
-                              updateOrderStatus(order.id, "shipped")
-                            }
-                          >
-                            Mark as Shipped
-                          </Button>
-                        )}
-                        <Button variant="outline" size="sm">
-                          Contact Vendor
+                        <Button 
+                          variant="default" 
+                          size="sm"
+                          className="bg-green-500 hover:bg-green-600 text-white"
+                          onClick={() => {
+                            // Update order status to processing
+                            const updatedOrders = mockIncomingOrders.map(o => 
+                              o.id === order.id 
+                                ? { ...o, status: 'processing' as const }
+                                : o
+                            );
+                            // In a real app, this would make an API call to update the order
+                            console.log(`Order ${order.id} status updated to processing`);
+                            alert(`Order ${order.id} is now being processed!`);
+                          }}
+                        >
+                          <Package className="h-4 w-4 mr-2" />
+                          Process Order
                         </Button>
                       </div>
                     </div>
@@ -1219,7 +1453,6 @@ export default function CenterDashboard() {
             </div>
           </TabsContent>
 
-
           <TabsContent value="profile" className="space-y-6">
             {renderProfileContent()}
           </TabsContent>
@@ -1227,6 +1460,7 @@ export default function CenterDashboard() {
       </div>
 
       {renderProfileModal()}
+      {renderAddProductModal()}
     </div>
   );
 }

@@ -1709,7 +1709,8 @@ export function VendorDashboard({
             center: "Kathmandu Food Center",
             price: "रू 2,500/bag",
             description: "High-quality basmati rice from the Himalayan region",
-            image: "/rice.jpg",
+            image:
+              "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop",
           },
           {
             id: "prod2",
@@ -1717,7 +1718,8 @@ export function VendorDashboard({
             center: "Pokhara Grain Hub",
             price: "रू 1,800/bag",
             description: "Stone-ground organic wheat flour, perfect for baking",
-            image: "/wheat.jpg",
+            image:
+              "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=300&fit=crop",
           },
           {
             id: "prod3",
@@ -1725,7 +1727,8 @@ export function VendorDashboard({
             center: "Lalitpur Organics",
             price: "रू 950/kg",
             description: "Traditional Nepali spice blend for authentic flavors",
-            image: "/spices.jpg",
+            image:
+              "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop",
           },
         ].filter(
           (item) =>
@@ -2192,7 +2195,7 @@ export function VendorDashboard({
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <img
-                src="/vrslogo.png"
+                src="/image/vrslogo.png"
                 alt="VRS Logo"
                 className="w-8 h-8 object-contain mr-3"
                 onError={(e) => {
