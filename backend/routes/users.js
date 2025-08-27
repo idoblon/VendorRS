@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose"); // ADD THIS LINE
 const { authenticate, authorize } = require("../middleware/auth");
 const {
   validateObjectId,
@@ -115,7 +116,7 @@ router.get(
   async (req, res) => {
     try {
       const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
+      const limit = parseInt(req.query.limit) || 50; // Increase from 10 to 50
       const skip = (page - 1) * limit;
       const status = req.query.status;
       const search = req.query.search;
@@ -211,7 +212,11 @@ router.put(
   authorize("ADMIN"),
   validateObjectId("id"),
   async (req, res) => {
+    const session = await mongoose.startSession();
+
     try {
+      session.startTransaction();
+
       const { status, notes } = req.body;
 
       console.log("Vendor status update request:", {
@@ -222,6 +227,7 @@ router.put(
       });
 
       if (!status) {
+        await session.abortTransaction();
         return res.status(400).json({
           success: false,
           message: "Status is required",
@@ -229,18 +235,28 @@ router.put(
       }
 
       if (!["PENDING", "APPROVED", "REJECTED", "SUSPENDED"].includes(status)) {
+        await session.abortTransaction();
         return res.status(400).json({
           success: false,
           message: `Invalid status value: ${status}. Must be one of: PENDING, APPROVED, REJECTED, SUSPENDED`,
         });
       }
 
-      const vendor = await User.findOne({
-        _id: req.params.id,
-        role: "VENDOR",
-      });
+      const vendor = await User.findOneAndUpdate(
+        { _id: req.params.id, role: "VENDOR" },
+        {
+          status: status,
+          updatedAt: new Date(),
+        },
+        {
+          new: true,
+          session: session,
+          runValidators: true,
+        }
+      );
 
       if (!vendor) {
+        await session.abortTransaction();
         return res.status(404).json({
           success: false,
           message: "Vendor not found",
@@ -248,17 +264,11 @@ router.put(
       }
 
       const oldStatus = vendor.status;
-      vendor.status = status;
 
-      // Add status change to history (you might want to create a separate model for this)
-      // For now, we'll just save the status
-      await vendor.save();
-
-      // Create notification for the vendor about status change
+      // Create notification
       try {
         const Notification = require("../models/Notification");
 
-        // Notification message based on status
         let title, message;
 
         switch (status) {
@@ -286,35 +296,35 @@ router.put(
             message = `Your application status has been updated to ${status}.`;
         }
 
-        // Create notification for the vendor
-        await Notification.create({
-          recipient: vendor._id,
-          sender: req.user._id,
-          type: "STATUS_UPDATE",
-          title,
-          message,
-          relatedId: vendor._id,
-          onModel: "User",
-        });
-
-        console.log(
-          `Notification created for vendor ${vendor.businessName} about status change to ${status}`
+        await Notification.create(
+          [
+            {
+              recipient: vendor._id,
+              sender: req.user._id,
+              type: "STATUS_UPDATE",
+              title,
+              message,
+              relatedId: vendor._id,
+              onModel: "User",
+            },
+          ],
+          { session }
         );
 
         console.log(
-          `Email notification sent to ${vendor.email} about status change to ${status}`
+          `Notification created for vendor ${vendor.businessName} about status change to ${status}`
         );
       } catch (notificationError) {
         console.error(
           "Failed to create vendor notification:",
           notificationError
         );
-        // Continue with the process even if notification fails
       }
 
-      console.log(
-        `Vendor ${vendor.businessName} status changed from ${oldStatus} to ${status}`
-      );
+      // CRITICAL: Commit the transaction
+      await session.commitTransaction();
+
+      console.log(`Vendor ${vendor.businessName} status changed to ${status}`);
 
       res.json({
         success: true,
@@ -322,11 +332,15 @@ router.put(
         data: { vendor },
       });
     } catch (error) {
+      await session.abortTransaction();
       console.error("Update vendor status error:", error);
       res.status(500).json({
         success: false,
         message: "Failed to update vendor status",
+        error: error.message,
       });
+    } finally {
+      session.endSession();
     }
   }
 );
@@ -340,7 +354,11 @@ router.put(
   authorize("ADMIN"),
   validateObjectId("id"),
   async (req, res) => {
+    const session = await mongoose.startSession();
+
     try {
+      session.startTransaction();
+
       const { status, notes } = req.body;
 
       console.log("Center status update request:", {
@@ -351,43 +369,61 @@ router.put(
       });
 
       if (!status) {
+        await session.abortTransaction();
         return res.status(400).json({
           success: false,
           message: "Status is required",
         });
       }
 
+      // FIXED: Remove the incorrect !! (double negation)
       if (!["PENDING", "APPROVED", "REJECTED", "SUSPENDED"].includes(status)) {
+        await session.abortTransaction();
         return res.status(400).json({
           success: false,
           message: `Invalid status value: ${status}. Must be one of: PENDING, APPROVED, REJECTED, SUSPENDED`,
         });
       }
 
-      const center = await User.findOne({
-        _id: req.params.id,
-        role: "CENTER",
-      });
+      // Get old status for logging
+      const existingCenter = await User.findById(req.params.id).session(
+        session
+      );
+      const oldStatus = existingCenter ? existingCenter.status : "UNKNOWN";
+
+      // Find and update with session
+      const center = await User.findOneAndUpdate(
+        { _id: req.params.id, role: "CENTER" },
+        {
+          status: status,
+          updatedAt: new Date(),
+        },
+        {
+          new: true,
+          session: session,
+          runValidators: true,
+        }
+      );
 
       if (!center) {
+        await session.abortTransaction();
         return res.status(404).json({
           success: false,
           message: "Center not found",
         });
       }
 
-      const oldStatus = center.status;
-      center.status = status;
+      // Verify the update was successful
+      const verifyUpdate = await User.findById(req.params.id).session(session);
+      if (verifyUpdate.status !== status) {
+        await session.abortTransaction();
+        throw new Error("Status update verification failed");
+      }
 
-      // Add status change to history (you might want to create a separate model for this)
-      // For now, we'll just save the status
-      await center.save();
-
-      // Create notification for the center about status change
+      // Create notification
       try {
         const Notification = require("../models/Notification");
 
-        // Notification message based on status
         let title, message;
 
         switch (status) {
@@ -415,23 +451,23 @@ router.put(
             message = `Your application status has been updated to ${status}.`;
         }
 
-        // Create notification for the center
-        await Notification.create({
-          recipient: center._id,
-          sender: req.user._id,
-          type: "STATUS_UPDATE",
-          title,
-          message,
-          relatedId: center._id,
-          onModel: "User",
-        });
-
-        console.log(
-          `Notification created for center ${center.name} about status change to ${status}`
+        await Notification.create(
+          [
+            {
+              recipient: center._id,
+              sender: req.user._id,
+              type: "STATUS_UPDATE",
+              title,
+              message,
+              relatedId: center._id,
+              onModel: "User",
+            },
+          ],
+          { session }
         );
 
         console.log(
-          `Email notification sent to ${center.email} about status change to ${status}`
+          `Notification created for center ${center.name} about status change to ${status}`
         );
       } catch (notificationError) {
         console.error(
@@ -440,6 +476,9 @@ router.put(
         );
         // Continue with the process even if notification fails
       }
+
+      // CRITICAL FIX: Commit the transaction
+      await session.commitTransaction();
 
       console.log(
         `Center ${center.name} status changed from ${oldStatus} to ${status}`
@@ -451,11 +490,15 @@ router.put(
         data: { center },
       });
     } catch (error) {
+      await session.abortTransaction();
       console.error("Update center status error:", error);
       res.status(500).json({
         success: false,
         message: "Failed to update center status",
+        error: error.message,
       });
+    } finally {
+      session.endSession();
     }
   }
 );

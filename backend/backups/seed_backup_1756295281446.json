@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-08-27T11:48:01.445Z",
+  "users": {
+    "admin": 1,
+    "vendors": 5,
+    "centers": 8
+  },
+  "categories": 14,
+  "products": 12,
+  "conversations": 2,
+  "messages": 9,
+  "notifications": 3,
+  "orders": 2
+}

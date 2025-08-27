@@ -29,8 +29,18 @@ const connectDB = async () => {
 
 const seedDatabase = async () => {
   try {
-    console.log("🌱 Starting database seeding with sample data...");
-
+    console.log("🌱 Starting database seeding check...");
+    
+    // Check if data already exists
+    const existingUsers = await User.countDocuments();
+    if (existingUsers > 0) {
+      console.log("📊 Database already contains data. Skipping seeding.");
+      console.log(`Found ${existingUsers} existing users.`);
+      return;
+    }
+    
+    console.log("📭 Database is empty. Proceeding with seeding...");
+    
     // Clear existing data
     await User.deleteMany({});
     await Category.deleteMany({});
@@ -53,22 +63,102 @@ const seedDatabase = async () => {
     });
     console.log("👨‍💼 Created admin user");
 
-    // Seed categories
+    // Seed categories with detailed structure (needed for center signup)
     const sampleCategories = [
-      { name: "Furniture" },
-      { name: "Electronics" },
-      { name: "Clothing" },
-      { name: "Footwear" },
-      { name: "Accessories" },
-      { name: "Books" },
-      { name: "Sports" },
-      { name: "Home & Garden" },
-      { name: "Automotive" },
-      { name: "Health & Beauty" },
-      { name: "Spices & Herbs" },
-      { name: "Grains & Pulses" },
-      { name: "Beverages" },
-      { name: "Snacks & Sweets" },
+      {
+        name: "Electronics",
+        description: "Electronic devices and gadgets",
+        subcategories: ["Mobile Phones", "Laptops", "Audio", "Cameras"],
+        isActive: true,
+      },
+      {
+        name: "Clothing",
+        description: "Apparel and fashion items",
+        subcategories: [
+          "Men's Wear",
+          "Women's Wear",
+          "Ethnic Wear",
+          "Kids Wear",
+        ],
+        isActive: true,
+      },
+      {
+        name: "Books",
+        description: "Books and educational materials",
+        subcategories: [
+          "Fiction",
+          "Non-Fiction",
+          "Educational",
+          "Technical",
+        ],
+        isActive: true,
+      },
+      {
+        name: "Sports",
+        description: "Sports and fitness equipment",
+        subcategories: ["Outdoor", "Indoor", "Fitness", "Team Sports"],
+        isActive: true,
+      },
+      {
+        name: "Accessories",
+        description: "Fashion and lifestyle accessories",
+        subcategories: ["Bags", "Jewelry", "Watches", "Scarves"],
+        isActive: true,
+      },
+      {
+        name: "Furniture",
+        description: "Home and office furniture",
+        subcategories: ["Living Room", "Bedroom", "Office", "Outdoor"],
+        isActive: true,
+      },
+      {
+        name: "Footwear",
+        description: "Shoes and footwear",
+        subcategories: ["Casual", "Formal", "Sports", "Traditional"],
+        isActive: true,
+      },
+      {
+        name: "Home & Garden",
+        description: "Home improvement and gardening",
+        subcategories: ["Tools", "Plants", "Decor", "Kitchen"],
+        isActive: true,
+      },
+      {
+        name: "Automotive",
+        description: "Vehicle parts and accessories",
+        subcategories: ["Parts", "Accessories", "Tools", "Care Products"],
+        isActive: true,
+      },
+      {
+        name: "Health & Beauty",
+        description: "Health and beauty products",
+        subcategories: ["Skincare", "Makeup", "Health Supplements", "Personal Care"],
+        isActive: true,
+      },
+      {
+        name: "Spices & Herbs",
+        description: "Cooking spices and herbs",
+        subcategories: ["Whole Spices", "Ground Spices", "Herbs", "Spice Mixes"],
+        isActive: true,
+      },
+      {
+        name: "Grains & Pulses",
+        description: "Rice, grains and pulses",
+        subcategories: ["Rice", "Wheat", "Lentils", "Beans"],
+        isActive: true,
+      },
+      {
+        name: "Beverages",
+        description: "Drinks and beverages",
+        subcategories: ["Tea", "Coffee", "Juices", "Soft Drinks"],
+        isActive: true,
+      },
+      {
+        name: "Snacks & Sweets",
+        description: "Snacks and sweet items",
+        subcategories: ["Traditional Sweets", "Chips", "Cookies", "Nuts"],
+        isActive: true,
+      },
     ];
 
     await Category.insertMany(sampleCategories);
@@ -113,6 +203,71 @@ const seedDatabase = async () => {
         province: "Koshi",
         district: "Biratnagar",
         categories: ["Electronics", "Home & Garden", "Sports"],
+        isActive: true,
+      },
+      {
+        name: "Chitwan Distribution Center",
+        email: "chitwan@center.com",
+        password: process.env.CENTER_PASSWORD || "Password@123",
+        phone: "+977 56 123456",
+        role: "CENTER",
+        status: "APPROVED",
+        panNumber: "PANC789123456",
+        province: "Bagmati",
+        district: "Chitwan",
+        categories: ["Grains & Pulses", "Beverages", "Snacks & Sweets"],
+        isActive: true,
+      },
+      {
+        name: "Butwal Distribution Center",
+        email: "butwal@center.com",
+        password: process.env.CENTER_PASSWORD || "Password@123",
+        phone: "+977 71 123456",
+        role: "CENTER",
+        status: "APPROVED",
+        panNumber: "PANC321654987",
+        province: "Lumbini",
+        district: "Butwal",
+        categories: ["Clothing", "Footwear", "Accessories"],
+        isActive: true,
+      },
+      {
+        name: "Dharan Distribution Center",
+        email: "dharan@center.com",
+        password: process.env.CENTER_PASSWORD || "Password@123",
+        phone: "+977 25 123456",
+        role: "CENTER",
+        status: "APPROVED",
+        panNumber: "PANC654987321",
+        province: "Koshi",
+        district: "Dharan",
+        categories: ["Electronics", "Sports", "Books"],
+        isActive: true,
+      },
+      {
+        name: "Nepalgunj Distribution Center",
+        email: "nepalgunj@center.com",
+        password: process.env.CENTER_PASSWORD || "Password@123",
+        phone: "+977 81 123456",
+        role: "CENTER",
+        status: "APPROVED",
+        panNumber: "PANC987321654",
+        province: "Lumbini",
+        district: "Nepalgunj",
+        categories: ["Spices & Herbs", "Home & Garden", "Automotive"],
+        isActive: true,
+      },
+      {
+        name: "Janakpur Distribution Center",
+        email: "janakpur@center.com",
+        password: process.env.CENTER_PASSWORD || "Password@123",
+        phone: "+977 41 123456",
+        role: "CENTER",
+        status: "APPROVED",
+        panNumber: "PANC147258369",
+        province: "Madhesh",
+        district: "Janakpur",
+        categories: ["Grains & Pulses", "Beverages", "Health & Beauty"],
         isActive: true,
       },
     ];
@@ -272,69 +427,9 @@ const seedDatabase = async () => {
       console.log(`🏪 Created vendor user: ${vendor.name}`);
     }
 
-    // Define categories
-    const categories = [
-      {
-        name: "Electronics",
-        description: "Electronic devices and gadgets",
-        subcategories: ["Mobile Phones", "Laptops", "Audio", "Cameras"],
-        isActive: true,
-      },
-      {
-        name: "Clothing",
-        description: "Apparel and fashion items",
-        subcategories: [
-          "Men's Wear",
-          "Women's Wear",
-          "Ethnic Wear",
-          "Kids Wear",
-        ],
-        isActive: true,
-      },
-      {
-        name: "Books",
-        description: "Books and educational materials",
-        subcategories: [
-          "Fiction",
-          "Non-Fiction",
-          "Educational",
-          "Children's Books",
-        ],
-        isActive: true,
-      },
-      {
-        name: "Sports",
-        description: "Sports equipment and accessories",
-        subcategories: ["Outdoor Sports", "Indoor Sports", "Fitness", "Yoga"],
-        isActive: true,
-      },
-      {
-        name: "Home & Garden",
-        description: "Home improvement and garden supplies",
-        subcategories: ["Furniture", "Decor", "Garden Tools", "Storage"],
-        isActive: true,
-      },
-      {
-        name: "Footwear",
-        description: "Shoes and footwear",
-        subcategories: ["Casual Shoes", "Formal Shoes", "Boots", "Sandals"],
-        isActive: true,
-      },
-      {
-        name: "Accessories",
-        description: "Fashion and lifestyle accessories",
-        subcategories: ["Bags", "Jewelry", "Watches", "Scarves"],
-        isActive: true,
-      },
-    ];
-
-    // Create categories
-    const createdCategories = [];
-    for (const category of categories) {
-      const createdCategory = await Category.create(category);
-      createdCategories.push(createdCategory);
-      console.log(`📂 Created category: ${category.name}`);
-    }
+    // Get the already created categories
+    const createdCategories = await Category.find({});
+    console.log(`📂 Using ${createdCategories.length} existing categories`);
 
     // Define comprehensive product list (combining original and additional products)
     const allProducts = [
@@ -342,7 +437,7 @@ const seedDatabase = async () => {
       {
         name: "Organic Turmeric Powder",
         description: "Premium quality organic turmeric powder from Nepal",
-        category: "Food & Beverages",
+        category: "Beverages",
         subcategory: "Spices",
         price: 250,
         currency: "NPR",
@@ -356,7 +451,10 @@ const seedDatabase = async () => {
           },
         ],
         specifications: {
-          weight: "500g",
+          weight: {
+            value: 500,
+            unit: "g"
+          },
           organic: true,
           brand: "Nepal Spices",
         },
@@ -375,7 +473,7 @@ const seedDatabase = async () => {
       {
         name: "Himalayan Black Tea",
         description: "High-altitude black tea from the Himalayas",
-        category: "Food & Beverages",
+        category: "Beverages",
         subcategory: "Tea",
         price: 800,
         currency: "NPR",
@@ -389,7 +487,10 @@ const seedDatabase = async () => {
           },
         ],
         specifications: {
-          weight: "250g",
+          weight: {
+            value: 250,
+            unit: "g"
+          },
           type: "Black Tea",
           origin: "Nepal Himalayas",
         },
@@ -693,7 +794,7 @@ const seedDatabase = async () => {
       {
         name: "Organic Honey",
         description: "Pure organic honey harvested from Himalayan wildflowers",
-        category: "Food & Beverages",
+        category: "Beverages",
         subcategory: "Natural Products",
         price: 600,
         currency: "NPR",
@@ -707,7 +808,10 @@ const seedDatabase = async () => {
           },
         ],
         specifications: {
-          weight: "500g",
+          weight: {
+            value: 500,
+            unit: "g"
+          },
           organic: true,
           source: "Himalayan Wildflowers",
           brand: "Organic Farm Nepal",
@@ -770,29 +874,55 @@ const seedDatabase = async () => {
     }
 
     // Create sample conversations
-    const conversations = [];
+const conversations = [];
 
-    // Conversation 1: Kathmandu Center with Nepal Spices
-    const conversation1 = await Conversation.create({
-      participants: [centerUsers[0]._id, vendorUsers[0]._id],
-      type: "VENDOR_CENTER",
-      title: "Spice Order Discussion",
-      lastMessage: "Thank you for the quick response!",
-      lastMessageAt: new Date(),
-      isActive: true,
-    });
-    conversations.push(conversation1);
+// Conversation 1: Kathmandu Center with Nepal Spices
+const conversation1 = await Conversation.create({
+  participants: [
+    {
+      user: centerUsers[0]._id,
+      role: "CENTER"
+    },
+    {
+      user: vendorUsers[0]._id,
+      role: "VENDOR"
+    }
+  ],
+  conversationType: "VENDOR_CENTER",
+  title: "Spice Order Discussion",
+  lastMessage: {
+    content: "Thank you for the quick response!",
+    sender: centerUsers[0]._id,
+    timestamp: new Date(),
+    messageType: "text"
+  },
+  isActive: true,
+});
+conversations.push(conversation1);
 
-    // Conversation 2: Pokhara Center with Trekking Gear Nepal
-    const conversation2 = await Conversation.create({
-      participants: [centerUsers[1]._id, vendorUsers[1]._id],
-      type: "VENDOR_CENTER",
-      title: "Trekking Equipment Inquiry",
-      lastMessage: "We can provide bulk discount for orders above 50 units.",
-      lastMessageAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      isActive: true,
-    });
-    conversations.push(conversation2);
+// Conversation 2: Pokhara Center with Trekking Gear Nepal
+const conversation2 = await Conversation.create({
+  participants: [
+    {
+      user: centerUsers[1]._id,
+      role: "CENTER"
+    },
+    {
+      user: vendorUsers[1]._id,
+      role: "VENDOR"
+    }
+  ],
+  conversationType: "VENDOR_CENTER",
+  title: "Trekking Equipment Inquiry",
+  lastMessage: {
+    content: "We can provide bulk discount for orders above 50 units.",
+    sender: vendorUsers[1]._id,
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    messageType: "text"
+  },
+  isActive: true,
+});
+conversations.push(conversation2);
 
     console.log(`💬 Created ${conversations.length} sample conversations`);
 
@@ -802,106 +932,88 @@ const seedDatabase = async () => {
     // Messages for conversation 1
     const message1 = await Message.create({
       conversationId: conversation1._id,
-      senderId: centerUsers[0]._id,
-      receiverId: vendorUsers[0]._id,
+      sender: centerUsers[0]._id,
+      receiver: vendorUsers[0]._id,
       content: "Hello, we're interested in ordering turmeric powder in bulk.",
       messageType: "text",
-      status: "delivered",
-      readBy: [centerUsers[0]._id, vendorUsers[0]._id],
     });
     messages.push(message1);
 
     const message2 = await Message.create({
       conversationId: conversation1._id,
-      senderId: vendorUsers[0]._id,
-      receiverId: centerUsers[0]._id,
+      sender: vendorUsers[0]._id,
+      receiver: centerUsers[0]._id,
       content:
         "Thank you for your interest! We can offer competitive prices for bulk orders. How many units are you looking for?",
       messageType: "text",
-      status: "delivered",
-      readBy: [centerUsers[0]._id, vendorUsers[0]._id],
     });
     messages.push(message2);
 
     const message3 = await Message.create({
       conversationId: conversation1._id,
-      senderId: centerUsers[0]._id,
-      receiverId: vendorUsers[0]._id,
+      sender: centerUsers[0]._id,
+      receiver: vendorUsers[0]._id,
       content: "We need around 100 units. What's your best price?",
       messageType: "text",
-      status: "delivered",
-      readBy: [centerUsers[0]._id, vendorUsers[0]._id],
     });
     messages.push(message3);
 
     const message4 = await Message.create({
       conversationId: conversation1._id,
-      senderId: vendorUsers[0]._id,
-      receiverId: centerUsers[0]._id,
+      sender: vendorUsers[0]._id,
+      receiver: centerUsers[0]._id,
       content:
         "For 100 units, we can offer NPR 200 per unit. This includes free delivery within Kathmandu.",
       messageType: "text",
-      status: "delivered",
-      readBy: [centerUsers[0]._id, vendorUsers[0]._id],
     });
     messages.push(message4);
 
     const message5 = await Message.create({
       conversationId: conversation1._id,
-      senderId: centerUsers[0]._id,
-      receiverId: vendorUsers[0]._id,
+      sender: centerUsers[0]._id,
+      receiver: vendorUsers[0]._id,
       content: "That sounds great! Thank you for the quick response!",
       messageType: "text",
-      status: "delivered",
-      readBy: [centerUsers[0]._id, vendorUsers[0]._id],
     });
     messages.push(message5);
 
     // Messages for conversation 2
     const message6 = await Message.create({
       conversationId: conversation2._id,
-      senderId: centerUsers[1]._id,
-      receiverId: vendorUsers[1]._id,
+      sender: centerUsers[1]._id,
+      receiver: vendorUsers[1]._id,
       content:
         "Hi, we're looking for trekking backpacks for our distribution center.",
       messageType: "text",
-      status: "delivered",
-      readBy: [centerUsers[1]._id, vendorUsers[1]._id],
     });
     messages.push(message6);
 
     const message7 = await Message.create({
       conversationId: conversation2._id,
-      senderId: vendorUsers[1]._id,
-      receiverId: centerUsers[1]._id,
+      sender: vendorUsers[1]._id,
+      receiver: centerUsers[1]._id,
       content:
         "Hello! We have various trekking backpacks available. What capacity and quantity are you interested in?",
       messageType: "text",
-      status: "delivered",
-      readBy: [centerUsers[1]._id, vendorUsers[1]._id],
     });
     messages.push(message7);
 
     const message8 = await Message.create({
       conversationId: conversation2._id,
-      senderId: centerUsers[1]._id,
-      receiverId: vendorUsers[1]._id,
+      sender: centerUsers[1]._id,
+      receiver: vendorUsers[1]._id,
       content: "We need 40L capacity backpacks, around 50 units.",
       messageType: "text",
-      status: "delivered",
-      readBy: [centerUsers[1]._id, vendorUsers[1]._id],
     });
     messages.push(message8);
 
     const message9 = await Message.create({
       conversationId: conversation2._id,
-      senderId: vendorUsers[1]._id,
-      receiverId: centerUsers[1]._id,
+      sender: vendorUsers[1]._id,
+      receiver: centerUsers[1]._id,
       content:
         "Perfect! We have 40L trekking backpacks in stock. We can provide bulk discount for orders above 50 units.",
       messageType: "text",
-      status: "delivered",
-      readBy: [centerUsers[1]._id, vendorUsers[1]._id],
     });
     messages.push(message9);
 
@@ -912,10 +1024,10 @@ const seedDatabase = async () => {
 
     // Notification for vendor about new message
     const notification1 = await Notification.create({
-      userId: vendorUsers[0]._id,
+      recipient: vendorUsers[0]._id,
       title: "New Message",
       message: "You have a new message from Kathmandu Distribution Center",
-      type: "message",
+      type: "MESSAGE",
       relatedId: conversation1._id,
       isRead: false,
     });
@@ -923,10 +1035,10 @@ const seedDatabase = async () => {
 
     // Notification for center about new message
     const notification2 = await Notification.create({
-      userId: centerUsers[1]._id,
+      recipient: centerUsers[1]._id,
       title: "New Message",
       message: "You have a new message from Trekking Gear Nepal",
-      type: "message",
+      type: "MESSAGE",
       relatedId: conversation2._id,
       isRead: false,
     });
@@ -934,10 +1046,10 @@ const seedDatabase = async () => {
 
     // System notification for admin
     const notification3 = await Notification.create({
-      userId: adminUser._id,
+      recipient: adminUser._id,
       title: "System Update",
       message: "Database has been successfully seeded with sample data",
-      type: "system",
+      type: "SYSTEM",
       isRead: false,
     });
     notifications.push(notification3);
@@ -959,7 +1071,10 @@ const seedDatabase = async () => {
           unitPrice: 250,
           totalPrice: 12500,
           specifications: {
-            weight: "500g",
+            weight: {
+              value: 500,
+              unit: "g"
+            },
             organic: true,
           },
         },
@@ -970,7 +1085,10 @@ const seedDatabase = async () => {
           unitPrice: 800,
           totalPrice: 16000,
           specifications: {
-            weight: "250g",
+            weight: {
+              value: 250,
+              unit: "g"
+            },
             type: "Black Tea",
           },
         },
@@ -1006,7 +1124,7 @@ const seedDatabase = async () => {
       },
       payment: {
         method: "Bank Transfer",
-        status: "PAID",
+        status: "COMPLETED",
         transactionId: "TXN123456789",
         paidAmount: 31280,
         paidDate: new Date(),

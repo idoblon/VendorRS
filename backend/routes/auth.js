@@ -66,12 +66,23 @@ router.post(
       .optional({ checkFalsy: true })
       .custom((value) => {
         if (!value) return true; // Allow empty/undefined values
-        const validRoles = ["admin", "vendor", "center", "ADMIN", "VENDOR", "CENTER"];
+        const validRoles = [
+          "admin",
+          "vendor",
+          "center",
+          "ADMIN",
+          "VENDOR",
+          "CENTER",
+        ];
         return validRoles.includes(value);
       })
       .withMessage("Invalid role"),
     body("businessName")
-      .if(body("role").custom((value) => value && value.toUpperCase() === "VENDOR"))
+      .if(
+        body("role").custom(
+          (value) => value && value.toUpperCase() === "VENDOR"
+        )
+      )
       .notEmpty()
       .withMessage("Business name is required for vendors"),
     body("panNumber")
@@ -88,7 +99,11 @@ router.post(
       .isNumeric()
       .withMessage("PAN number must contain only numbers"),
     body("district")
-      .if(body("role").custom((value) => value && value.toUpperCase() === "VENDOR"))
+      .if(
+        body("role").custom(
+          (value) => value && value.toUpperCase() === "VENDOR"
+        )
+      )
       .notEmpty()
       .withMessage("District is required for vendors"),
   ],
@@ -276,13 +291,20 @@ router.post(
     body("password", "Password is required").exists(),
     // Login validation (lines 273-283)
     body("role")
-    .optional({ checkFalsy: true })
-    .custom((value) => {
-    if (!value) return true; // Allow empty/undefined values
-    const validRoles = ["admin", "vendor", "center", "ADMIN", "VENDOR", "CENTER"];
-    return validRoles.includes(value);
-    })
-    .withMessage("Invalid role"),
+      .optional({ checkFalsy: true })
+      .custom((value) => {
+        if (!value) return true; // Allow empty/undefined values
+        const validRoles = [
+          "admin",
+          "vendor",
+          "center",
+          "ADMIN",
+          "VENDOR",
+          "CENTER",
+        ];
+        return validRoles.includes(value);
+      })
+      .withMessage("Invalid role"),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -296,14 +318,19 @@ router.post(
 
     try {
       let user = await User.findOne({ email });
-      console.log("User found:", user ? {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-        status: user.status,
-        isActive: user.isActive,
-        businessName: user.businessName
-      } : null);
+      console.log(
+        "User found:",
+        user
+          ? {
+              id: user._id,
+              email: user.email,
+              role: user.role,
+              status: user.status,
+              isActive: user.isActive,
+              businessName: user.businessName,
+            }
+          : null
+      );
 
       if (!user) {
         console.log("Login failed: User not found");
@@ -317,7 +344,10 @@ router.post(
 
       // Validate role if provided - convert to uppercase for comparison
       if (role && user.role !== role.toUpperCase()) {
-        console.log("Login failed: Role mismatch", { userRole: user.role, providedRole: role });
+        console.log("Login failed: Role mismatch", {
+          userRole: user.role,
+          providedRole: role,
+        });
         return res.status(400).json({ msg: "Invalid role for this account" });
       }
 
@@ -326,7 +356,9 @@ router.post(
         (user.role === "VENDOR" || user.role === "CENTER") &&
         user.status !== "APPROVED"
       ) {
-        console.log("Login failed: Account not approved", { status: user.status });
+        console.log("Login failed: Account not approved", {
+          status: user.status,
+        });
         return res.status(400).json({
           msg: "Account pending approval",
           status: user.status,

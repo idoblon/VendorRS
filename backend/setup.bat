@@ -17,8 +17,13 @@ echo Starting MongoDB (make sure MongoDB is installed)...
 echo Please ensure MongoDB is running on localhost:27017
 echo.
 
-echo Seeding database with sample data...
-call npm run seed
+echo Checking database state...
+call npm run check-users
+
+echo.
+echo SAFE seeding database with sample data...
+echo This will NOT overwrite existing data.
+call npm run seed-safe
 
 echo.
 echo ========================================

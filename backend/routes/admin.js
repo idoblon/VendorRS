@@ -1,17 +1,19 @@
-const express = require('express');
-const { authenticate, authorize } = require('../middleware/auth');
-const { validatePagination } = require('../middleware/validation');
-const User = require('../models/User');
-const Product = require('../models/Product');
-const Order = require('../models/Order');
-const Message = require('../models/Message');
+const express = require("express");
+const path = require("path");
+const fs = require("fs");
+const { authenticate, authorize } = require("../middleware/auth");
+const { validatePagination } = require("../middleware/validation");
+const User = require("../models/User");
+const Product = require("../models/Product");
+const Order = require("../models/Order");
+const Message = require("../models/Message");
 
 const router = express.Router();
 
 // @route   GET /api/admin/dashboard
 // @desc    Get admin dashboard data
 // @access  Private (Admin)
-router.get('/dashboard', authenticate, authorize('ADMIN'), async (req, res) => {
+router.get("/dashboard", authenticate, authorize("ADMIN"), async (req, res) => {
   try {
     const [
       totalVendors,
@@ -24,26 +26,26 @@ router.get('/dashboard', authenticate, authorize('ADMIN'), async (req, res) => {
       pendingOrders,
       totalRevenue,
       recentOrders,
-      systemHealth
+      systemHealth,
     ] = await Promise.all([
-      User.countDocuments({ role: 'VENDOR' }),
-      User.countDocuments({ role: 'VENDOR', status: 'APPROVED' }),
-      User.countDocuments({ role: 'VENDOR', status: 'PENDING' }),
-      User.countDocuments({ role: 'CENTER' }),
-      User.countDocuments({ role: 'CENTER', status: 'APPROVED' }),
+      User.countDocuments({ role: "VENDOR" }),
+      User.countDocuments({ role: "VENDOR", status: "APPROVED" }),
+      User.countDocuments({ role: "VENDOR", status: "PENDING" }),
+      User.countDocuments({ role: "CENTER" }),
+      User.countDocuments({ role: "CENTER", status: "APPROVED" }),
       Product.countDocuments({ isActive: true }),
       Order.countDocuments({ isActive: true }),
-      Order.countDocuments({ isActive: true, status: 'PENDING' }),
+      Order.countDocuments({ isActive: true, status: "PENDING" }),
       Order.aggregate([
         { $match: { isActive: true } },
-        { $group: { _id: null, total: { $sum: '$orderSummary.totalAmount' } } }
+        { $group: { _id: null, total: { $sum: "$orderSummary.totalAmount" } } },
       ]),
       Order.find({ isActive: true })
-        .populate('centerId', 'name province district')
-        .populate('vendorId', 'name businessName')
+        .populate("centerId", "name province district")
+        .populate("vendorId", "name businessName")
         .sort({ createdAt: -1 })
         .limit(5),
-      getSystemHealth()
+      getSystemHealth(),
     ]);
 
     const revenue = totalRevenue[0]?.total || 0;
@@ -55,34 +57,33 @@ router.get('/dashboard', authenticate, authorize('ADMIN'), async (req, res) => {
           vendors: {
             total: totalVendors,
             approved: approvedVendors,
-            pending: pendingVendors
+            pending: pendingVendors,
           },
           centers: {
             total: totalCenters,
-            active: activeCenters
+            active: activeCenters,
           },
           products: {
-            total: totalProducts
+            total: totalProducts,
           },
           orders: {
             total: totalOrders,
-            pending: pendingOrders
+            pending: pendingOrders,
           },
           revenue: {
             total: revenue,
-            currency: 'INR'
-          }
+            currency: "INR",
+          },
         },
         recentOrders,
-        systemHealth
-      }
+        systemHealth,
+      },
     });
-
   } catch (error) {
-    console.error('Get admin dashboard error:', error);
+    console.error("Get admin dashboard error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch dashboard data'
+      message: "Failed to fetch dashboard data",
     });
   }
 });
@@ -90,25 +91,25 @@ router.get('/dashboard', authenticate, authorize('ADMIN'), async (req, res) => {
 // @route   GET /api/admin/analytics
 // @desc    Get detailed analytics
 // @access  Private (Admin)
-router.get('/analytics', authenticate, authorize('ADMIN'), async (req, res) => {
+router.get("/analytics", authenticate, authorize("ADMIN"), async (req, res) => {
   try {
-    const { period = '30d' } = req.query;
-    
+    const { period = "30d" } = req.query;
+
     // Calculate date range
     const endDate = new Date();
     const startDate = new Date();
-    
+
     switch (period) {
-      case '7d':
+      case "7d":
         startDate.setDate(endDate.getDate() - 7);
         break;
-      case '30d':
+      case "30d":
         startDate.setDate(endDate.getDate() - 30);
         break;
-      case '90d':
+      case "90d":
         startDate.setDate(endDate.getDate() - 90);
         break;
-      case '1y':
+      case "1y":
         startDate.setFullYear(endDate.getFullYear() - 1);
         break;
       default:
@@ -121,14 +122,14 @@ router.get('/analytics', authenticate, authorize('ADMIN'), async (req, res) => {
       vendorGrowth,
       centerUtilization,
       topProducts,
-      topVendors
+      topVendors,
     ] = await Promise.all([
       getOrderTrends(startDate, endDate),
       getRevenueTrends(startDate, endDate),
       getVendorGrowth(startDate, endDate),
       getCenterUtilization(),
       getTopProducts(startDate, endDate),
-      getTopVendors(startDate, endDate)
+      getTopVendors(startDate, endDate),
     ]);
 
     res.json({
@@ -141,15 +142,14 @@ router.get('/analytics', authenticate, authorize('ADMIN'), async (req, res) => {
         vendorGrowth,
         centerUtilization,
         topProducts,
-        topVendors
-      }
+        topVendors,
+      },
     });
-
   } catch (error) {
-    console.error('Get analytics error:', error);
+    console.error("Get analytics error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch analytics data'
+      message: "Failed to fetch analytics data",
     });
   }
 });
@@ -157,302 +157,320 @@ router.get('/analytics', authenticate, authorize('ADMIN'), async (req, res) => {
 // @route   GET /api/admin/system-health
 // @desc    Get system health status
 // @access  Private (Admin)
-router.get('/system-health', authenticate, authorize('ADMIN'), async (req, res) => {
-  try {
-    const systemHealth = await getSystemHealth();
-    
-    res.json({
-      success: true,
-      data: systemHealth
-    });
+router.get(
+  "/system-health",
+  authenticate,
+  authorize("ADMIN"),
+  async (req, res) => {
+    try {
+      const systemHealth = await getSystemHealth();
 
-  } catch (error) {
-    console.error('Get system health error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch system health'
-    });
+      res.json({
+        success: true,
+        data: systemHealth,
+      });
+    } catch (error) {
+      console.error("Get system health error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch system health",
+      });
+    }
   }
-});
+);
 
 // @route   GET /api/admin/reports/vendors
 // @desc    Get vendor report
 // @access  Private (Admin)
-router.get('/reports/vendors', authenticate, authorize('ADMIN'), validatePagination, async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
-    const skip = (page - 1) * limit;
-    const status = req.query.status;
-    const sortBy = req.query.sortBy || 'createdAt';
-    const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+router.get(
+  "/reports/vendors",
+  authenticate,
+  authorize("ADMIN"),
+  validatePagination,
+  async (req, res) => {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 20;
+      const skip = (page - 1) * limit;
+      const status = req.query.status;
+      const sortBy = req.query.sortBy || "createdAt";
+      const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
 
-    // Build query
-    const query = { role: 'VENDOR' };
-    if (status && status !== 'all') {
-      query.status = status.toUpperCase();
-    }
-
-    // Build sort object
-    const sort = {};
-    sort[sortBy] = sortOrder;
-
-    const vendors = await User.find(query)
-      .select('-password')
-      .sort(sort)
-      .skip(skip)
-      .limit(limit);
-
-    const total = await User.countDocuments(query);
-
-    // Get additional stats for each vendor
-    const vendorStats = await Promise.all(
-      vendors.map(async (vendor) => {
-        const [productCount, orderCount, totalRevenue] = await Promise.all([
-          Product.countDocuments({ vendorId: vendor._id, isActive: true }),
-          Order.countDocuments({ vendorId: vendor._id, isActive: true }),
-          Order.aggregate([
-            { $match: { vendorId: vendor._id, isActive: true } },
-            { $group: { _id: null, total: { $sum: '$orderSummary.totalAmount' } } }
-          ])
-        ]);
-
-        return {
-          ...vendor.toJSON(),
-          stats: {
-            products: productCount,
-            orders: orderCount,
-            revenue: totalRevenue[0]?.total || 0
-          }
-        };
-      })
-    );
-
-    res.json({
-      success: true,
-      data: {
-        vendors: vendorStats,
-        pagination: {
-          current: page,
-          pages: Math.ceil(total / limit),
-          total,
-          limit
-        }
+      // Build query
+      const query = { role: "VENDOR" };
+      if (status && status !== "all") {
+        query.status = status.toUpperCase();
       }
-    });
 
-  } catch (error) {
-    console.error('Get vendor report error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to generate vendor report'
-    });
+      // Build sort object
+      const sort = {};
+      sort[sortBy] = sortOrder;
+
+      const vendors = await User.find(query)
+        .select("-password")
+        .sort(sort)
+        .skip(skip)
+        .limit(limit);
+
+      const total = await User.countDocuments(query);
+
+      // Get additional stats for each vendor
+      const vendorStats = await Promise.all(
+        vendors.map(async (vendor) => {
+          const [productCount, orderCount, totalRevenue] = await Promise.all([
+            Product.countDocuments({ vendorId: vendor._id, isActive: true }),
+            Order.countDocuments({ vendorId: vendor._id, isActive: true }),
+            Order.aggregate([
+              { $match: { vendorId: vendor._id, isActive: true } },
+              {
+                $group: {
+                  _id: null,
+                  total: { $sum: "$orderSummary.totalAmount" },
+                },
+              },
+            ]),
+          ]);
+
+          return {
+            ...vendor.toJSON(),
+            stats: {
+              products: productCount,
+              orders: orderCount,
+              revenue: totalRevenue[0]?.total || 0,
+            },
+          };
+        })
+      );
+
+      res.json({
+        success: true,
+        data: {
+          vendors: vendorStats,
+          pagination: {
+            current: page,
+            pages: Math.ceil(total / limit),
+            total,
+            limit,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Get vendor report error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to generate vendor report",
+      });
+    }
   }
-});
+);
 
 // @route   GET /api/admin/reports/orders
 // @desc    Get order report
 // @access  Private (Admin)
-router.get('/reports/orders', authenticate, authorize('ADMIN'), validatePagination, async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
-    const skip = (page - 1) * limit;
-    const status = req.query.status;
-    const startDate = req.query.startDate;
-    const endDate = req.query.endDate;
+router.get(
+  "/reports/orders",
+  authenticate,
+  authorize("ADMIN"),
+  validatePagination,
+  async (req, res) => {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 20;
+      const skip = (page - 1) * limit;
+      const status = req.query.status;
+      const startDate = req.query.startDate;
+      const endDate = req.query.endDate;
 
-    // Build query
-    const query = { isActive: true };
-    
-    if (status && status !== 'all') {
-      query.status = status.toUpperCase();
-    }
+      // Build query
+      const query = { isActive: true };
 
-    if (startDate && endDate) {
-      query.createdAt = {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate)
+      if (status && status !== "all") {
+        query.status = status.toUpperCase();
+      }
+
+      if (startDate && endDate) {
+        query.createdAt = {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        };
+      }
+
+      const orders = await Order.find(query)
+        .populate("centerId", "name location code")
+        .populate("vendorId", "name businessName email")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+      const total = await Order.countDocuments(query);
+
+      // Get summary stats
+      const summaryStats = await Order.aggregate([
+        { $match: query },
+        {
+          $group: {
+            _id: null,
+            totalOrders: { $sum: 1 },
+            totalRevenue: { $sum: "$orderSummary.totalAmount" },
+            avgOrderValue: { $avg: "$orderSummary.totalAmount" },
+          },
+        },
+      ]);
+
+      const summary = summaryStats[0] || {
+        totalOrders: 0,
+        totalRevenue: 0,
+        avgOrderValue: 0,
       };
+
+      res.json({
+        success: true,
+        data: {
+          orders,
+          summary,
+          pagination: {
+            current: page,
+            pages: Math.ceil(total / limit),
+            total,
+            limit,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Get order report error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to generate order report",
+      });
     }
-
-    const orders = await Order.find(query)
-      .populate('centerId', 'name location code')
-      .populate('vendorId', 'name businessName email')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    const total = await Order.countDocuments(query);
-
-    // Get summary stats
-    const summaryStats = await Order.aggregate([
-      { $match: query },
-      {
-        $group: {
-          _id: null,
-          totalOrders: { $sum: 1 },
-          totalRevenue: { $sum: '$orderSummary.totalAmount' },
-          avgOrderValue: { $avg: '$orderSummary.totalAmount' }
-        }
-      }
-    ]);
-
-    const summary = summaryStats[0] || {
-      totalOrders: 0,
-      totalRevenue: 0,
-      avgOrderValue: 0
-    };
-
-    res.json({
-      success: true,
-      data: {
-        orders,
-        summary,
-        pagination: {
-          current: page,
-          pages: Math.ceil(total / limit),
-          total,
-          limit
-        }
-      }
-    });
-
-  } catch (error) {
-    console.error('Get order report error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to generate order report'
-    });
   }
-});
+);
 
 // @route   POST /api/admin/bulk-actions/vendors
 // @desc    Perform bulk actions on vendors
 // @access  Private (Admin)
-router.post('/bulk-actions/vendors', authenticate, authorize('ADMIN'), async (req, res) => {
-  try {
-    const { action, vendorIds, data } = req.body;
+router.post(
+  "/bulk-actions/vendors",
+  authenticate,
+  authorize("ADMIN"),
+  async (req, res) => {
+    try {
+      const { action, vendorIds, data } = req.body;
 
-    if (!action || !vendorIds || !Array.isArray(vendorIds)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Action and vendor IDs are required'
-      });
-    }
-
-    let result;
-
-    switch (action) {
-      case 'approve':
-        result = await User.updateMany(
-          { _id: { $in: vendorIds }, role: 'VENDOR' },
-          { status: 'APPROVED' }
-        );
-        break;
-
-      case 'reject':
-        result = await User.updateMany(
-          { _id: { $in: vendorIds }, role: 'VENDOR' },
-          { status: 'REJECTED' }
-        );
-        break;
-
-      case 'suspend':
-        result = await User.updateMany(
-          { _id: { $in: vendorIds }, role: 'VENDOR' },
-          { status: 'SUSPENDED' }
-        );
-        break;
-
-      case 'activate':
-        result = await User.updateMany(
-          { _id: { $in: vendorIds }, role: 'VENDOR' },
-          { isActive: true }
-        );
-        break;
-
-      case 'deactivate':
-        result = await User.updateMany(
-          { _id: { $in: vendorIds }, role: 'VENDOR' },
-          { isActive: false }
-        );
-        break;
-
-      default:
+      if (!action || !vendorIds || !Array.isArray(vendorIds)) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid action specified'
+          message: "Action and vendor IDs are required",
         });
-    }
-
-    res.json({
-      success: true,
-      message: `Bulk ${action} completed successfully`,
-      data: {
-        modifiedCount: result.modifiedCount,
-        matchedCount: result.matchedCount
       }
-    });
 
-  } catch (error) {
-    console.error('Bulk vendor action error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to perform bulk action'
-    });
+      let result;
+
+      switch (action) {
+        case "approve":
+          result = await User.updateMany(
+            { _id: { $in: vendorIds }, role: "VENDOR" },
+            { status: "APPROVED" }
+          );
+          break;
+
+        case "reject":
+          result = await User.updateMany(
+            { _id: { $in: vendorIds }, role: "VENDOR" },
+            { status: "REJECTED" }
+          );
+          break;
+
+        case "suspend":
+          result = await User.updateMany(
+            { _id: { $in: vendorIds }, role: "VENDOR" },
+            { status: "SUSPENDED" }
+          );
+          break;
+
+        case "activate":
+          result = await User.updateMany(
+            { _id: { $in: vendorIds }, role: "VENDOR" },
+            { isActive: true }
+          );
+          break;
+
+        case "deactivate":
+          result = await User.updateMany(
+            { _id: { $in: vendorIds }, role: "VENDOR" },
+            { isActive: false }
+          );
+          break;
+
+        default:
+          return res.status(400).json({
+            success: false,
+            message: "Invalid action specified",
+          });
+      }
+
+      res.json({
+        success: true,
+        message: `Bulk ${action} completed successfully`,
+        data: {
+          modifiedCount: result.modifiedCount,
+          matchedCount: result.matchedCount,
+        },
+      });
+    } catch (error) {
+      console.error("Bulk vendor action error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to perform bulk action",
+      });
+    }
   }
-});
+);
 
 // Helper functions
 async function getSystemHealth() {
   try {
-    const [
-      dbStatus,
-      userCount,
-      orderCount,
-      messageCount
-    ] = await Promise.all([
+    const [dbStatus, userCount, orderCount, messageCount] = await Promise.all([
       checkDatabaseConnection(),
       User.countDocuments(),
       Order.countDocuments(),
-      Message.countDocuments()
+      Message.countDocuments(),
     ]);
 
     return {
       database: {
-        status: dbStatus ? 'healthy' : 'error',
-        uptime: '99.9%'
+        status: dbStatus ? "healthy" : "error",
+        uptime: "99.9%",
       },
       api: {
-        status: 'healthy',
-        uptime: '99.8%'
+        status: "healthy",
+        uptime: "99.8%",
       },
       storage: {
-        status: 'healthy',
-        usage: '45%'
+        status: "healthy",
+        usage: "45%",
       },
       performance: {
-        responseTime: '245ms',
-        cpuUsage: '34%',
-        memoryUsage: '67%'
+        responseTime: "245ms",
+        cpuUsage: "34%",
+        memoryUsage: "67%",
       },
       metrics: {
         totalUsers: userCount,
         totalOrders: orderCount,
-        totalMessages: messageCount
-      }
+        totalMessages: messageCount,
+      },
     };
   } catch (error) {
     return {
-      database: { status: 'error', uptime: '0%' },
-      api: { status: 'error', uptime: '0%' },
-      storage: { status: 'unknown', usage: 'N/A' },
+      database: { status: "error", uptime: "0%" },
+      api: { status: "error", uptime: "0%" },
+      storage: { status: "unknown", usage: "N/A" },
       performance: {
-        responseTime: 'N/A',
-        cpuUsage: 'N/A',
-        memoryUsage: 'N/A'
-      }
+        responseTime: "N/A",
+        cpuUsage: "N/A",
+        memoryUsage: "N/A",
+      },
     };
   }
 }
@@ -471,19 +489,19 @@ async function getOrderTrends(startDate, endDate) {
     {
       $match: {
         createdAt: { $gte: startDate, $lte: endDate },
-        isActive: true
-      }
+        isActive: true,
+      },
     },
     {
       $group: {
         _id: {
-          $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }
+          $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
         },
         count: { $sum: 1 },
-        revenue: { $sum: '$orderSummary.totalAmount' }
-      }
+        revenue: { $sum: "$orderSummary.totalAmount" },
+      },
     },
-    { $sort: { _id: 1 } }
+    { $sort: { _id: 1 } },
   ]);
 }
 
@@ -493,18 +511,18 @@ async function getRevenueTrends(startDate, endDate) {
       $match: {
         createdAt: { $gte: startDate, $lte: endDate },
         isActive: true,
-        status: { $in: ['DELIVERED', 'COMPLETED'] }
-      }
+        status: { $in: ["DELIVERED", "COMPLETED"] },
+      },
     },
     {
       $group: {
         _id: {
-          $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }
+          $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
         },
-        revenue: { $sum: '$orderSummary.totalAmount' }
-      }
+        revenue: { $sum: "$orderSummary.totalAmount" },
+      },
     },
-    { $sort: { _id: 1 } }
+    { $sort: { _id: 1 } },
   ]);
 }
 
@@ -512,36 +530,41 @@ async function getVendorGrowth(startDate, endDate) {
   return await User.aggregate([
     {
       $match: {
-        role: 'VENDOR',
-        createdAt: { $gte: startDate, $lte: endDate }
-      }
+        role: "VENDOR",
+        createdAt: { $gte: startDate, $lte: endDate },
+      },
     },
     {
       $group: {
         _id: {
-          $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }
+          $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
         },
-        count: { $sum: 1 }
-      }
+        count: { $sum: 1 },
+      },
     },
-    { $sort: { _id: 1 } }
+    { $sort: { _id: 1 } },
   ]);
 }
 
 async function getCenterUtilization() {
   // Get all CENTER users
-  const centers = await User.find({ role: 'CENTER', status: 'APPROVED' })
-    .select('name province district');
-  
+  const centers = await User.find({
+    role: "CENTER",
+    status: "APPROVED",
+  }).select("name province district");
+
   // Get order counts for each center
   const centerData = await Promise.all(
     centers.map(async (center) => {
-      const orderCount = await Order.countDocuments({ centerId: center._id, isActive: true });
-      
+      const orderCount = await Order.countDocuments({
+        centerId: center._id,
+        isActive: true,
+      });
+
       // Simulate capacity and utilization data
       const capacity = 100; // Default capacity
       const utilization = (orderCount / capacity) * 100;
-      
+
       return {
         _id: center._id,
         name: center.name,
@@ -549,11 +572,11 @@ async function getCenterUtilization() {
         district: center.district,
         capacity,
         currentOrders: orderCount,
-        utilization
+        utilization,
       };
     })
   );
-  
+
   // Sort by utilization
   return centerData.sort((a, b) => b.utilization - a.utilization);
 }
@@ -563,20 +586,20 @@ async function getTopProducts(startDate, endDate) {
     {
       $match: {
         createdAt: { $gte: startDate, $lte: endDate },
-        isActive: true
-      }
+        isActive: true,
+      },
     },
-    { $unwind: '$items' },
+    { $unwind: "$items" },
     {
       $group: {
-        _id: '$items.productId',
-        productName: { $first: '$items.productName' },
-        totalQuantity: { $sum: '$items.quantity' },
-        totalRevenue: { $sum: '$items.totalPrice' }
-      }
+        _id: "$items.productId",
+        productName: { $first: "$items.productName" },
+        totalQuantity: { $sum: "$items.quantity" },
+        totalRevenue: { $sum: "$items.totalPrice" },
+      },
     },
     { $sort: { totalRevenue: -1 } },
-    { $limit: 10 }
+    { $limit: 10 },
   ]);
 }
 
@@ -585,36 +608,151 @@ async function getTopVendors(startDate, endDate) {
     {
       $match: {
         createdAt: { $gte: startDate, $lte: endDate },
-        isActive: true
-      }
+        isActive: true,
+      },
     },
     {
       $group: {
-        _id: '$vendorId',
+        _id: "$vendorId",
         totalOrders: { $sum: 1 },
-        totalRevenue: { $sum: '$orderSummary.totalAmount' }
-      }
+        totalRevenue: { $sum: "$orderSummary.totalAmount" },
+      },
     },
     {
       $lookup: {
-        from: 'users',
-        localField: '_id',
-        foreignField: '_id',
-        as: 'vendor'
-      }
+        from: "users",
+        localField: "_id",
+        foreignField: "_id",
+        as: "vendor",
+      },
     },
-    { $unwind: '$vendor' },
+    { $unwind: "$vendor" },
     {
       $project: {
-        vendorName: '$vendor.name',
-        businessName: '$vendor.businessName',
+        vendorName: "$vendor.name",
+        businessName: "$vendor.businessName",
         totalOrders: 1,
-        totalRevenue: 1
-      }
+        totalRevenue: 1,
+      },
     },
     { $sort: { totalRevenue: -1 } },
-    { $limit: 10 }
+    { $limit: 10 },
   ]);
 }
 
 module.exports = router;
+
+// @route   GET /api/admin/document/:userId/:filename
+// @desc    View user document (Admin only)
+// @access  Private (Admin)
+router.get(
+  "/document/:userId/:filename",
+  authenticate,
+  authorize("ADMIN"),
+  async (req, res) => {
+    try {
+      const { userId, filename } = req.params;
+
+      // Find the user and verify the document exists
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      // Find the document in user's documents array
+      const document = user.documents.find((doc) => doc.filename === filename);
+      if (!document) {
+        return res.status(404).json({
+          success: false,
+          message: "Document not found",
+        });
+      }
+
+      // Construct file path
+      const filePath = path.join(__dirname, "..", "uploads", filename);
+
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({
+          success: false,
+          message: "File not found on server",
+        });
+      }
+
+      // Set appropriate headers
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `inline; filename="${document.originalName}"`
+      );
+
+      // Send file
+      res.sendFile(filePath);
+    } catch (error) {
+      console.error("Error serving document:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to serve document",
+      });
+    }
+  }
+);
+
+// Add this route to admin.js
+router.get(
+  "/database-health",
+  authenticate,
+  authorize("ADMIN"),
+  async (req, res) => {
+    try {
+      // Check database connection
+      const dbState = mongoose.connection.readyState;
+      const stateMap = {
+        0: "disconnected",
+        1: "connected",
+        2: "connecting",
+        3: "disconnecting",
+      };
+
+      // Get user counts by status
+      const userStats = await User.aggregate([
+        {
+          $group: {
+            _id: { role: "$role", status: "$status" },
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+      // Get recent registrations
+      const recentRegistrations = await User.find({
+        createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      })
+        .select("name email role status createdAt")
+        .sort({ createdAt: -1 });
+
+      res.json({
+        success: true,
+        data: {
+          database: {
+            state: stateMap[dbState],
+            connected: dbState === 1,
+          },
+          userStats,
+          recentRegistrations,
+          timestamp: new Date(),
+        },
+      });
+    } catch (error) {
+      console.error("Database health check error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Database health check failed",
+        error: error.message,
+      });
+    }
+  }
+);
