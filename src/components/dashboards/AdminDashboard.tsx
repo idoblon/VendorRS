@@ -139,8 +139,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
       setLoading(true);
       setError(null);
 
-      // Fetch vendors
-      const vendorResponse = await axiosInstance.get("/api/users/vendors");
+      // Fetch vendors with increased limit
+      const vendorResponse = await axiosInstance.get("/api/users/vendors", {
+        params: {
+          limit: 100, // Increase limit to see all vendors
+          page: 1,
+        },
+      });
       console.log("Vendor API response:", vendorResponse.data);
 
       if (vendorResponse.data.success && vendorResponse.data.data?.vendors) {
@@ -150,7 +155,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
 
         // Calculate total commission from approved vendors
         const approvedVendors = vendorData.filter(
-          (v: Vendor) => v.status === "APPROVED" // Changed from "approved" to "APPROVED"
+          (v: Vendor) => v.status === "APPROVED" // Keep this as APPROVED
         );
         const commission = approvedVendors.reduce(
           (sum: number, vendor: Vendor) => {
@@ -166,14 +171,20 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
         setTotalCommission(1500);
       }
 
-      // Fetch distribution centers
+      // Fetch distribution centers with increased limit
       try {
-        const centerResponse = await axiosInstance.get("/api/users/centers");
+        const centerResponse = await axiosInstance.get("/api/users/centers", {
+          params: {
+            limit: 100, // Increase limit to see all centers
+            page: 1,
+          },
+        });
         if (centerResponse.data.success && centerResponse.data.data?.centers) {
           const centerData = centerResponse.data.data.centers;
           setDistributionCenters(centerData);
+          // FIX: Change from "active" to "APPROVED" to match database
           const activeCenters = centerData.filter(
-            (c: DistributionCenter) => c.status === "active"
+            (c: DistributionCenter) => c.status === "APPROVED"
           );
           setActiveCentersCount(activeCenters.length);
         } else {
@@ -628,7 +639,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {distributionCenters
-                .filter((center) => center.status === "active")
+                .filter((center) => center.status === "APPROVED")
                 .filter(
                   (center) =>
                     center.name
@@ -697,8 +708,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                 ))}
             </div>
 
-            {distributionCenters.filter((center) => center.status === "active")
-              .length === 0 && (
+            {distributionCenters.filter(
+              (center) => center.status === "APPROVED"
+            ).length === 0 && (
               <Card className="p-8 text-center">
                 <Building className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -1085,7 +1097,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                 </h4>
                 <p className="text-xl font-bold text-green-600">
                   {
-                    distributionCenters.filter((c) => c.status === "active")
+                    distributionCenters.filter((c) => c.status === "APPROVED")
                       .length
                   }
                 </p>

@@ -118,214 +118,214 @@ export default function CenterDashboard({
     ],
   };
 
-  // Mock data - Center's inventory with more demo items
+  // Mock data - Center's inventory with footwear items
   const mockProducts: Product[] = [
     {
-      id: "prod-1",
-      name: "Bowl of Steamed Rice",
-      description: "Fresh steamed rice, perfect for meals",
-      price: 150,
-      category: "Food",
-      stock: 50,
+      id: "FW001",
+      name: "Nike Air Max 270",
+      description: "Iconic Nike Air Max with visible cushioning",
+      price: 8999,
+      category: "Footwear",
+      stock: 45,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-15",
       updatedDate: "2024-01-20",
     },
     {
-      id: "prod-2",
-      name: "Assorted Vegetables",
-      description: "Fresh mixed vegetables for healthy cooking",
-      price: 200,
-      category: "Food",
-      stock: 25,
+      id: "FW002",
+      name: "Adidas Ultraboost 22",
+      description: "Premium running shoes with responsive cushioning",
+      price: 12999,
+      category: "Footwear",
+      stock: 32,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-10",
       updatedDate: "2024-01-18",
     },
     {
-      id: "prod-3",
-      name: "Assorted Spices",
-      description: "Premium quality spices for authentic flavors",
-      price: 300,
-      category: "Food",
-      stock: 15,
+      id: "FW003",
+      name: "Converse Chuck Taylor",
+      description: "Classic canvas sneakers for everyday wear",
+      price: 4999,
+      category: "Footwear",
+      stock: 78,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-12",
       updatedDate: "2024-01-19",
     },
     {
-      id: "prod-4",
-      name: "Turmeric Powder",
-      description: "Pure organic turmeric powder for cooking and health",
-      price: 180,
-      category: "Spices",
-      stock: 30,
+      id: "FW004",
+      name: "Puma RS-X Sneakers",
+      description: "Bold chunky sneakers with retro design",
+      price: 7499,
+      category: "Footwear",
+      stock: 56,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-14",
       updatedDate: "2024-01-21",
     },
     {
-      id: "prod-5",
-      name: "Green Cardamom",
-      description: "Premium quality green cardamom pods",
-      price: 450,
-      category: "Spices",
-      stock: 20,
+      id: "FW005",
+      name: "Vans Old Skool",
+      description: "Skate shoes with signature side stripe",
+      price: 5999,
+      category: "Footwear",
+      stock: 89,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1599909533730-f4b6c89bf9b5?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-16",
       updatedDate: "2024-01-22",
     },
     {
-      id: "prod-6",
-      name: "Cinnamon Bark",
-      description: "Authentic Ceylon cinnamon bark sticks",
-      price: 320,
-      category: "Electronics",
-      stock: 18,
+      id: "FW006",
+      name: "New Balance 990v5",
+      description: "Premium made in USA running shoes",
+      price: 11999,
+      category: "Footwear",
+      stock: 28,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-13",
       updatedDate: "2024-01-20",
     },
     {
-      id: "prod-7",
-      name: "Black Pepper",
-      description: "Whole black peppercorns for seasoning",
-      price: 280,
-      category: "Spices",
-      stock: 25,
+      id: "FW007",
+      name: "Reebok Classic Leather",
+      description: "Timeless leather sneakers with retro appeal",
+      price: 6499,
+      category: "Footwear",
+      stock: 67,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1599909533730-f4b6c89bf9b5?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-17",
       updatedDate: "2024-01-23",
     },
     {
-      id: "prod-8",
-      name: "Cumin Seeds",
-      description: "Aromatic cumin seeds for cooking",
-      price: 220,
-      category: "Spices",
-      stock: 35,
+      id: "FW008",
+      name: "Jordan Air Force 1",
+      description: "Iconic basketball shoes with premium materials",
+      price: 9999,
+      category: "Footwear",
+      stock: 41,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-11",
       updatedDate: "2024-01-19",
     },
     {
-      id: "prod-9",
-      name: "Portable Power Bank",
-      description: "10000mAh portable power bank with fast charging",
-      price: 2500,
-      category: "Electronics",
-      stock: 12,
+      id: "FW009",
+      name: "Timberland Boots",
+      description: "Durable waterproof boots for outdoor activities",
+      price: 13999,
+      category: "Footwear",
+      stock: 23,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1609592806787-3d9c1b8b6b5e?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-18",
       updatedDate: "2024-01-24",
     },
     {
-      id: "prod-10",
-      name: "Smartwatch",
-      description: "Fitness tracking smartwatch with heart rate monitor",
-      price: 8500,
-      category: "Electronics",
-      stock: 8,
+      id: "FW010",
+      name: "Clarks Desert Boots",
+      description: "Classic suede chukka boots with crepe sole",
+      price: 8499,
+      category: "Footwear",
+      stock: 35,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-19",
       updatedDate: "2024-01-25",
     },
     {
-      id: "prod-11",
-      name: "Herbal Tea Blend",
-      description: "Organic herbal tea blend with natural ingredients",
-      price: 350,
-      category: "Beverages",
-      stock: 40,
+      id: "FW011",
+      name: "Skechers Go Walk",
+      description: "Lightweight walking shoes with memory foam insole",
+      price: 4499,
+      category: "Footwear",
+      stock: 92,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-15",
       updatedDate: "2024-01-21",
     },
     {
-      id: "prod-12",
-      name: "Handwoven Basket",
-      description: "Traditional handwoven bamboo basket",
-      price: 1200,
-      category: "Handicrafts",
-      stock: 15,
+      id: "FW012",
+      name: "Asics Gel-Kayano",
+      description: "High-performance running shoes with gel cushioning",
+      price: 10999,
+      category: "Footwear",
+      stock: 38,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-12",
       updatedDate: "2024-01-18",
     },
     {
-      id: "prod-13",
-      name: "Organic Honey",
-      description: "Pure organic honey from mountain regions",
-      price: 650,
-      category: "Food",
-      stock: 22,
+      id: "FW013",
+      name: "Under Armour HOVR",
+      description: "Performance athletic shoes with energy return",
+      price: 9499,
+      category: "Footwear",
+      stock: 44,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-20",
       updatedDate: "2024-01-26",
     },
     {
-      id: "prod-14",
-      name: "Wooden Cutting Board",
-      description: "Handcrafted wooden cutting board for kitchen use",
-      price: 850,
-      category: "Handicrafts",
-      stock: 18,
+      id: "FW014",
+      name: "Fila Disruptor II",
+      description: "Chunky platform sneakers with distinctive design",
+      price: 6999,
+      category: "Footwear",
+      stock: 61,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-14",
       updatedDate: "2024-01-20",
     },
     {
-      id: "prod-15",
-      name: "Green Tea",
-      description: "Premium quality green tea leaves",
-      price: 420,
-      category: "Beverages",
-      stock: 28,
+      id: "FW015",
+      name: "Dr. Martens 1460",
+      description: "Iconic leather boots with yellow stitching",
+      price: 14999,
+      category: "Footwear",
+      stock: 19,
       status: "available",
       images: [
-        "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop",
       ],
       createdDate: "2024-01-16",
       updatedDate: "2024-01-22",
@@ -527,7 +527,12 @@ export default function CenterDashboard({
   };
 
   const handleAddProduct = () => {
-    if (!newProduct.name || !newProduct.price || !newProduct.category || !newProduct.stock) {
+    if (
+      !newProduct.name ||
+      !newProduct.price ||
+      !newProduct.category ||
+      !newProduct.stock
+    ) {
       alert("Please fill in all required fields");
       return;
     }
@@ -540,15 +545,15 @@ export default function CenterDashboard({
       category: newProduct.category,
       stock: parseInt(newProduct.stock),
       status: newProduct.status,
-      images: newProduct.images.filter(img => img.trim() !== ""),
-      createdDate: new Date().toISOString().split('T')[0],
-      updatedDate: new Date().toISOString().split('T')[0],
+      images: newProduct.images.filter((img) => img.trim() !== ""),
+      createdDate: new Date().toISOString().split("T")[0],
+      updatedDate: new Date().toISOString().split("T")[0],
     };
 
     // In a real app, this would make an API call to create the product
     console.log("Adding new product:", productToAdd);
     alert(`Product "${productToAdd.name}" added successfully!`);
-    
+
     // Reset form and close modal
     setNewProduct({
       name: "",
@@ -589,7 +594,9 @@ export default function CenterDashboard({
               <input
                 type="text"
                 value={newProduct.name}
-                onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, name: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Enter product name"
               />
@@ -601,7 +608,9 @@ export default function CenterDashboard({
               </label>
               <textarea
                 value={newProduct.description}
-                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, description: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 rows={3}
                 placeholder="Enter product description"
@@ -616,7 +625,9 @@ export default function CenterDashboard({
                 <input
                   type="number"
                   value={newProduct.price}
-                  onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                  onChange={(e) =>
+                    setNewProduct({ ...newProduct, price: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   placeholder="0"
                 />
@@ -629,7 +640,9 @@ export default function CenterDashboard({
                 <input
                   type="number"
                   value={newProduct.stock}
-                  onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+                  onChange={(e) =>
+                    setNewProduct({ ...newProduct, stock: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   placeholder="0"
                 />
@@ -642,7 +655,9 @@ export default function CenterDashboard({
               </label>
               <select
                 value={newProduct.category}
-                onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, category: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 <option value="">Select a category</option>
@@ -660,7 +675,15 @@ export default function CenterDashboard({
               </label>
               <select
                 value={newProduct.status}
-                onChange={(e) => setNewProduct({ ...newProduct, status: e.target.value as "available" | "out_of_stock" | "discontinued" })}
+                onChange={(e) =>
+                  setNewProduct({
+                    ...newProduct,
+                    status: e.target.value as
+                      | "available"
+                      | "out_of_stock"
+                      | "discontinued",
+                  })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 <option value="available">Available</option>
@@ -676,7 +699,9 @@ export default function CenterDashboard({
               <input
                 type="url"
                 value={newProduct.images[0]}
-                onChange={(e) => setNewProduct({ ...newProduct, images: [e.target.value] })}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, images: [e.target.value] })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="https://example.com/image.jpg"
               />
@@ -1351,7 +1376,9 @@ export default function CenterDashboard({
                               title="Process Order"
                               onClick={() => {
                                 // Handle order processing for this product
-                                console.log(`Processing orders for ${product.name}`);
+                                console.log(
+                                  `Processing orders for ${product.name}`
+                                );
                                 // This would typically open a modal showing pending orders for this product
                                 // and allow the center to fulfill them
                               }}
@@ -1426,19 +1453,21 @@ export default function CenterDashboard({
                         <p>Order Date: {order.createdDate}</p>
                       </div>
                       <div className="flex space-x-2">
-                        <Button 
-                          variant="default" 
+                        <Button
+                          variant="default"
                           size="sm"
                           className="bg-green-500 hover:bg-green-600 text-white"
                           onClick={() => {
                             // Update order status to processing
-                            const updatedOrders = mockIncomingOrders.map(o => 
-                              o.id === order.id 
-                                ? { ...o, status: 'processing' as const }
+                            const updatedOrders = mockIncomingOrders.map((o) =>
+                              o.id === order.id
+                                ? { ...o, status: "processing" as const }
                                 : o
                             );
                             // In a real app, this would make an API call to update the order
-                            console.log(`Order ${order.id} status updated to processing`);
+                            console.log(
+                              `Order ${order.id} status updated to processing`
+                            );
                             alert(`Order ${order.id} is now being processed!`);
                           }}
                         >

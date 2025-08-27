@@ -710,68 +710,69 @@ router.get("/stats", authenticate, authorize("ADMIN"), async (req, res) => {
         },
       },
     });
-    // @route   GET /api/users/centers/category/:category
-    // @desc    Get centers by category (for vendors to find matching centers)
-    // @access  Private (Vendor)
-    router.get(
-      "/centers/category/:category",
-      authenticate,
-      authorize("VENDOR"),
-      async (req, res) => {
-        try {
-          const category = req.params.category;
-
-          // Find active centers that have the specified category
-          const centers = await User.find({
-            role: "CENTER",
-            status: "APPROVED",
-            isActive: true,
-            categories: { $in: [category] },
-          }).select("-password");
-
-          res.json({
-            success: true,
-            data: { centers },
-          });
-        } catch (error) {
-          console.error("Get centers by category error:", error);
-          res.status(500).json({
-            success: false,
-            message: "Failed to fetch centers by category",
-          });
-        }
-      }
-    );
-
-    // @route   GET /api/users/centers/categories
-    // @desc    Get all categories from centers
-    // @access  Private
-    router.get("/centers/categories", authenticate, async (req, res) => {
-      try {
-        // Get all unique categories from active centers
-        const categories = await User.distinct("categories", {
-          role: "CENTER",
-          status: "APPROVED",
-          isActive: true,
-        });
-
-        res.json({
-          success: true,
-          data: { categories },
-        });
-      } catch (error) {
-        console.error("Get center categories error:", error);
-        res.status(500).json({
-          success: false,
-          message: "Failed to fetch center categories",
-        });
-      }
-    });
   } catch (error) {
     console.error("Get user stats error:", error);
     res.status(500).json({
       success: false,
       message: "Failed to fetch user statistics",
+    });
+  }
+});
+
+// @route   GET /api/users/centers/category/:category
+// @desc    Get centers by category (for vendors to find matching centers)
+// @access  Private (Vendor)
+router.get(
+  "/centers/category/:category",
+  authenticate,
+  authorize("VENDOR"),
+  async (req, res) => {
+    try {
+      const category = req.params.category;
+
+      // Find active centers that have the specified category
+      const centers = await User.find({
+        role: "CENTER",
+        status: "APPROVED",
+        isActive: true,
+        categories: { $in: [category] },
+      }).select("-password");
+
+      res.json({
+        success: true,
+        data: { centers },
+      });
+    } catch (error) {
+      console.error("Get centers by category error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch centers by category",
+      });
+    }
+  }
+);
+
+// @route   GET /api/users/centers/categories
+// @desc    Get all categories from centers
+// @access  Private
+router.get("/centers/categories", authenticate, async (req, res) => {
+  try {
+    // Get all unique categories from active centers
+    const categories = await User.distinct("categories", {
+      role: "CENTER",
+      status: "APPROVED",
+      isActive: true,
+    });
+
+    res.json({
+      success: true,
+      data: { categories },
+    });
+  } catch (error) {
+    console.error("Get center categories error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch center categories",
     });
   }
 });

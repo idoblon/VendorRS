@@ -20,6 +20,13 @@ import { Card } from "./../ui/Card";
 import { Button } from "./../ui/Button";
 import axiosInstance from "../../utils/axios";
 
+interface Document {
+  filename: string;
+  originalName: string;
+  path: string;
+  uploadDate: string;
+}
+
 interface Application {
   id: string;
   type: "vendor" | "center";
@@ -30,7 +37,7 @@ interface Application {
   phone: string;
   status: "pending" | "approved" | "rejected";
   submittedDate: string;
-  documents: string[];
+  documents: Document[];
 }
 
 export function ApplicationsComponent() {
@@ -106,7 +113,12 @@ export function ApplicationsComponent() {
             ? new Date(item.createdAt).toISOString().split("T")[0]
             : "",
           documents: item.documents
-            ? item.documents.map((doc: any) => doc.originalName || "Document")
+            ? item.documents.map((doc: any) => ({
+                filename: doc.filename,
+                originalName: doc.originalName || "Document",
+                path: doc.path,
+                uploadDate: doc.uploadDate,
+              }))
             : [],
         }));
         console.log("Transformed applications:", transformedApplications);

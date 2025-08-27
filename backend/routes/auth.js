@@ -139,6 +139,7 @@ router.post(
       province,
       contactPersons,
       bankDetails,
+      categories, // Add this line
     } = req.body;
 
     try {
@@ -195,6 +196,10 @@ router.post(
         userData.panNumber = panNumber;
         userData.district = district;
         userData.province = province;
+        // Add categories field
+        if (categories && Array.isArray(categories)) {
+          userData.categories = categories;
+        }
       }
 
       user = new User(userData);

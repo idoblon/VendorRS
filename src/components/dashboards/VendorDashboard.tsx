@@ -19,10 +19,20 @@ import {
   HandCoins,
   MessageCircle,
   Archive,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { getVendorAnalytics } from "../../utils/vendorApi";
+import {
+  getCentersByCategory,
+  getCenterCategories,
+} from "../../utils/centerApi";
+import {
+  getProducts,
+  getProductCategories,
+  Product,
+} from "../../utils/productApi";
 import { User } from "../../types/index";
 
 interface VendorDashboardProps {
@@ -47,6 +57,14 @@ export function VendorDashboard({
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+
+  // Add product state variables
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productCategories, setProductCategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [productError, setProductError] = useState<string | null>(null);
 
   // Add message modal state
   const [showMessageModal, setShowMessageModal] = useState(false);
@@ -981,6 +999,40 @@ export function VendorDashboard({
     </div>
   );
 
+  // Fetch products and categories on component mount
+  useEffect(() => {
+    const fetchProductData = async () => {
+      try {
+        setIsLoadingProducts(true);
+        setProductError(null);
+        
+        // Fetch product categories first
+        const categories = await getProductCategories();
+        setProductCategories(categories);
+        
+        // Fetch ALL products from all centers without any filters
+        const productsData = await getProducts();
+        console.log('Fetched products:', productsData); // Debug log
+        setProducts(productsData.products || productsData.data || []);
+        
+        // Don't set any default category - show all products initially
+        setSelectedCategory('');
+      } catch (error) {
+        console.error('Error fetching product data:', error);
+        setProductError(`Failed to load products: ${error.message}`);
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    };
+
+    fetchProductData();
+  }, []);
+
+  // Filter products by category - show all if no category selected
+  const filteredProducts = selectedCategory 
+    ? products.filter(product => product.category === selectedCategory)
+    : products;
+
   // Use real vendor profile data from the logged-in user
   const vendorProfile = {
     businessName: user.businessName || vendorName,
@@ -1686,62 +1738,96 @@ export function VendorDashboard({
   );
 
   // Handle search functionality
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!searchTerm.trim()) {
       setSearchResults([]);
+      setSearchError(null);
       return;
     }
 
     setIsSearching(true);
-    try {
-      // Simulate search API call
-      console.log("Searching for:", searchTerm);
-      // Here you would make an actual API call to search products/centers
-      // const results = await searchProducts(searchTerm);
+    setSearchError(null);
 
-      // For now, show a mock result
-      setTimeout(() => {
-        // Mock search results - in a real app, this would be an API call
-        const mockResults = [
-          {
-            id: "prod1",
-            name: "Premium Basmati Rice",
-            center: "Kathmandu Food Center",
-            price: "रू 2,500/bag",
-            description: "High-quality basmati rice from the Himalayan region",
-            image:
-              "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop",
-          },
-          {
-            id: "prod2",
-            name: "Organic Wheat Flour",
-            center: "Pokhara Grain Hub",
-            price: "रू 1,800/bag",
-            description: "Stone-ground organic wheat flour, perfect for baking",
-            image:
-              "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=300&fit=crop",
-          },
-          {
-            id: "prod3",
-            name: "Mixed Spices Pack",
-            center: "Lalitpur Organics",
-            price: "रू 950/kg",
-            description: "Traditional Nepali spice blend for authentic flavors",
-            image:
-              "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop",
-          },
-        ].filter(
-          (item) =>
-            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.center.toLowerCase().includes(searchTerm.toLowerCase())
+    try {
+      console.log("🔍 Starting search for:", searchTerm);
+
+      // Get all available categories first
+      const availableCategories = await getCenterCategories();
+      console.log("📋 Available categories:", availableCategories);
+
+      // Check if search term matches any category (case-insensitive)
+      const matchingCategories = availableCategories.filter((category) =>
+        category.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      console.log("🎯 Matching categories:", matchingCategories);
+
+      let allCenters = [];
+
+      if (matchingCategories.length > 0) {
+        // Search by each matching category
+        for (const category of matchingCategories) {
+          console.log(`🔍 Searching centers for category: ${category}`);
+          try {
+            const centers = await getCentersByCategory(category);
+            console.log(
+              `📍 Found ${centers.length} centers for category ${category}:`,
+              centers
+            );
+            allCenters.push(...centers);
+          } catch (error) {
+            console.error(
+              `❌ Error fetching centers for category ${category}:`,
+              error
+            );
+          }
+        }
+
+        // Remove duplicates based on center ID
+        const uniqueCenters = allCenters.filter(
+          (center, index, self) =>
+            index === self.findIndex((c) => c._id === center._id)
         );
 
-        setSearchResults(mockResults);
-        setIsSearching(false);
-      }, 800);
+        console.log(`📊 Total unique centers found: ${uniqueCenters.length}`);
+
+        // Format results for display
+        const formattedResults = uniqueCenters.map((center) => ({
+          id: center._id,
+          name: center.name,
+          center: center.name,
+          location:
+            center.location || center.district || "Location not specified",
+          categories: center.categories || [],
+          description: `Distribution center supporting: ${(
+            center.categories || []
+          ).join(", ")}`,
+          type: "center",
+        }));
+
+        setSearchResults(formattedResults);
+
+        if (formattedResults.length === 0) {
+          setSearchError(
+            `No centers found for the matching categories. Please try a different search term.`
+          );
+        }
+      } else {
+        console.log(
+          "❌ No matching categories found for search term:",
+          searchTerm
+        );
+        setSearchResults([]);
+        setSearchError(
+          `No centers found for category "${searchTerm}". Available categories: ${availableCategories
+            .slice(0, 5)
+            .join(", ")}${availableCategories.length > 5 ? "..." : ""}`
+        );
+      }
     } catch (error) {
-      console.error("Search error:", error);
-      alert("Search failed. Please try again.");
+      console.error("❌ Search error:", error);
+      setSearchError("Failed to search centers. Please try again.");
+      setSearchResults([]);
+    } finally {
       setIsSearching(false);
     }
   };
@@ -1756,6 +1842,7 @@ export function VendorDashboard({
       return () => clearTimeout(timeoutId);
     } else {
       setSearchResults([]);
+      setSearchError(null);
     }
   }, [searchTerm]);
 
@@ -1816,42 +1903,207 @@ export function VendorDashboard({
         })}
       </div>
 
-      {/* Search Results */}
-      {searchResults.length > 0 && (
+      {/* Search Results or Error */}
+      {(searchResults.length > 0 || searchError) && (
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Search Results ({searchResults.length})
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {searchResults.map((result) => (
-              <div
-                key={result.id}
-                className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-medium text-gray-900">{result.name}</h4>
-                  <span className="text-sm font-semibold text-orange-600">
-                    {result.price}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-600 mb-2">
-                  {result.description}
-                </p>
-                <p className="text-xs text-gray-500 mb-3">
-                  Available at: {result.center}
-                </p>
-                <Button
-                  size="sm"
-                  className="w-full"
-                  onClick={() => addToCart(result)}
+          {searchError ? (
+            <div className="flex items-start space-x-3 p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
+              <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
+              <div>
+                <h4 className="font-medium text-amber-800">Search Notice</h4>
+                <p className="text-sm text-amber-700 mt-1">{searchError}</p>
+              </div>
+            </div>
+          ) : (
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Search Results ({searchResults.length})
+            </h3>
+          )}
+
+          {searchResults.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {searchResults.map((result) => (
+                <div
+                  key={result.id}
+                  className="border rounded-lg p-4 hover:shadow-md transition-shadow"
                 >
-                  Add to Cart
-                </Button>
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="font-medium text-gray-900">{result.name}</h4>
+                    {result.type === "center" ? (
+                      <span className="text-sm font-semibold text-green-600 bg-green-100 px-2 py-1 rounded">
+                        Center
+                      </span>
+                    ) : (
+                      <span className="text-sm font-semibold text-orange-600">
+                        {result.price}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {result.description}
+                  </p>
+                  <p className="text-xs text-gray-500 mb-3">
+                    Location: {result.location}
+                  </p>
+                  {result.categories && result.categories.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-xs text-gray-500 mb-1">Categories:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {result.categories.map((category, index) => (
+                          <span
+                            key={index}
+                            className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded"
+                          >
+                            {category}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <Button
+                    size="sm"
+                    className="w-full"
+                    onClick={() => {
+                      if (result.type === "center") {
+                        // Handle center selection - maybe show products from this center
+                        console.log("Selected center:", result);
+                        alert(`Selected center: ${result.name}`);
+                      } else {
+                        addToCart(result);
+                      }
+                    }}
+                  >
+                    {result.type === "center" ? "View Center" : "Add to Cart"}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Products Section */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-gray-900">
+            {selectedCategory ? `${selectedCategory} Products` : 'All Products from All Centers'}
+          </h3>
+          <div className="flex items-center space-x-4">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Categories</option>
+              {productCategories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {productError && (
+          <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
+            <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-red-800">Error</h4>
+              <p className="text-sm text-red-700 mt-1">{productError}</p>
+            </div>
+          </div>
+        )}
+
+        {isLoadingProducts ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <span className="ml-2 text-gray-600">Loading products...</span>
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="text-center py-12">
+            <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h4 className="text-lg font-medium text-gray-900 mb-2">
+              No Products Available
+            </h4>
+            <p className="text-gray-500">
+              {selectedCategory 
+                ? `No products available in ${selectedCategory} category`
+                : 'No products available from any center'
+              }
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredProducts.map((product) => (
+              <div
+                key={product._id}
+                className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200"
+              >
+                <div className="aspect-w-16 aspect-h-9 bg-gray-200">
+                  <img
+                    src={product.images[0] || "/placeholder.svg"}
+                    alt={product.name}
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">
+                      {product.name}
+                    </h4>
+                    <span className="text-sm font-bold text-blue-600 ml-2">
+                      रू {product.price.toLocaleString()}
+                    </span>
+                  </div>
+                  
+                  <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                    {product.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                      {product.category}
+                    </span>
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      product.status === 'available' 
+                        ? 'bg-green-100 text-green-800'
+                        : product.status === 'out_of_stock'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {product.status.replace('_', ' ').toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  <div className="text-xs text-gray-500 mb-3">
+                    <p className="flex items-center">
+                      <Users className="h-3 w-3 mr-1" />
+                      {product.vendorId?.businessName || 'Unknown Center'}
+                    </p>
+                  </div>
+                  
+                  <Button
+                    size="sm"
+                    className="w-full"
+                    disabled={product.status !== 'available'}
+                    onClick={() => addToCart({
+                      id: product._id,
+                      name: product.name,
+                      price: `रू ${product.price.toLocaleString()}`,
+                      image: product.images[0],
+                      center: product.vendorId?.businessName || 'Unknown Center',
+                      description: product.description,
+                      category: product.category
+                    })}
+                  >
+                    {product.status === 'available' ? 'Add to Cart' : 'Unavailable'}
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
-        </Card>
-      )}
+        )}
+      </Card>
     </div>
   );
 

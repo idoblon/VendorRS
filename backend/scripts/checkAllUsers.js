@@ -10,10 +10,10 @@ const checkAllUsers = async () => {
     });
     console.log("✅ Connected to MongoDB");
 
-    // Get all users with their status
+    // Get all users with their status and categories
     const allUsers = await User.find({})
       .select(
-        "name email role status businessName district province createdAt updatedAt"
+        "name email role status businessName district province categories createdAt updatedAt"
       )
       .sort({ createdAt: -1 });
 
@@ -40,6 +40,14 @@ const checkAllUsers = async () => {
             console.log(`   Business: ${user.businessName}`);
           if (user.district)
             console.log(`   Location: ${user.district}, ${user.province}`);
+          // Show categories for CENTER users
+          if (user.role === "CENTER") {
+            if (user.categories && user.categories.length > 0) {
+              console.log(`   Categories: ${user.categories.join(", ")}`);
+            } else {
+              console.log(`   Categories: ❌ MISSING`);
+            }
+          }
           console.log(`   Created: ${user.createdAt}`);
           console.log(`   Updated: ${user.updatedAt}`);
           console.log(`   ID: ${user._id}\n`);
@@ -60,6 +68,30 @@ const checkAllUsers = async () => {
     Object.keys(statusCounts).forEach((status) => {
       console.log(`${status}: ${statusCounts[status]}`);
     });
+
+    // Categories summary for centers
+    const centerUsers = allUsers.filter((u) => u.role === "CENTER");
+    const centersWithCategories = centerUsers.filter(
+      (u) => u.categories && u.categories.length > 0
+    );
+    const centersWithoutCategories = centerUsers.filter(
+      (u) => !u.categories || u.categories.length === 0
+    );
+
+    console.log("\n📋 CENTER CATEGORIES SUMMARY:");
+    console.log("=============================");
+    console.log(`Total Centers: ${centerUsers.length}`);
+    console.log(`Centers with Categories: ${centersWithCategories.length}`);
+    console.log(
+      `Centers without Categories: ${centersWithoutCategories.length}`
+    );
+
+    if (centersWithoutCategories.length > 0) {
+      console.log("\n❌ CENTERS MISSING CATEGORIES:");
+      centersWithoutCategories.forEach((center, index) => {
+        console.log(`${index + 1}. ${center.name} (${center.email})`);
+      });
+    }
   } catch (error) {
     console.error("❌ Error:", error);
   } finally {

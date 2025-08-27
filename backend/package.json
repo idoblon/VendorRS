@@ -9,7 +9,8 @@
     "seed": "node scripts/seedDatabase.js",
     "seed-safe": "node scripts/safeSeedDatabase.js",
     "seed-force": "node scripts/safeSeedDatabase.js --force --confirm",
-    "check-users": "node scripts/checkAllUsers.js"
+    "check-users": "node scripts/checkAllUsers.js",
+    "add-categories": "node scripts/addCategoriesToCenters.js"
   },
   "dependencies": {
     "axios": "^1.11.0",
