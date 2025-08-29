@@ -4,9 +4,9 @@ export interface Product {
   _id: string;
   name: string;
   description: string;
+  price: number;
   category: string;
   subcategory?: string;
-  price: number;
   vendorId: {
     _id: string;
     name: string;
@@ -20,20 +20,25 @@ export interface Product {
     district: string;
     stock: number;
     reservedStock: number;
-    lastUpdated: string;
+    lastUpdated?: Date;
   }>;
-  specifications: Record<string, any>;
-  images: string[];
+  specifications?: Record<string, any>;
+  images: Array<{
+    filename: string;
+    originalName: string;
+    path: string;
+    url: string;
+    isPrimary: boolean;
+  }>;
   tags: string[];
   status: 'available' | 'out_of_stock' | 'discontinued';
-  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface ProductsResponse {
   products: Product[];
-  pagination: {
+  pagination?: {
     current: number;
     pages: number;
     total: number;
@@ -41,8 +46,19 @@ export interface ProductsResponse {
   };
 }
 
-// Get all products
-export const getProducts = async (params?: {
+// Get products by center ID
+export const getProductsByCenter = async (centerId: string): Promise<Product[]> => {
+  try {
+    const response = await axiosInstance.get(`/api/products/center/${centerId}`);
+    return response.data.data.products;
+  } catch (error) {
+    console.error('Error fetching products by center:', error);
+    throw error;
+  }
+};
+
+// Get all products with optional filters
+export const getProducts = async (filters?: {
   page?: number;
   limit?: number;
   category?: string;
@@ -54,9 +70,10 @@ export const getProducts = async (params?: {
 }): Promise<ProductsResponse> => {
   try {
     const queryParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
+    
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined) {
           queryParams.append(key, value.toString());
         }
       });
@@ -71,23 +88,12 @@ export const getProducts = async (params?: {
 };
 
 // Get product by ID
-export const getProductById = async (id: string): Promise<Product> => {
+export const getProductById = async (productId: string): Promise<Product> => {
   try {
-    const response = await axiosInstance.get(`/api/products/${id}`);
+    const response = await axiosInstance.get(`/api/products/${productId}`);
     return response.data.data.product;
   } catch (error) {
-    console.error('Error fetching product:', error);
-    throw error;
-  }
-};
-
-// Get products by category
-export const getProductsByCategory = async (category: string): Promise<Product[]> => {
-  try {
-    const response = await axiosInstance.get(`/api/products?category=${category}`);
-    return response.data.data.products;
-  } catch (error) {
-    console.error('Error fetching products by category:', error);
+    console.error('Error fetching product details:', error);
     throw error;
   }
 };
@@ -99,17 +105,6 @@ export const getProductCategories = async (): Promise<string[]> => {
     return response.data.data.categories;
   } catch (error) {
     console.error('Error fetching product categories:', error);
-    throw error;
-  }
-};
-
-// Get products by center
-export const getProductsByCenter = async (centerId: string): Promise<Product[]> => {
-  try {
-    const response = await axiosInstance.get(`/api/products/center/${centerId}`);
-    return response.data.data.products;
-  } catch (error) {
-    console.error('Error fetching products by center:', error);
     throw error;
   }
 };

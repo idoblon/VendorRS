@@ -26,41 +26,41 @@ const connectDB = async () => {
 const safeSeedDatabase = async () => {
   try {
     console.log("🛡️ Starting SAFE database seeding...");
-    
+
     // TRIPLE SAFETY CHECK
     const existingUsers = await User.countDocuments();
     const existingCategories = await Category.countDocuments();
     const existingProducts = await Product.countDocuments();
-    
+
     console.log(`📊 Current Database State:`);
     console.log(`   Users: ${existingUsers}`);
     console.log(`   Categories: ${existingCategories}`);
     console.log(`   Products: ${existingProducts}`);
-    
+
     // Check for force flag
-    const forceFlag = process.argv.includes('--force');
-    const confirmFlag = process.argv.includes('--confirm');
-    
+    const forceFlag = process.argv.includes("--force");
+    const confirmFlag = process.argv.includes("--confirm");
+
     if (existingUsers > 0 && !forceFlag) {
       console.log("\n⚠️  DATABASE CONTAINS DATA!");
       console.log("🔒 Seeding BLOCKED to protect existing data.");
       console.log("\n📋 Found existing data:");
-      
+
       // Show existing users by role
-      const adminCount = await User.countDocuments({ role: 'ADMIN' });
-      const vendorCount = await User.countDocuments({ role: 'VENDOR' });
-      const centerCount = await User.countDocuments({ role: 'CENTER' });
-      
+      const adminCount = await User.countDocuments({ role: "ADMIN" });
+      const vendorCount = await User.countDocuments({ role: "VENDOR" });
+      const centerCount = await User.countDocuments({ role: "CENTER" });
+
       console.log(`   👨‍💼 Admins: ${adminCount}`);
       console.log(`   🏪 Vendors: ${vendorCount}`);
       console.log(`   🏢 Centers: ${centerCount}`);
-      
+
       console.log("\n🚨 To force seeding (WILL DELETE ALL DATA):");
       console.log("   node scripts/safeSeedDatabase.js --force --confirm");
       console.log("\n💡 To check users: node scripts/checkAllUsers.js");
       return;
     }
-    
+
     if (forceFlag && !confirmFlag) {
       console.log("\n⚠️  FORCE FLAG DETECTED!");
       console.log("🔒 Confirmation required to proceed.");
@@ -69,34 +69,37 @@ const safeSeedDatabase = async () => {
       console.log("   node scripts/safeSeedDatabase.js --force --confirm");
       return;
     }
-    
+
     if (forceFlag && confirmFlag) {
       console.log("\n🚨 FORCE SEEDING CONFIRMED - DELETING ALL DATA!");
-      
+
       // Create backup before deletion
       const backupData = {
         timestamp: new Date().toISOString(),
         users: await User.find({}).lean(),
         categories: await Category.find({}).lean(),
         products: await Product.find({}).lean(),
-        orders: await Order.find({}).lean()
+        orders: await Order.find({}).lean(),
       };
-      
-      const backupPath = path.join(__dirname, `../backups/force_backup_${Date.now()}.json`);
+
+      const backupPath = path.join(
+        __dirname,
+        `../backups/force_backup_${Date.now()}.json`
+      );
       const backupDir = path.dirname(backupPath);
-      
+
       if (!fs.existsSync(backupDir)) {
         fs.mkdirSync(backupDir, { recursive: true });
       }
-      
+
       fs.writeFileSync(backupPath, JSON.stringify(backupData, null, 2));
       console.log(`💾 Backup created: ${backupPath}`);
     }
-    
+
     // Proceed with seeding only if database is empty OR force confirmed
     if (existingUsers === 0 || (forceFlag && confirmFlag)) {
       console.log("🌱 Proceeding with database seeding...");
-      
+
       // Clear existing data only if forced
       if (forceFlag && confirmFlag) {
         await User.deleteMany({});
@@ -108,19 +111,19 @@ const safeSeedDatabase = async () => {
         await Product.deleteMany({});
         console.log("🧹 Cleared existing data");
       }
-      
+
       // Create Admin User with secure credentials
       const adminUser = await User.create({
         name: "System Administrator",
         email: process.env.ADMIN_EMAIL || "admin@example.com",
         password: process.env.ADMIN_PASSWORD || "Password@123",
-        phone: "+91 9999999999",
+        phone: "+977 9817977212",
         role: "ADMIN",
         status: "APPROVED",
         isActive: true,
       });
       console.log("👨‍💼 Created admin user");
-      
+
       // Add sample categories
       const sampleCategories = [
         {
@@ -132,7 +135,12 @@ const safeSeedDatabase = async () => {
         {
           name: "Clothing",
           description: "Apparel and fashion items",
-          subcategories: ["Men's Wear", "Women's Wear", "Ethnic Wear", "Kids Wear"],
+          subcategories: [
+            "Men's Wear",
+            "Women's Wear",
+            "Ethnic Wear",
+            "Kids Wear",
+          ],
           isActive: true,
         },
         {
@@ -140,12 +148,12 @@ const safeSeedDatabase = async () => {
           description: "Books and educational materials",
           subcategories: ["Fiction", "Non-Fiction", "Educational", "Technical"],
           isActive: true,
-        }
+        },
       ];
-      
+
       await Category.insertMany(sampleCategories);
       console.log(`📦 Created ${sampleCategories.length} sample categories`);
-      
+
       // Create sample distribution centers
       const sampleCenters = [
         {
@@ -173,16 +181,16 @@ const safeSeedDatabase = async () => {
           district: "Pokhara",
           categories: ["Clothing", "Books"],
           isActive: true,
-        }
+        },
       ];
-      
+
       const centerUsers = [];
       for (const center of sampleCenters) {
         const centerUser = await User.create(center);
         centerUsers.push(centerUser);
         console.log(`🏢 Created center user: ${center.name}`);
       }
-      
+
       // Create sample vendors
       const sampleVendors = [
         {
@@ -211,16 +219,16 @@ const safeSeedDatabase = async () => {
             },
           ],
           isActive: true,
-        }
+        },
       ];
-      
+
       const vendorUsers = [];
       for (const vendor of sampleVendors) {
         const vendorUser = await User.create(vendor);
         vendorUsers.push(vendorUser);
         console.log(`🏪 Created vendor user: ${vendor.businessName}`);
       }
-      
+
       console.log("\n✅ Safe database seeding completed successfully!");
       console.log("\n📊 Seeding Summary:");
       console.log(`   👤 Admin Users: 1`);
@@ -228,7 +236,6 @@ const safeSeedDatabase = async () => {
       console.log(`   🏪 Vendors: ${vendorUsers.length}`);
       console.log(`   📂 Categories: ${sampleCategories.length}`);
     }
-    
   } catch (error) {
     console.error("❌ Error in safe seeding:", error);
     console.error(error.stack);

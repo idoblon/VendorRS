@@ -7,6 +7,9 @@ export interface Center {
   rating: number;
   categories: string[];
   image: string;
+  province?: string;
+  district?: string;
+  status?: string;
 }
 
 // Get centers by category
@@ -27,6 +30,40 @@ export const getCenterCategories = async (): Promise<string[]> => {
     return response.data.data.categories;
   } catch (error) {
     console.error('Error fetching center categories:', error);
+    throw error;
+  }
+};
+
+// Get all centers
+export const getAllCenters = async (params?: { limit?: number; page?: number; status?: string }): Promise<Center[]> => {
+  try {
+    // Get all unique categories
+    const categoriesResponse = await axiosInstance.get('/api/users/centers/categories');
+    const categories = categoriesResponse.data.data.categories;
+    
+    // Fetch centers for each category and combine results
+    const centersPromises = categories.map(category => 
+      getCentersByCategory(category)
+    );
+    
+    const centersArrays = await Promise.all(centersPromises);
+    
+    // Flatten the array of arrays and remove duplicates by center ID
+    const uniqueCentersMap = new Map();
+    centersArrays.flat().forEach(center => {
+      uniqueCentersMap.set(center._id, center);
+    });
+    
+    const uniqueCenters = Array.from(uniqueCentersMap.values());
+    
+    // Filter by status if provided
+    if (params?.status) {
+      return uniqueCenters.filter(center => center.status === params.status);
+    }
+    
+    return uniqueCenters;
+  } catch (error) {
+    console.error('Error fetching all centers:', error);
     throw error;
   }
 };

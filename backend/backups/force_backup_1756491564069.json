@@ -1,0 +1,151 @@
+{
+  "timestamp": "2025-08-29T18:19:24.039Z",
+  "users": [
+    {
+      "_id": "68a5b379366399a6b30d9fa2",
+      "name": "System Administrator",
+      "email": "admin@example.com",
+      "password": "$2a$12$E2mhrQd7RfpJxgtUYDzineJLCUO5oTJyzf80doN6FBvtONEWQ6Glu",
+      "phone": "+91 9999999999",
+      "role": "ADMIN",
+      "status": "APPROVED",
+      "categories": [],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-20T11:37:29.676Z",
+      "updatedAt": "2025-08-20T11:37:29.968Z",
+      "__v": 0
+    }
+  ],
+  "categories": [
+    {
+      "_id": "68a5b379366399a6b30d9fa4",
+      "name": "Furniture",
+      "parentCategory": null,
+      "isActive": true,
+      "createdAt": "2025-08-20T11:37:29.974Z",
+      "updatedAt": "2025-08-20T11:37:29.974Z",
+      "__v": 0
+    },
+    {
+      "_id": "68a5b379366399a6b30d9fa5",
+      "name": "Electronics",
+      "parentCategory": null,
+      "isActive": true,
+      "createdAt": "2025-08-20T11:37:29.974Z",
+      "updatedAt": "2025-08-20T11:37:29.974Z",
+      "__v": 0
+    },
+    {
+      "_id": "68a5b379366399a6b30d9fa6",
+      "name": "Clothing",
+      "parentCategory": null,
+      "isActive": true,
+      "createdAt": "2025-08-20T11:37:29.974Z",
+      "updatedAt": "2025-08-20T11:37:29.974Z",
+      "__v": 0
+    },
+    {
+      "_id": "68a5b379366399a6b30d9fa7",
+      "name": "Footwear",
+      "parentCategory": null,
+      "isActive": true,
+      "createdAt": "2025-08-20T11:37:29.974Z",
+      "updatedAt": "2025-08-20T11:37:29.974Z",
+      "__v": 0
+    },
+    {
+      "_id": "68a5b379366399a6b30d9fa8",
+      "name": "Accessories",
+      "parentCategory": null,
+      "isActive": true,
+      "createdAt": "2025-08-20T11:37:29.974Z",
+      "updatedAt": "2025-08-20T11:37:29.974Z",
+      "__v": 0
+    },
+    {
+      "_id": "68a5b379366399a6b30d9fa9",
+      "name": "Books",
+      "parentCategory": null,
+      "isActive": true,
+      "createdAt": "2025-08-20T11:37:29.974Z",
+      "updatedAt": "2025-08-20T11:37:29.975Z",
+      "__v": 0
+    },
+    {
+      "_id": "68a5b379366399a6b30d9faa",
+      "name": "Sports",
+      "parentCategory": null,
+      "isActive": true,
+      "createdAt": "2025-08-20T11:37:29.975Z",
+      "updatedAt": "2025-08-20T11:37:29.975Z",
+      "__v": 0
+    },
+    {
+      "_id": "68a5b379366399a6b30d9fab",
+      "name": "Home & Garden",
+      "parentCategory": null,
+      "isActive": true,
+      "createdAt": "2025-08-20T11:37:29.975Z",
+      "updatedAt": "2025-08-20T11:37:29.975Z",
+      "__v": 0
+    },
+    {
+      "_id": "68a5b379366399a6b30d9fac",
+      "name": "Automotive",
+      "parentCategory": null,
+      "isActive": true,
+      "createdAt": "2025-08-20T11:37:29.975Z",
+      "updatedAt": "2025-08-20T11:37:29.975Z",
+      "__v": 0
+    },
+    {
+      "_id": "68a5b379366399a6b30d9fad",
+      "name": "Health & Beauty",
+      "parentCategory": null,
+      "isActive": true,
+      "createdAt": "2025-08-20T11:37:29.975Z",
+      "updatedAt": "2025-08-20T11:37:29.975Z",
+      "__v": 0
+    },
+    {
+      "_id": "68a5b379366399a6b30d9fae",
+      "name": "Spices & Herbs",
+      "parentCategory": null,
+      "isActive": true,
+      "createdAt": "2025-08-20T11:37:29.975Z",
+      "updatedAt": "2025-08-20T11:37:29.975Z",
+      "__v": 0
+    },
+    {
+      "_id": "68a5b379366399a6b30d9faf",
+      "name": "Grains & Pulses",
+      "parentCategory": null,
+      "isActive": true,
+      "createdAt": "2025-08-20T11:37:29.975Z",
+      "updatedAt": "2025-08-20T11:37:29.975Z",
+      "__v": 0
+    },
+    {
+      "_id": "68a5b379366399a6b30d9fb0",
+      "name": "Beverages",
+      "parentCategory": null,
+      "isActive": true,
+      "createdAt": "2025-08-20T11:37:29.975Z",
+      "updatedAt": "2025-08-20T11:37:29.975Z",
+      "__v": 0
+    },
+    {
+      "_id": "68a5b379366399a6b30d9fb1",
+      "name": "Snacks & Sweets",
+      "parentCategory": null,
+      "isActive": true,
+      "createdAt": "2025-08-20T11:37:29.975Z",
+      "updatedAt": "2025-08-20T11:37:29.975Z",
+      "__v": 0
+    }
+  ],
+  "products": [],
+  "orders": []
+}

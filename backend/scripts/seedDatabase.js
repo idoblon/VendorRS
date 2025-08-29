@@ -431,14 +431,14 @@ const seedDatabase = async () => {
     const createdCategories = await Category.find({});
     console.log(`📂 Using ${createdCategories.length} existing categories`);
 
-    // Define comprehensive product list (combining original and additional products)
+    // Define comprehensive product catalog for each vendor type
     const allProducts = [
-      // Original products
+      // Nepal Spices & Herbs Co. Products
       {
         name: "Organic Turmeric Powder",
         description: "Premium quality organic turmeric powder from Nepal",
-        category: "Beverages",
-        subcategory: "Spices",
+        category: "Spices & Herbs",
+        subcategory: "Ground Spices",
         price: 250,
         currency: "NPR",
         vendorId: vendorUsers[0]._id,
@@ -449,25 +449,22 @@ const seedDatabase = async () => {
             stock: 100,
             reservedStock: 0,
           },
+          {
+            province: "Gandaki",
+            district: "Pokhara",
+            stock: 50,
+            reservedStock: 0,
+          },
         ],
         specifications: {
-          weight: {
-            value: 500,
-            unit: "g"
-          },
+          weight: { value: 500, unit: "g" },
           organic: true,
+          origin: "Nepal",
+          shelfLife: "24 months",
           brand: "Nepal Spices",
         },
-        images: [
-          {
-            filename: "turmeric.jpg",
-            originalName: "turmeric.jpg",
-            path: "/images/turmeric.jpg",
-            url: "https://example.com/images/turmeric.jpg",
-            isPrimary: true,
-          },
-        ],
-        tags: ["organic", "spices", "turmeric", "healthy"],
+        images: [{ filename: "turmeric.jpg", originalName: "turmeric.jpg", path: "/images/turmeric.jpg", url: "https://example.com/images/turmeric.jpg", isPrimary: true }],
+        tags: ["organic", "spices", "turmeric", "healthy", "ayurvedic"],
         status: "available",
       },
       {
@@ -487,25 +484,70 @@ const seedDatabase = async () => {
           },
         ],
         specifications: {
-          weight: {
-            value: 250,
-            unit: "g"
-          },
+          weight: { value: 250, unit: "g" },
           type: "Black Tea",
           origin: "Nepal Himalayas",
+          caffeine: "Medium",
+          brand: "Himalayan Tea Co.",
         },
-        images: [
-          {
-            filename: "black_tea.jpg",
-            originalName: "black_tea.jpg",
-            path: "/images/black_tea.jpg",
-            url: "https://example.com/images/black_tea.jpg",
-            isPrimary: true,
-          },
-        ],
-        tags: ["tea", "himalayan", "black tea", "premium"],
+        images: [{ filename: "black_tea.jpg", originalName: "black_tea.jpg", path: "/images/black_tea.jpg", url: "https://example.com/images/black_tea.jpg", isPrimary: true }],
+        tags: ["tea", "himalayan", "black tea", "premium", "organic"],
         status: "available",
       },
+      {
+        name: "Cardamom Pods (Large)",
+        description: "Premium large green cardamom pods from Nepal",
+        category: "Spices & Herbs",
+        subcategory: "Whole Spices",
+        price: 1200,
+        currency: "NPR",
+        vendorId: vendorUsers[0]._id,
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Kathmandu",
+            stock: 75,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          weight: { value: 200, unit: "g" },
+          grade: "A",
+          origin: "Nepal",
+          brand: "Nepal Spices",
+        },
+        images: [{ filename: "cardamom.jpg", originalName: "cardamom.jpg", path: "/images/cardamom.jpg", url: "https://example.com/images/cardamom.jpg", isPrimary: true }],
+        tags: ["cardamom", "spices", "whole", "premium", "cooking"],
+        status: "available",
+      },
+      {
+        name: "Cinnamon Sticks",
+        description: "Authentic Nepali cinnamon sticks",
+        category: "Spices & Herbs",
+        subcategory: "Whole Spices",
+        price: 450,
+        currency: "NPR",
+        vendorId: vendorUsers[0]._id,
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Kathmandu",
+            stock: 120,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          weight: { value: 100, unit: "g" },
+          length: "5-7 cm",
+          origin: "Nepal",
+          brand: "Nepal Spices",
+        },
+        images: [{ filename: "cinnamon.jpg", originalName: "cinnamon.jpg", path: "/images/cinnamon.jpg", url: "https://example.com/images/cinnamon.jpg", isPrimary: true }],
+        tags: ["cinnamon", "spices", "baking", "cooking", "natural"],
+        status: "available",
+      },
+
+      // Trekking Gear Nepal Products
       {
         name: "Trekking Backpack 40L",
         description: "Durable 40L trekking backpack for outdoor adventures",
@@ -521,69 +563,114 @@ const seedDatabase = async () => {
             stock: 25,
             reservedStock: 2,
           },
+          {
+            province: "Bagmati",
+            district: "Kathmandu",
+            stock: 15,
+            reservedStock: 0,
+          },
         ],
         specifications: {
           capacity: "40L",
           material: "Ripstop Nylon",
           waterproof: true,
+          compartments: 5,
           brand: "Trekking Gear Nepal",
         },
-        images: [
-          {
-            filename: "backpack.jpg",
-            originalName: "backpack.jpg",
-            path: "/images/backpack.jpg",
-            url: "https://example.com/images/backpack.jpg",
-            isPrimary: true,
-          },
-        ],
-        tags: ["trekking", "backpack", "outdoor", "adventure"],
+        images: [{ filename: "backpack.jpg", originalName: "backpack.jpg", path: "/images/backpack.jpg", url: "https://example.com/images/backpack.jpg", isPrimary: true }],
+        tags: ["trekking", "backpack", "outdoor", "adventure", "hiking"],
         status: "available",
       },
-      // Additional products from addMoreProducts.js
       {
-        name: "Wireless Bluetooth Headphones",
-        description: "High-quality wireless headphones with noise cancellation",
-        category: "Electronics",
-        subcategory: "Audio",
-        price: 2500,
+        name: "Waterproof Trekking Jacket",
+        description: "Lightweight waterproof jacket for mountain trekking",
+        category: "Sports",
+        subcategory: "Outdoor Sports",
+        price: 1800,
         currency: "NPR",
-        vendorId: vendorUsers[4]._id, // Tech Solutions Nepal
+        vendorId: vendorUsers[1]._id,
         availability: [
           {
-            province: "Bagmati",
-            district: "Kathmandu",
+            province: "Gandaki",
+            district: "Pokhara",
+            stock: 40,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          size: "M",
+          material: "Nylon/Polyester",
+          waterproof: true,
+          breathable: true,
+          brand: "Trekking Gear Nepal",
+        },
+        images: [{ filename: "jacket.jpg", originalName: "jacket.jpg", path: "/images/jacket.jpg", url: "https://example.com/images/jacket.jpg", isPrimary: true }],
+        tags: ["jacket", "waterproof", "trekking", "outdoor", "hiking"],
+        status: "available",
+      },
+      {
+        name: "Hiking Boots (Men's)",
+        description: "Durable hiking boots for rough terrain",
+        category: "Footwear",
+        subcategory: "Sports",
+        price: 3200,
+        currency: "NPR",
+        vendorId: vendorUsers[1]._id,
+        availability: [
+          {
+            province: "Gandaki",
+            district: "Pokhara",
             stock: 30,
             reservedStock: 0,
           },
         ],
         specifications: {
-          connectivity: "Bluetooth 5.0",
-          batteryLife: "20 hours",
-          noiseCancellation: true,
-          brand: "Tech Solutions",
+          size: "9",
+          material: "Leather/Synthetic",
+          waterproof: true,
+          ankleSupport: true,
+          brand: "Trekking Gear Nepal",
         },
-        images: [
-          {
-            filename: "bluetooth_headphones.jpg",
-            originalName: "bluetooth_headphones.jpg",
-            path: "/images/bluetooth_headphones.jpg",
-            url: "https://example.com/images/bluetooth_headphones.jpg",
-            isPrimary: true,
-          },
-        ],
-        tags: ["wireless", "bluetooth", "headphones", "audio"],
+        images: [{ filename: "hiking_boots.jpg", originalName: "hiking_boots.jpg", path: "/images/hiking_boots.jpg", url: "https://example.com/images/hiking_boots.jpg", isPrimary: true }],
+        tags: ["hiking", "boots", "outdoor", "footwear", "adventure"],
         status: "available",
       },
       {
+        name: "Trekking Poles (Pair)",
+        description: "Adjustable aluminum trekking poles",
+        category: "Sports",
+        subcategory: "Outdoor Sports",
+        price: 1200,
+        currency: "NPR",
+        vendorId: vendorUsers[1]._id,
+        availability: [
+          {
+            province: "Gandaki",
+            district: "Pokhara",
+            stock: 60,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          material: "Aluminum",
+          adjustable: "60-130 cm",
+          weight: "500g/pair",
+          brand: "Trekking Gear Nepal",
+        },
+        images: [{ filename: "trekking_poles.jpg", originalName: "trekking_poles.jpg", path: "/images/trekking_poles.jpg", url: "https://example.com/images/trekking_poles.jpg", isPrimary: true }],
+        tags: ["trekking", "poles", "hiking", "support", "outdoor"],
+        status: "available",
+      },
+
+      // Nepal Handicrafts Products
+      {
         name: "Traditional Dhaka Top",
-        description:
-          "Handwoven traditional Nepali dhaka top with intricate patterns",
+        description: "Handwoven traditional Nepali dhaka top with intricate patterns",
         category: "Clothing",
         subcategory: "Ethnic Wear",
         price: 1200,
         currency: "NPR",
-        vendorId: vendorUsers[2]._id, // Nepal Handicrafts
+        vendorId: vendorUsers[2]._id,
         availability: [
           {
             province: "Bagmati",
@@ -591,23 +678,22 @@ const seedDatabase = async () => {
             stock: 50,
             reservedStock: 0,
           },
+          {
+            province: "Koshi",
+            district: "Biratnagar",
+            stock: 25,
+            reservedStock: 0,
+          },
         ],
         specifications: {
           material: "Cotton",
           color: "Multicolor",
-          brand: "Nepali Textiles",
           size: "M",
+          handmade: true,
+          brand: "Nepali Textiles",
         },
-        images: [
-          {
-            filename: "dhaka_top.jpg",
-            originalName: "dhaka_top.jpg",
-            path: "/images/dhaka_top.jpg",
-            url: "https://example.com/images/dhaka_top.jpg",
-            isPrimary: true,
-          },
-        ],
-        tags: ["traditional", "dhaka", "ethnic", "women"],
+        images: [{ filename: "dhaka_top.jpg", originalName: "dhaka_top.jpg", path: "/images/dhaka_top.jpg", url: "https://example.com/images/dhaka_top.jpg", isPrimary: true }],
+        tags: ["traditional", "dhaka", "ethnic", "women", "handmade"],
         status: "available",
       },
       {
@@ -617,7 +703,7 @@ const seedDatabase = async () => {
         subcategory: "Boots",
         price: 3500,
         currency: "NPR",
-        vendorId: vendorUsers[2]._id, // Nepal Handicrafts
+        vendorId: vendorUsers[2]._id,
         availability: [
           {
             province: "Koshi",
@@ -630,18 +716,11 @@ const seedDatabase = async () => {
           material: "Genuine Leather",
           color: "Brown",
           size: "8",
+          handmade: true,
           brand: "Nepal Leather Works",
         },
-        images: [
-          {
-            filename: "leather_boots.jpg",
-            originalName: "leather_boots.jpg",
-            path: "/images/leather_boots.jpg",
-            url: "https://example.com/images/leather_boots.jpg",
-            isPrimary: true,
-          },
-        ],
-        tags: ["leather", "boots", "handcrafted", "footwear"],
+        images: [{ filename: "leather_boots.jpg", originalName: "leather_boots.jpg", path: "/images/leather_boots.jpg", url: "https://example.com/images/leather_boots.jpg", isPrimary: true }],
+        tags: ["leather", "boots", "handcrafted", "footwear", "artisan"],
         status: "available",
       },
       {
@@ -651,7 +730,7 @@ const seedDatabase = async () => {
         subcategory: "Scarves",
         price: 4500,
         currency: "NPR",
-        vendorId: vendorUsers[2]._id, // Nepal Handicrafts
+        vendorId: vendorUsers[2]._id,
         availability: [
           {
             province: "Bagmati",
@@ -663,33 +742,283 @@ const seedDatabase = async () => {
         specifications: {
           material: "100% Pashmina",
           color: "Royal Blue",
-          dimensions: {
-            length: 80,
-            width: 200,
-            unit: "cm",
-          },
+          dimensions: { length: 80, width: 200, unit: "cm" },
+          handmade: true,
           brand: "Nepal Pashmina House",
         },
-        images: [
-          {
-            filename: "pashmina_shawl.jpg",
-            originalName: "pashmina_shawl.jpg",
-            path: "/images/pashmina_shawl.jpg",
-            url: "https://example.com/images/pashmina_shawl.jpg",
-            isPrimary: true,
-          },
-        ],
-        tags: ["pashmina", "shawl", "luxury", "accessory"],
+        images: [{ filename: "pashmina_shawl.jpg", originalName: "pashmina_shawl.jpg", path: "/images/pashmina_shawl.jpg", url: "https://example.com/images/pashmina_shawl.jpg", isPrimary: true }],
+        tags: ["pashmina", "shawl", "luxury", "accessory", "handmade"],
         status: "available",
       },
       {
-        name: "Nepali Folk Tales",
+        name: "Handwoven Basket Set",
+        description: "Set of 3 handwoven baskets made from locally sourced materials",
+        category: "Home & Garden",
+        subcategory: "Storage",
+        price: 1800,
+        currency: "NPR",
+        vendorId: vendorUsers[2]._id,
+        availability: [
+          {
+            province: "Koshi",
+            district: "Biratnagar",
+            stock: 35,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          material: "Bamboo",
+          color: "Natural",
+          setSize: 3,
+          handmade: true,
+          brand: "Nepal Handicrafts",
+        },
+        images: [{ filename: "basket_set.jpg", originalName: "basket_set.jpg", path: "/images/basket_set.jpg", url: "https://example.com/images/basket_set.jpg", isPrimary: true }],
+        tags: ["handwoven", "baskets", "storage", "eco-friendly", "artisan"],
+        status: "available",
+      },
+
+      // Organic Farm Nepal Products
+      {
+        name: "Organic Honey",
+        description: "Pure organic honey harvested from Himalayan wildflowers",
+        category: "Beverages",
+        subcategory: "Natural Products",
+        price: 600,
+        currency: "NPR",
+        vendorId: vendorUsers[3]._id,
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Chitwan",
+            stock: 80,
+            reservedStock: 0,
+          },
+          {
+            province: "Bagmati",
+            district: "Kathmandu",
+            stock: 40,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          weight: { value: 500, unit: "g" },
+          organic: true,
+          source: "Himalayan Wildflowers",
+          raw: true,
+          brand: "Organic Farm Nepal",
+        },
+        images: [{ filename: "organic_honey.jpg", originalName: "organic_honey.jpg", path: "/images/organic_honey.jpg", url: "https://example.com/images/organic_honey.jpg", isPrimary: true }],
+        tags: ["organic", "honey", "natural", "himalayan", "raw"],
+        status: "available",
+      },
+      {
+        name: "Organic Brown Rice",
+        description: "Nutritional organic brown rice from Nepal",
+        category: "Grains & Pulses",
+        subcategory: "Rice",
+        price: 400,
+        currency: "NPR",
+        vendorId: vendorUsers[3]._id,
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Chitwan",
+            stock: 200,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          weight: { value: 1, unit: "kg" },
+          organic: true,
+          type: "Brown Rice",
+          origin: "Nepal",
+          brand: "Organic Farm Nepal",
+        },
+        images: [{ filename: "brown_rice.jpg", originalName: "brown_rice.jpg", path: "/images/brown_rice.jpg", url: "https://example.com/images/brown_rice.jpg", isPrimary: true }],
+        tags: ["organic", "rice", "brown rice", "healthy", "natural"],
+        status: "available",
+      },
+      {
+        name: "Fresh Organic Vegetables Box",
+        description: "Weekly box of fresh organic vegetables from our farm",
+        category: "Snacks & Sweets",
+        subcategory: "Fresh Produce",
+        price: 800,
+        currency: "NPR",
+        vendorId: vendorUsers[3]._id,
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Chitwan",
+            stock: 20,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          weight: { value: 5, unit: "kg" },
+          organic: true,
+          seasonal: true,
+          variety: "Mixed",
+          brand: "Organic Farm Nepal",
+        },
+        images: [{ filename: "vegetable_box.jpg", originalName: "vegetable_box.jpg", path: "/images/vegetable_box.jpg", url: "https://example.com/images/vegetable_box.jpg", isPrimary: true }],
+        tags: ["organic", "vegetables", "fresh", "farm", "healthy"],
+        status: "available",
+      },
+      {
+        name: "Organic Lentils (Mixed)",
+        description: "Assorted organic lentils package",
+        category: "Grains & Pulses",
+        subcategory: "Lentils",
+        price: 350,
+        currency: "NPR",
+        vendorId: vendorUsers[3]._id,
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Chitwan",
+            stock: 150,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          weight: { value: 500, unit: "g" },
+          organic: true,
+          varieties: "3 types",
+          origin: "Nepal",
+          brand: "Organic Farm Nepal",
+        },
+        images: [{ filename: "lentils.jpg", originalName: "lentils.jpg", path: "/images/lentils.jpg", url: "https://example.com/images/lentils.jpg", isPrimary: true }],
+        tags: ["organic", "lentils", "pulses", "protein", "healthy"],
+        status: "available",
+      },
+
+      // Tech Solutions Nepal Products
+      {
+        name: "Wireless Bluetooth Headphones",
+        description: "High-quality wireless headphones with noise cancellation",
+        category: "Electronics",
+        subcategory: "Audio",
+        price: 2500,
+        currency: "NPR",
+        vendorId: vendorUsers[4]._id,
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Lalitpur",
+            stock: 30,
+            reservedStock: 0,
+          },
+          {
+            province: "Bagmati",
+            district: "Kathmandu",
+            stock: 20,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          connectivity: "Bluetooth 5.0",
+          batteryLife: "20 hours",
+          noiseCancellation: true,
+          color: "Black",
+          brand: "Tech Solutions",
+        },
+        images: [{ filename: "bluetooth_headphones.jpg", originalName: "bluetooth_headphones.jpg", path: "/images/bluetooth_headphones.jpg", url: "https://example.com/images/bluetooth_headphones.jpg", isPrimary: true }],
+        tags: ["wireless", "bluetooth", "headphones", "audio", "tech"],
+        status: "available",
+      },
+      {
+        name: "Smartphone Case",
+        description: "Durable protective case for smartphones with shock absorption",
+        category: "Electronics",
+        subcategory: "Mobile Phones",
+        price: 800,
+        currency: "NPR",
+        vendorId: vendorUsers[4]._id,
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Lalitpur",
+            stock: 150,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          material: "TPU + PC",
+          color: "Black",
+          compatibility: "Universal",
+          protection: "Shock Absorption",
+          brand: "Tech Solutions",
+        },
+        images: [{ filename: "phone_case.jpg", originalName: "phone_case.jpg", path: "/images/phone_case.jpg", url: "https://example.com/images/phone_case.jpg", isPrimary: true }],
+        tags: ["smartphone", "case", "protection", "accessories", "tech"],
+        status: "available",
+      },
+      {
+        name: "Portable Power Bank",
+        description: "10000mAh portable power bank for mobile devices",
+        category: "Electronics",
+        subcategory: "Accessories",
+        price: 1500,
+        currency: "NPR",
+        vendorId: vendorUsers[4]._id,
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Lalitpur",
+            stock: 45,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          capacity: "10000mAh",
+          output: "5V/2.4A",
+          ports: 2,
+          fastCharge: true,
+          brand: "Tech Solutions",
+        },
+        images: [{ filename: "power_bank.jpg", originalName: "power_bank.jpg", path: "/images/power_bank.jpg", url: "https://example.com/images/power_bank.jpg", isPrimary: true }],
+        tags: ["power bank", "portable", "charging", "tech", "accessory"],
+        status: "available",
+      },
+      {
+        name: "Wireless Mouse",
+        description: "Ergonomic wireless mouse for computers",
+        category: "Electronics",
+        subcategory: "Computer Accessories",
+        price: 900,
+        currency: "NPR",
+        vendorId: vendorUsers[4]._id,
+        availability: [
+          {
+            province: "Bagmati",
+            district: "Lalitpur",
+            stock: 80,
+            reservedStock: 0,
+          },
+        ],
+        specifications: {
+          connectivity: "2.4GHz Wireless",
+          dpi: "1600",
+          buttons: 6,
+          battery: "AA x 1",
+          brand: "Tech Solutions",
+        },
+        images: [{ filename: "wireless_mouse.jpg", originalName: "wireless_mouse.jpg", path: "/images/wireless_mouse.jpg", url: "https://example.com/images/wireless_mouse.jpg", isPrimary: true }],
+        tags: ["mouse", "wireless", "computer", "accessory", "tech"],
+        status: "available",
+      },
+
+      // Additional products for variety
+      {
+        name: "Nepali Folk Tales Book",
         description: "Collection of traditional Nepali folk tales for all ages",
         category: "Books",
         subcategory: "Fiction",
         price: 500,
         currency: "NPR",
-        vendorId: vendorUsers[2]._id, // Nepal Handicrafts
+        vendorId: vendorUsers[2]._id,
         availability: [
           {
             province: "Gandaki",
@@ -705,27 +1034,18 @@ const seedDatabase = async () => {
           pages: 250,
           isbn: "978-9999999999",
         },
-        images: [
-          {
-            filename: "folk_tales.jpg",
-            originalName: "folk_tales.jpg",
-            path: "/images/folk_tales.jpg",
-            url: "https://example.com/images/folk_tales.jpg",
-            isPrimary: true,
-          },
-        ],
-        tags: ["folk tales", "nepali", "literature", "stories"],
+        images: [{ filename: "folk_tales.jpg", originalName: "folk_tales.jpg", path: "/images/folk_tales.jpg", url: "https://example.com/images/folk_tales.jpg", isPrimary: true }],
+        tags: ["folk tales", "nepali", "literature", "stories", "culture"],
         status: "available",
       },
       {
         name: "Yoga Mat",
-        description:
-          "Eco-friendly non-slip yoga mat for all types of yoga practice",
+        description: "Eco-friendly non-slip yoga mat for all types of yoga practice",
         category: "Sports",
         subcategory: "Yoga",
         price: 1200,
         currency: "NPR",
-        vendorId: vendorUsers[1]._id, // Trekking Gear Nepal
+        vendorId: vendorUsers[1]._id,
         availability: [
           {
             province: "Bagmati",
@@ -744,123 +1064,8 @@ const seedDatabase = async () => {
           },
           brand: "Nepal Sports Gear",
         },
-        images: [
-          {
-            filename: "yoga_mat.jpg",
-            originalName: "yoga_mat.jpg",
-            path: "/images/yoga_mat.jpg",
-            url: "https://example.com/images/yoga_mat.jpg",
-            isPrimary: true,
-          },
-        ],
-        tags: ["yoga", "fitness", "eco-friendly", "sports"],
-        status: "available",
-      },
-      {
-        name: "Handwoven Basket Set",
-        description:
-          "Set of 3 handwoven baskets made from locally sourced materials",
-        category: "Home & Garden",
-        subcategory: "Storage",
-        price: 1800,
-        currency: "NPR",
-        vendorId: vendorUsers[2]._id, // Nepal Handicrafts
-        availability: [
-          {
-            province: "Koshi",
-            district: "Biratnagar",
-            stock: 35,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          material: "Bamboo",
-          color: "Natural",
-          setSize: 3,
-          brand: "Nepal Handicrafts",
-        },
-        images: [
-          {
-            filename: "basket_set.jpg",
-            originalName: "basket_set.jpg",
-            path: "/images/basket_set.jpg",
-            url: "https://example.com/images/basket_set.jpg",
-            isPrimary: true,
-          },
-        ],
-        tags: ["handwoven", "baskets", "storage", "eco-friendly"],
-        status: "available",
-      },
-      {
-        name: "Organic Honey",
-        description: "Pure organic honey harvested from Himalayan wildflowers",
-        category: "Beverages",
-        subcategory: "Natural Products",
-        price: 600,
-        currency: "NPR",
-        vendorId: vendorUsers[3]._id, // Organic Farm Nepal
-        availability: [
-          {
-            province: "Bagmati",
-            district: "Chitwan",
-            stock: 80,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          weight: {
-            value: 500,
-            unit: "g"
-          },
-          organic: true,
-          source: "Himalayan Wildflowers",
-          brand: "Organic Farm Nepal",
-        },
-        images: [
-          {
-            filename: "organic_honey.jpg",
-            originalName: "organic_honey.jpg",
-            path: "/images/organic_honey.jpg",
-            url: "https://example.com/images/organic_honey.jpg",
-            isPrimary: true,
-          },
-        ],
-        tags: ["organic", "honey", "natural", "himalayan"],
-        status: "available",
-      },
-      {
-        name: "Smartphone Case",
-        description:
-          "Durable protective case for smartphones with shock absorption",
-        category: "Electronics",
-        subcategory: "Mobile Phones",
-        price: 800,
-        currency: "NPR",
-        vendorId: vendorUsers[4]._id, // Tech Solutions Nepal
-        availability: [
-          {
-            province: "Bagmati",
-            district: "Lalitpur",
-            stock: 150,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          material: "TPU + PC",
-          color: "Black",
-          compatibility: "Universal",
-          brand: "Tech Solutions",
-        },
-        images: [
-          {
-            filename: "phone_case.jpg",
-            originalName: "phone_case.jpg",
-            path: "/images/phone_case.jpg",
-            url: "https://example.com/images/phone_case.jpg",
-            isPrimary: true,
-          },
-        ],
-        tags: ["smartphone", "case", "protection", "accessories"],
+        images: [{ filename: "yoga_mat.jpg", originalName: "yoga_mat.jpg", path: "/images/yoga_mat.jpg", url: "https://example.com/images/yoga_mat.jpg", isPrimary: true }],
+        tags: ["yoga", "fitness", "eco-friendly", "sports", "wellness"],
         status: "available",
       },
     ];

@@ -95,9 +95,16 @@ router.get("/", authenticate, validatePagination, async (req, res) => {
     }
 
     // If province is specified, filter products available in that province
+    // Only apply stock filtering when explicitly doing location-based filtering
+    // For category-only searches, show all products regardless of stock
     if (province) {
       query["availability.province"] = province;
-      query["availability.stock"] = { $gt: 0 };
+      
+      // Only filter by stock > 0 when doing location-based filtering
+      // Don't apply stock filtering for category-only searches
+      if (province && !category) {
+        query["availability.stock"] = { $gt: 0 };
+      }
 
       // If district is also specified, further filter by district
       if (district) {
@@ -136,6 +143,43 @@ router.get("/", authenticate, validatePagination, async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch products",
+    });
+  }
+});
+
+// @route   GET /api/products/categories
+// @desc    Get all product categories
+// @access  Private
+router.get("/categories", authenticate, async (req, res) => {
+  try {
+    const categories = [
+      "Electronics",
+      "Furniture",
+      "Clothing",
+      "Footwear",
+      "Accessories",
+      "Books",
+      "Sports",
+      "Home & Garden",
+      "Automotive",
+      "Health & Beauty",
+      "Spices & Herbs",
+      "Grains & Pulses",
+      "Beverages",
+      "Snacks & Sweets",
+      "Stationery",
+      "Wearables",
+    ];
+
+    res.json({
+      success: true,
+      data: { categories },
+    });
+  } catch (error) {
+    console.error("Get categories error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch categories",
     });
   }
 });

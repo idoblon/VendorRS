@@ -1,5 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose"); // ADD THIS LINE
+const path = require("path");
+const fs = require("fs");
 const { authenticate, authorize } = require("../middleware/auth");
 const {
   validateObjectId,
@@ -773,6 +775,162 @@ router.get("/centers/categories", authenticate, async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch center categories",
+    });
+  }
+});
+
+// @route   GET /api/users/messaging/centers
+// @desc    Get centers for messaging (accessible to vendors and centers)
+// @access  Private (VENDOR, CENTER)
+router.get("/messaging/centers", authenticate, async (req, res) => {
+  try {
+    // Allow VENDOR and CENTER roles to access this endpoint
+    if (!["VENDOR", "CENTER"].includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Only vendors and centers can access this resource.",
+      });
+    }
+
+    const centers = await User.find({
+      role: "CENTER",
+      status: "APPROVED",
+      isActive: true,
+    }).select("-password");
+
+    res.json({
+      success: true,
+      data: { centers },
+    });
+  } catch (error) {
+    console.error("Get centers for messaging error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch centers for messaging",
+    });
+  }
+});
+
+// @route   GET /api/users/messaging/admins
+// @desc    Get admins for messaging (accessible to vendors and centers)
+// @access  Private (VENDOR, CENTER)
+router.get("/messaging/admins", authenticate, async (req, res) => {
+  try {
+    // Allow VENDOR and CENTER roles to access this endpoint
+    if (!["VENDOR", "CENTER"].includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Only vendors and centers can access this resource.",
+      });
+    }
+
+    const admins = await User.find({
+      role: "ADMIN",
+      isActive: true,
+    }).select("-password");
+
+    res.json({
+      success: true,
+      data: { admins },
+    });
+  } catch (error) {
+    console.error("Get admins for messaging error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch admins for messaging",
+    });
+  }
+});
+
+// @route   GET /api/users/documents
+// @desc    Get user documents (accessible to the user themselves)
+// @access  Private
+router.get("/documents", authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: { documents: user.documents || [] },
+    });
+  } catch (error) {
+    console.error("Get user documents error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch user documents",
+    });
+  }
+});
+
+// @route   GET /api/users/document/:filename
+// @desc    View user document (accessible to the user themselves)
+// @access  Private
+router.get("/document/:filename", authenticate, async (req, res) => {
+  try {
+    const { filename } = req.params;
+
+    // Find the user and verify the document exists
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Find the document in user's documents array
+    const document = user.documents.find((doc) => doc.filename === filename);
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        message: "Document not found",
+      });
+    }
+
+    // Construct file path
+    const filePath = path.join(__dirname, "..", "uploads", filename);
+
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({
+        success: false,
+        message: "File not found on server",
+      });
+    }
+
+    // Determine content type based on file extension
+    const ext = path.extname(filename).toLowerCase();
+    let contentType = "application/octet-stream";
+    
+    if (ext === ".pdf") {
+      contentType = "application/pdf";
+    } else if ([".jpg", ".jpeg"].includes(ext)) {
+      contentType = "image/jpeg";
+    } else if (ext === ".png") {
+      contentType = "image/png";
+    }
+
+    // Set appropriate headers
+    res.setHeader("Content-Type", contentType);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${document.originalName}"`
+    );
+
+    // Send file
+    res.sendFile(filePath);
+  } catch (error) {
+    console.error("Error serving document:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to serve document",
     });
   }
 });
