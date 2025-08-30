@@ -90,6 +90,51 @@ export function VendorDashboard({
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(false);
   const [documentsError, setDocumentsError] = useState<string | null>(null);
 
+  // Analytics card click state
+  const [clickedCard, setClickedCard] = useState<string | null>(null);
+  const [filteredProductsByCard, setFilteredProductsByCard] = useState<Product[]>([]);
+  const [isLoadingCardProducts, setIsLoadingCardProducts] = useState(false);
+
+  // Handle analytics card click
+  const handleCardClick = async (cardType: string) => {
+    setClickedCard(cardType);
+    setIsLoadingCardProducts(true);
+    
+    try {
+      // For demonstration, we'll filter products based on card type
+      let filtered = [];
+      
+      switch (cardType) {
+        case 'commission':
+          // Show products that have generated commission (for demo, show all available products)
+          filtered = products.filter(p => p.status === 'available');
+          break;
+        case 'discount':
+          // Show products that are eligible for discount (for demo, show products with price > 1000)
+          filtered = products.filter(p => p.price > 1000);
+          break;
+        case 'products':
+          // Show all products
+          filtered = products;
+          break;
+        default:
+          filtered = products;
+      }
+      
+      setFilteredProductsByCard(filtered);
+    } catch (error) {
+      console.error('Error filtering products:', error);
+    } finally {
+      setIsLoadingCardProducts(false);
+    }
+  };
+
+  // Handle back to analytics cards
+  const handleBackToAnalytics = () => {
+    setClickedCard(null);
+    setFilteredProductsByCard([]);
+  };
+
   // Fetch unread message count on mount and when showMessages changes
   useEffect(() => {
     const fetchUnreadCount = async () => {
@@ -373,6 +418,164 @@ export function VendorDashboard({
     setCurrentDocument(null);
   };
 
+  // Function to remove item from cart
+  const removeFromCart = (index: number) => {
+    const newCart = [...cart];
+    newCart.splice(index, 1);
+    setCart(newCart);
+  };
+
+  // Function to update cart item quantity
+  const updateCartQuantity = (index: number, quantity: number) => {
+    if (quantity < 1) return;
+    const newCart = [...cart];
+    newCart[index].quantity = quantity;
+    setCart(newCart);
+  };
+
+  // Function to handle payment
+  const handlePayment = () => {
+    // For demo purposes, just show a success message
+    alert("Payment processed successfully!");
+    setShowCart(false);
+    setCart([]);
+  };
+
+  // Render cart modal
+  const renderCartModal = () => {
+    if (!showCart) return null;
+
+    const totalAmount = cart.reduce((total, item) => {
+      const price = typeof item.price === 'string' 
+        ? parseInt(item.price.replace('रू ', '').replace(/,/g, '')) 
+        : item.price;
+      return total + (price * item.quantity);
+    }, 0);
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden">
+          <div className="flex items-center justify-between p-4 border-b">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Shopping Cart ({cart.length} items)
+            </h3>
+            <button
+              onClick={() => setShowCart(false)}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+          <div className="p-4 overflow-auto max-h-[calc(90vh-80px)]">
+            {cart.length === 0 ? (
+              <div className="text-center py-12">
+                <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h4 className="text-lg font-medium text-gray-900 mb-2">
+                  Your cart is empty
+                </h4>
+                <p className="text-gray-500">Add some products to get started!</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {cart.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
+                        {item.images && item.images.length > 0 ? (
+                          <img
+                            src={item.images[0].url || "/placeholder.svg"}
+                            alt={item.name}
+                            className="w-12 h-12 object-cover"
+                          />
+                        ) : (
+                          <Package className="h-8 w-8 text-gray-400" />
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900">{item.name}</h4>
+                        <p className="text-sm text-gray-500">{item.category}</p>
+                        <p className="text-sm text-gray-500">{item.center}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => updateCartQuantity(index, item.quantity - 1)}
+                          className="w-8 h-8 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                        >
+                          -
+                        </button>
+                        <span className="w-8 text-center">{item.quantity}</span>
+                        <button
+                          onClick={() => updateCartQuantity(index, item.quantity + 1)}
+                          className="w-8 h-8 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <span className="font-semibold text-orange-600">
+                        {typeof item.price === 'string' ? item.price : `रू ${item.price.toLocaleString()}`}
+                      </span>
+                      <button
+                        onClick={() => removeFromCart(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                
+                <div className="border-t pt-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-lg font-semibold">Total:</span>
+                    <span className="text-xl font-bold text-orange-600">
+                      रू {totalAmount.toLocaleString()}
+                    </span>
+                  </div>
+                  
+                  {/* Payment Options */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-gray-900">Payment Options</h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="border rounded-lg p-4 cursor-pointer hover:border-orange-500 transition-colors">
+                        <h5 className="font-medium mb-2">Credit/Debit Card</h5>
+                        <p className="text-sm text-gray-500">Pay securely with your card</p>
+                      </div>
+                      
+                      <div className="border rounded-lg p-4 cursor-pointer hover:border-orange-500 transition-colors">
+                        <h5 className="font-medium mb-2">Bank Transfer</h5>
+                        <p className="text-sm text-gray-500">Direct bank transfer</p>
+                      </div>
+                      
+                      <div className="border rounded-lg p-4 cursor-pointer hover:border-orange-500 transition-colors">
+                        <h5 className="font-medium mb-2">Cash on Delivery</h5>
+                        <p className="text-sm text-gray-500">Pay when you receive</p>
+                      </div>
+                      
+                      <div className="border rounded-lg p-4 cursor-pointer hover:border-orange-500 transition-colors">
+                        <h5 className="font-medium mb-2">Digital Wallet</h5>
+                        <p className="text-sm text-gray-500">eSewa, Khalti, etc.</p>
+                      </div>
+                    </div>
+                    
+                    <Button
+                      className="w-full bg-orange-600 hover:bg-orange-700"
+                      onClick={handlePayment}
+                    >
+                      Proceed to Payment
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Render search results or error
   const renderSearchResults = () => {
     if (searchResults.length === 0 && !searchError) return null;
@@ -436,7 +639,10 @@ export function VendorDashboard({
   const renderAnalyticsCards = () => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       {/* Total Commission Card */}
-      <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+      <Card 
+        className="p-6 bg-gradient-to-br from-green-50 to-green-100 border-green-200 cursor-pointer hover:shadow-lg transition-shadow"
+        onClick={() => handleCardClick('commission')}
+      >
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-green-600 mb-1">Total Commission</p>
@@ -450,7 +656,10 @@ export function VendorDashboard({
       </Card>
 
       {/* Total Discount Card */}
-      <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+      <Card 
+        className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 cursor-pointer hover:shadow-lg transition-shadow"
+        onClick={() => handleCardClick('discount')}
+      >
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-blue-600 mb-1">Total Discount</p>
@@ -464,7 +673,10 @@ export function VendorDashboard({
       </Card>
 
       {/* Total Products Card */}
-      <Card className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+      <Card 
+        className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 cursor-pointer hover:shadow-lg transition-shadow"
+        onClick={() => handleCardClick('products')}
+      >
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-orange-600 mb-1">Total Products</p>
@@ -479,86 +691,295 @@ export function VendorDashboard({
     </div>
   );
 
+  // Render filtered products by card click
+  const renderFilteredProductsByCard = () => {
+    if (isLoadingCardProducts) {
+      return (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <span className="ml-2 text-gray-600">Loading products...</span>
+        </div>
+      );
+    }
+
+    if (filteredProductsByCard.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h4 className="text-lg font-medium text-gray-900 mb-2">
+            No Products Available
+          </h4>
+          <p className="text-gray-500">
+            {clickedCard === 'commission' 
+              ? 'No available products found'
+              : clickedCard === 'discount'
+              ? 'No products eligible for discount found'
+              : 'No products found'
+            }
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-semibold text-gray-900">
+            {clickedCard === 'commission' 
+              ? 'Available Products (Commission Generating)'
+              : clickedCard === 'discount'
+              ? 'Products Eligible for Discount'
+              : 'All Products'
+            }
+          </h3>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleBackToAnalytics}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Analytics
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProductsByCard.map((product) => (
+            <div
+              key={product._id}
+              className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200"
+            >
+              <div className="aspect-w-16 aspect-h-9 bg-gray-200">
+                {product.images && product.images.length > 0 ? (
+                  <img
+                    src={product.images[0].url || "/placeholder.svg"}
+                    alt={product.name}
+                    className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null; // Prevent infinite loop
+                      e.currentTarget.src = "/placeholder.svg";
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                    <Package className="h-12 w-12 text-gray-400" />
+                  </div>
+                )}
+              </div>
+              <div className="p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">
+                    {product.name}
+                  </h4>
+                  <span className="text-sm font-bold text-blue-600 ml-2">
+                    रू {product.price.toLocaleString()}
+                  </span>
+                </div>
+                
+                <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                  {product.description}
+                </p>
+                
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                    {product.category}
+                  </span>
+                  <span className={`text-xs px-2 py-1 rounded ${
+                    product.status === 'available' 
+                      ? 'bg-green-100 text-green-800'
+                      : product.status === 'out_of_stock'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {product.status.replace('_', ' ').toUpperCase()}
+                  </span>
+                </div>
+                
+                <div className="text-xs text-gray-500 mb-3">
+                  <p className="flex items-center">
+                    <Users className="h-3 w-3 mr-1" />
+                    {product.vendorId?.businessName || 'Unknown Center'}
+                  </p>
+                </div>
+                
+                <Button
+                  size="sm"
+                  className="w-full"
+                  disabled={product.status !== 'available'}
+                  onClick={() => addToCart(product)}
+                >
+                  {product.status === 'available' ? 'Add to Cart' : 'Unavailable'}
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   // Render marketplace content
   const renderMarketplace = () => (
     <div className="space-y-6">
       {/* Analytics Cards Section */}
       {renderAnalyticsCards()}
       
-      {/* Search Results */}
-      {renderSearchResults()}
-      
-      {/* Products Section */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold text-gray-900">
-            {selectedCategory ? `${selectedCategory} Products` : 'All Products from All Centers'}
-          </h3>
-          <div className="flex items-center space-x-4">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Categories</option>
-              {productCategories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        
-        {productError && (
-          <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
-            <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
-            <div>
-              <h4 className="font-medium text-red-800">Error</h4>
-              <p className="text-sm text-red-700 mt-1">{productError}</p>
+      {/* Show filtered products when card is clicked */}
+      {clickedCard ? (
+        <Card className="p-6">
+          {renderFilteredProductsByCard()}
+        </Card>
+      ) : (
+        <>
+          {/* Search Results */}
+          {renderSearchResults()}
+          
+          {/* Products Section */}
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-gray-900">
+                {selectedCategory ? `${selectedCategory} Products` : 'All Products from All Centers'}
+              </h3>
+              <div className="flex items-center space-x-4">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">All Categories</option>
+                  {productCategories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
-        )}
         
-        {isLoadingProducts ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-            <span className="ml-2 text-gray-600">Loading products...</span>
-          </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="text-center py-12">
-            <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h4 className="text-lg font-medium text-gray-900 mb-2">
-              No Products Available
-            </h4>
-            <p className="text-gray-500">
-              {selectedCategory 
-                ? `No products available in ${selectedCategory} category`
-                : 'No products available from any center'
-              }
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {/* Group products by category when no specific category is selected */}
-            {!selectedCategory ? (
-              // Group products by category
-              Object.entries(
-                filteredProducts.reduce((acc, product) => {
-                  const category = product.category || 'Uncategorized';
-                  if (!acc[category]) {
-                    acc[category] = [];
+            {productError && (
+              <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
+                <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+                <div>
+                  <h4 className="font-medium text-red-800">Error</h4>
+                  <p className="text-sm text-red-700 mt-1">{productError}</p>
+                </div>
+              </div>
+            )}
+            
+            {isLoadingProducts ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2 text-gray-600">Loading products...</span>
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h4 className="text-lg font-medium text-gray-900 mb-2">
+                  No Products Available
+                </h4>
+                <p className="text-gray-500">
+                  {selectedCategory 
+                    ? `No products available in ${selectedCategory} category`
+                    : 'No products available from any center'
                   }
-                  acc[category].push(product);
-                  return acc;
-                }, {} as Record<string, Product[]>)
-              ).map(([category, categoryProducts]) => (
-                <div key={category} className="space-y-4">
-                  <h4 className="text-lg font-semibold text-gray-900 border-b-2 border-orange-500 pb-2">
-                    {category} ({categoryProducts.length} products)
-                  </h4>
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                {/* Group products by category when no specific category is selected */}
+                {!selectedCategory ? (
+                  // Group products by category
+                  Object.entries(
+                    filteredProducts.reduce((acc, product) => {
+                      const category = product.category || 'Uncategorized';
+                      if (!acc[category]) {
+                        acc[category] = [];
+                      }
+                      acc[category].push(product);
+                      return acc;
+                    }, {} as Record<string, Product[]>)
+                  ).map(([category, categoryProducts]) => (
+                    <div key={category} className="space-y-4">
+                      <h4 className="text-lg font-semibold text-gray-900 border-b-2 border-orange-500 pb-2">
+                        {category} ({categoryProducts.length} products)
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {categoryProducts.map((product) => (
+                          <div
+                            key={product._id}
+                            className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200"
+                          >
+                            <div className="aspect-w-16 aspect-h-9 bg-gray-200">
+                              {product.images && product.images.length > 0 ? (
+                                <img
+                                  src={product.images[0].url || "/placeholder.svg"}
+                                  alt={product.name}
+                                  className="w-full h-48 object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.onerror = null; // Prevent infinite loop
+                                    e.currentTarget.src = "/placeholder.svg";
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                  <Package className="h-12 w-12 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="p-4">
+                              <div className="flex items-start justify-between mb-2">
+                                <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">
+                                  {product.name}
+                                </h4>
+                                <span className="text-sm font-bold text-blue-600 ml-2">
+                                  रू {product.price.toLocaleString()}
+                                </span>
+                              </div>
+                              
+                              <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                                {product.description}
+                              </p>
+                              
+                              <div className="flex items-center justify-between mb-3">
+                                <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                                  {product.category}
+                                </span>
+                                <span className={`text-xs px-2 py-1 rounded ${
+                                  product.status === 'available' 
+                                    ? 'bg-green-100 text-green-800'
+                                    : product.status === 'out_of_stock'
+                                    ? 'bg-yellow-100 text-yellow-800'
+                                    : 'bg-red-100 text-red-800'
+                                }`}>
+                                  {product.status.replace('_', ' ').toUpperCase()}
+                                </span>
+                              </div>
+                              
+                              <div className="text-xs text-gray-500 mb-3">
+                                <p className="flex items-center">
+                                  <Users className="h-3 w-3 mr-1" />
+                                  {product.vendorId?.businessName || 'Unknown Center'}
+                                </p>
+                              </div>
+                              
+                              <Button
+                                size="sm"
+                                className="w-full"
+                                disabled={product.status !== 'available'}
+                                onClick={() => addToCart(product)}
+                              >
+                                {product.status === 'available' ? 'Add to Cart' : 'Unavailable'}
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  // Show products in a single grid when a specific category is selected
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {categoryProducts.map((product) => (
+                    {filteredProducts.map((product) => (
                       <div
                         key={product._id}
                         className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200"
@@ -628,85 +1049,12 @@ export function VendorDashboard({
                       </div>
                     ))}
                   </div>
-                </div>
-              ))
-            ) : (
-              // Show products in a single grid when a specific category is selected
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredProducts.map((product) => (
-                  <div
-                    key={product._id}
-                    className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200"
-                  >
-                    <div className="aspect-w-16 aspect-h-9 bg-gray-200">
-                      {product.images && product.images.length > 0 ? (
-                        <img
-                          src={product.images[0].url || "/placeholder.svg"}
-                          alt={product.name}
-                          className="w-full h-48 object-cover"
-                          onError={(e) => {
-                            e.currentTarget.onerror = null; // Prevent infinite loop
-                            e.currentTarget.src = "/placeholder.svg";
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                          <Package className="h-12 w-12 text-gray-400" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">
-                          {product.name}
-                        </h4>
-                        <span className="text-sm font-bold text-blue-600 ml-2">
-                          रू {product.price.toLocaleString()}
-                        </span>
-                      </div>
-                      
-                      <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-                        {product.description}
-                      </p>
-                      
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
-                          {product.category}
-                        </span>
-                        <span className={`text-xs px-2 py-1 rounded ${
-                          product.status === 'available' 
-                            ? 'bg-green-100 text-green-800'
-                            : product.status === 'out_of_stock'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {product.status.replace('_', ' ').toUpperCase()}
-                        </span>
-                      </div>
-                      
-                      <div className="text-xs text-gray-500 mb-3">
-                        <p className="flex items-center">
-                          <Users className="h-3 w-3 mr-1" />
-                          {product.vendorId?.businessName || 'Unknown Center'}
-                        </p>
-                      </div>
-                      
-                      <Button
-                        size="sm"
-                        className="w-full"
-                        disabled={product.status !== 'available'}
-                        onClick={() => addToCart(product)}
-                      >
-                        {product.status === 'available' ? 'Add to Cart' : 'Unavailable'}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                )}
               </div>
             )}
-          </div>
-        )}
-      </Card>
+          </Card>
+        </>
+      )}
     </div>
   );
 
@@ -811,7 +1159,7 @@ export function VendorDashboard({
         ))}
       </div>
     );
-  };
+  }
 
   // Render order details view
   const renderOrderDetails = () => {

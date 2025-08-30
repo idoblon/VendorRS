@@ -97,6 +97,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   const [showVendorDetails, setShowVendorDetails] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
 
+  // Add new state for center details modal
+  const [showCenterDetails, setShowCenterDetails] = useState(false);
+  const [selectedCenter, setSelectedCenter] = useState<DistributionCenter | null>(null);
+
   // Add MessageBox state
   const [isMessageBoxOpen, setIsMessageBoxOpen] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
@@ -678,6 +682,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => handleViewCenter(center._id)}
                         className="flex-1 flex items-center justify-center space-x-1"
                       >
                         <Eye className="h-4 w-4" />
@@ -751,11 +756,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
       }
     } catch (error) {
       console.error("Failed to fetch vendor details:", error);
-      if (error.response) {
-        console.error("Error response:", error.response.data);
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as any;
+        console.error("Error response:", axiosError.response?.data);
         alert(
           `Failed to fetch vendor details: ${
-            error.response.data.message || "Unknown error"
+            axiosError.response?.data?.message || "Unknown error"
           }`
         );
       } else {
@@ -963,6 +969,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
       {showVendorModal && renderVendorModal()}
       {showCenterModal && renderCenterModal()}
       {showCommissionModal && renderCommissionModal()}
+      {showVendorDetails && renderVendorDetailsModal()}
 
       {/* MessageBox Component */}
       <MessageBox
@@ -973,6 +980,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
           getUnreadCount().then(setUnreadMessageCount).catch(console.error);
         }}
       />
++      {showCenterDetails && renderCenterDetailsModal()}
     </div>
   );
 
@@ -1061,6 +1069,47 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
       </div>
     );
   }
++
++  function renderCenterDetailsModal() {
++    if (!selectedCenter) return null;
++
++    return (
++      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
++        <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
++          <div className="flex items-center justify-between mb-6">
++            <h2 className="text-2xl font-bold text-gray-900">
++              Distribution Center Details
++            </h2>
++            <Button
++              variant="ghost"
++              size="sm"
++              onClick={() => {
++                setShowCenterDetails(false);
++                setSelectedCenter(null);
++              }}
++            >
++              <X className="h-4 w-4" />
++            </Button>
++          </div>
++
++          <div className="space-y-4">
++            <div>
++              <label className="text-sm font-medium text-gray-600">Name</label>
++              <p className="text-gray-900 font-medium">{selectedCenter.name}</p>
++            </div>
++            <div>
++              <label className="text-sm font-medium text-gray-600">Location</label>
++              <p className="text-gray-900">{selectedCenter.location}</p>
++            </div>
++            <div>
++              <label className="text-sm font-medium text-gray-600">Status</label>
++              <p className="text-gray-900">{selectedCenter.status}</p>
++            </div>
++          </div>
++        </div>
++      </div>
++    );
++  }
 
   function renderCenterModal() {
     return (
@@ -1167,6 +1216,221 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
     );
   }
 
+  function renderVendorDetailsModal() {
+    if (!selectedVendor) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Vendor Details
+            </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setShowVendorDetails(false);
+                setSelectedVendor(null);
+              }}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Basic Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                Basic Information
+              </h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Business Name
+                  </label>
+                  <p className="text-gray-900 font-medium">
+                    {selectedVendor.businessName}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Email
+                  </label>
+                  <p className="text-gray-900">{selectedVendor.email}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Status
+                  </label>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    {selectedVendor.status}
+                  </span>
+                </div>
+                {selectedVendor.name && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">
+                      Contact Name
+                    </label>
+                    <p className="text-gray-900">{selectedVendor.name}</p>
+                  </div>
+                )}
+                {selectedVendor.phone && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">
+                      Phone
+                    </label>
+                    <p className="text-gray-900">{selectedVendor.phone}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Address Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                Address Information
+              </h3>
+              <div className="space-y-3">
+                {selectedVendor.address && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">
+                      Address
+                    </label>
+                    <p className="text-gray-900">{selectedVendor.address}</p>
+                  </div>
+                )}
+                {selectedVendor.district && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">
+                      District
+                    </label>
+                    <p className="text-gray-900">{selectedVendor.district}</p>
+                  </div>
+                )}
+                {selectedVendor.commission !== undefined && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">
+                      Commission Earned
+                    </label>
+                    <p className="text-gray-900 font-bold">
+                      Rs. {selectedVendor.commission.toLocaleString()}
+                    </p>
+                  </div>
+                )}
+                {selectedVendor.createdAt && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">
+                      Registered On
+                    </label>
+                    <p className="text-gray-900">
+                      {new Date(selectedVendor.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Bank Details */}
+          {selectedVendor.bankDetails && (
+            <div className="mt-6 space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                Bank Details
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Bank Name
+                  </label>
+                  <p className="text-gray-900">
+                    {selectedVendor.bankDetails.bankName}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Account Number
+                  </label>
+                  <p className="text-gray-900">
+                    {selectedVendor.bankDetails.accountNumber}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Account Holder
+                  </label>
+                  <p className="text-gray-900">
+                    {selectedVendor.bankDetails.accountHolderName}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Contact Persons */}
+          {selectedVendor.contactPersons &&
+            selectedVendor.contactPersons.length > 0 && (
+              <div className="mt-6 space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                  Contact Persons
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {selectedVendor.contactPersons.map((person, index) => (
+                    <div
+                      key={index}
+                      className="border rounded-lg p-4 bg-gray-50"
+                    >
+                      <div className="space-y-2">
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">
+                            Name
+                          </label>
+                          <p className="text-gray-900">{person.name}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">
+                            Phone
+                          </label>
+                          <p className="text-gray-900">{person.phone}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">
+                            Email
+                          </label>
+                          <p className="text-gray-900">{person.email}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          {/* Action Buttons */}
+          <div className="mt-6 flex space-x-4 justify-end">
+            <Button
+              variant="outline"
+              onClick={() => handleVendorAction(selectedVendor._id, "suspend")}
+              className="text-yellow-600 hover:text-yellow-700 hover:border-yellow-300"
+            >
+              <Pause className="h-4 w-4 mr-2" />
+              Suspend Vendor
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleVendorAction(selectedVendor._id, "delete")}
+              className="text-red-600 hover:text-red-700 hover:border-red-300"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Vendor
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   function renderCommissionModal() {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -1215,7 +1479,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                 <p className="text-xl font-bold text-gray-900">
                   {
                     vendors.filter(
-                      (v) => v.status === "APPROVED" && v.commission > 0
+                      (v) => v.status === "APPROVED" && (v.commission || 0) > 0
                     ).length
                   }
                 </p>
@@ -1226,7 +1490,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                 Top Contributing Vendors
               </h4>
               {vendors
-                .filter((v) => v.commission > 0)
+                .filter((v) => (v.commission || 0) > 0)
                 .sort((a, b) => (b.commission || 0) - (a.commission || 0))
                 .slice(0, 5)
                 .map((vendor, index) => (
@@ -1243,7 +1507,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                     <div className="text-right">
                       <p className="font-bold text-purple-600">
                         Rs. {vendor.commission?.toLocaleString() || 0}
-                      </p>
+                        </p>
                       <p className="text-sm text-gray-500">Commission paid</p>
                     </div>
                   </div>

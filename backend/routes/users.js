@@ -347,6 +347,124 @@ router.put(
   }
 );
 
+// @route   POST /api/users/centers
+// @desc    Create a new center (Admin only)
+// @access  Private (Admin)
+router.post(
+  "/centers",
+  authenticate,
+  authorize("ADMIN"),
+  async (req, res) => {
+    const session = await mongoose.startSession();
+    
+    try {
+      session.startTransaction();
+
+      const {
+        name,
+        email,
+        password,
+        phone,
+        businessName,
+        panNumber,
+        province,
+        district,
+        categories,
+        address,
+        status = "APPROVED" // Default to approved for manually created centers
+      } = req.body;
+
+      // Validate required fields
+      if (!name || !email || !password || !phone || !panNumber || !province || !district) {
+        await session.abortTransaction();
+        return res.status(400).json({
+          success: false,
+          message: "Missing required fields: name, email, password, phone, panNumber, province, district are required"
+        });
+      }
+
+      // Validate categories
+      if (!categories || !Array.isArray(categories) || categories.length === 0) {
+        await session.abortTransaction();
+        return res.status(400).json({
+          success: false,
+          message: "At least one category is required for centers"
+        });
+      }
+
+      // Check if email already exists
+      const existingUser = await User.findOne({ email }).session(session);
+      if (existingUser) {
+        await session.abortTransaction();
+        return res.status(400).json({
+          success: false,
+          message: "Email already exists"
+        });
+      }
+
+      // Create the center user
+      const centerUser = new User({
+        name,
+        email,
+        password,
+        phone,
+        businessName: businessName || name, // Use name as businessName if not provided
+        panNumber,
+        address,
+        province,
+        district,
+        categories,
+        role: "CENTER",
+        status: status.toUpperCase(),
+        isActive: true
+      });
+
+      await centerUser.save({ session });
+
+      // Create notification for the admin
+      try {
+        const Notification = require("../models/Notification");
+        await Notification.create(
+          [{
+            recipient: req.user._id,
+            sender: centerUser._id,
+            type: "CENTER_CREATED",
+            title: "Center Created Successfully",
+            message: `Center "${centerUser.name}" has been created successfully with ID: ${centerUser._id}`,
+            relatedId: centerUser._id,
+            onModel: "User"
+          }],
+          { session }
+        );
+      } catch (notificationError) {
+        console.error("Failed to create center creation notification:", notificationError);
+        // Continue even if notification fails
+      }
+
+      await session.commitTransaction();
+
+      console.log(`✅ Center created successfully: ${centerUser.name} (${centerUser._id})`);
+
+      res.status(201).json({
+        success: true,
+        message: "Center created successfully",
+        data: { center: centerUser.toJSON() }
+      });
+
+    } catch (error) {
+      await session.abortTransaction();
+      console.error("Create center error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to create center",
+        error: error.message
+      });
+    } finally {
+      session.endSession();
+    }
+  }
+);
+
 // @route   PUT /api/users/centers/:id/status
 // @desc    Update center application status (Admin only)
 // @access  Private (Admin)

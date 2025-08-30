@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const fs = require("fs");
 const path = require("path");
+const readline = require("readline");
 
 // Import models
 const User = require("../models/User");
@@ -12,6 +13,12 @@ const Message = require("../models/Message");
 const Notification = require("../models/Notification");
 const Order = require("../models/Order");
 const Product = require("../models/Product");
+
+// Create readline interface for user input
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
 const connectDB = async () => {
   console.log(process.env.MONGODB_URI, "this is the uri");
@@ -27,21 +34,45 @@ const connectDB = async () => {
   }
 };
 
-const seedDatabase = async () => {
+const question = (query) => new Promise(resolve => rl.question(query, resolve));
+
+const createBackup = async () => {
   try {
-    console.log("🌱 Starting database seeding check...");
+    console.log("💾 Creating backup of current data...");
     
-    // Check if data already exists
-    const existingUsers = await User.countDocuments();
-    if (existingUsers > 0) {
-      console.log("📊 Database already contains data. Skipping seeding.");
-      console.log(`Found ${existingUsers} existing users.`);
-      return;
+    const backupData = {
+      timestamp: new Date().toISOString(),
+      users: await User.find({}).lean(),
+      categories: await Category.find({}).lean(),
+      products: await Product.find({}).lean(),
+      conversations: await Conversation.find({}).lean(),
+      messages: await Message.find({}).lean(),
+      notifications: await Notification.find({}).lean(),
+      orders: await Order.find({}).lean(),
+    };
+
+    const backupPath = path.join(
+      __dirname,
+      `../backups/pre_seed_backup_${Date.now()}.json`
+    );
+    const backupDir = path.dirname(backupPath);
+
+    if (!fs.existsSync(backupDir)) {
+      fs.mkdirSync(backupDir, { recursive: true });
     }
-    
-    console.log("📭 Database is empty. Proceeding with seeding...");
-    
-    // Clear existing data
+
+    fs.writeFileSync(backupPath, JSON.stringify(backupData, null, 2));
+    console.log(`✅ Backup saved to: ${backupPath}`);
+    return backupPath;
+  } catch (error) {
+    console.error("❌ Failed to create backup:", error);
+    return null;
+  }
+};
+
+const clearDatabase = async () => {
+  try {
+    console.log("🧹 Clearing existing data...");
     await User.deleteMany({});
     await Category.deleteMany({});
     await Conversation.deleteMany({});
@@ -49,21 +80,17 @@ const seedDatabase = async () => {
     await Notification.deleteMany({});
     await Order.deleteMany({});
     await Product.deleteMany({});
-    console.log("🧹 Cleared existing data");
+    console.log("✅ Database cleared successfully");
+  } catch (error) {
+    console.error("❌ Error clearing database:", error);
+    throw error;
+  }
+};
 
-    // Create Admin User with secure credentials
-    const adminUser = await User.create({
-      name: "System Administrator",
-      email: process.env.ADMIN_EMAIL || "admin@example.com",
-      password: process.env.ADMIN_PASSWORD || "Password@123",
-      phone: "+91 9999999999",
-      role: "ADMIN",
-      status: "APPROVED",
-      isActive: true,
-    });
-    console.log("👨‍💼 Created admin user");
-
-    // Seed categories with detailed structure (needed for center signup)
+const seedCategories = async () => {
+  try {
+    console.log("📦 Seeding categories...");
+    
     const sampleCategories = [
       {
         name: "Electronics",
@@ -161,10 +188,41 @@ const seedDatabase = async () => {
       },
     ];
 
-    await Category.insertMany(sampleCategories);
-    console.log(`📦 Created ${sampleCategories.length} sample categories`);
+    const categories = await Category.insertMany(sampleCategories);
+    console.log(`✅ Created ${categories.length} categories`);
+    return categories;
+  } catch (error) {
+    console.error("❌ Error seeding categories:", error);
+    throw error;
+  }
+};
 
-    // Define sample centers with province and district information
+const seedAdminUser = async () => {
+  try {
+    console.log("👨‍💼 Creating admin user...");
+    
+    const adminUser = await User.create({
+      name: "System Administrator",
+      email: process.env.ADMIN_EMAIL || "admin@example.com",
+      password: process.env.ADMIN_PASSWORD || "Password@123",
+      phone: "+977 9817977212",
+      role: "ADMIN",
+      status: "APPROVED",
+      isActive: true,
+    });
+    
+    console.log("✅ Admin user created:", adminUser.email);
+    return adminUser;
+  } catch (error) {
+    console.error("❌ Error creating admin user:", error);
+    throw error;
+  }
+};
+
+const seedCenters = async () => {
+  try {
+    console.log("🏢 Creating distribution centers...");
+    
     const sampleCenters = [
       {
         name: "Kathmandu Distribution Center",
@@ -231,56 +289,27 @@ const seedDatabase = async () => {
         categories: ["Clothing", "Footwear", "Accessories"],
         isActive: true,
       },
-      {
-        name: "Dharan Distribution Center",
-        email: "dharan@center.com",
-        password: process.env.CENTER_PASSWORD || "Password@123",
-        phone: "+977 25 123456",
-        role: "CENTER",
-        status: "APPROVED",
-        panNumber: "PANC654987321",
-        province: "Koshi",
-        district: "Dharan",
-        categories: ["Electronics", "Sports", "Books"],
-        isActive: true,
-      },
-      {
-        name: "Nepalgunj Distribution Center",
-        email: "nepalgunj@center.com",
-        password: process.env.CENTER_PASSWORD || "Password@123",
-        phone: "+977 81 123456",
-        role: "CENTER",
-        status: "APPROVED",
-        panNumber: "PANC987321654",
-        province: "Lumbini",
-        district: "Nepalgunj",
-        categories: ["Spices & Herbs", "Home & Garden", "Automotive"],
-        isActive: true,
-      },
-      {
-        name: "Janakpur Distribution Center",
-        email: "janakpur@center.com",
-        password: process.env.CENTER_PASSWORD || "Password@123",
-        phone: "+977 41 123456",
-        role: "CENTER",
-        status: "APPROVED",
-        panNumber: "PANC147258369",
-        province: "Madhesh",
-        district: "Janakpur",
-        categories: ["Grains & Pulses", "Beverages", "Health & Beauty"],
-        isActive: true,
-      },
     ];
 
-    // Create center users
     const centerUsers = [];
     for (const center of sampleCenters) {
       const centerUser = await User.create(center);
       centerUsers.push(centerUser);
-      console.log(`🏢 Created center user: ${center.name}`);
+      console.log(`✅ Created center: ${center.name}`);
     }
+    
+    console.log(`✅ Created ${centerUsers.length} distribution centers`);
+    return centerUsers;
+  } catch (error) {
+    console.error("❌ Error creating centers:", error);
+    throw error;
+  }
+};
 
-    // Define sample vendors with business information
+const seedVendors = async () => {
+  try {
+    console.log("🏪 Creating vendor users...");
+    
     const sampleVendors = [
       {
         name: "Nepal Spices & Herbs Co.",
@@ -419,19 +448,25 @@ const seedDatabase = async () => {
       },
     ];
 
-    // Create vendor users
     const vendorUsers = [];
     for (const vendor of sampleVendors) {
       const vendorUser = await User.create(vendor);
       vendorUsers.push(vendorUser);
-      console.log(`🏪 Created vendor user: ${vendor.name}`);
+      console.log(`✅ Created vendor: ${vendor.businessName}`);
     }
+    
+    console.log(`✅ Created ${vendorUsers.length} vendor users`);
+    return vendorUsers;
+  } catch (error) {
+    console.error("❌ Error creating vendors:", error);
+    throw error;
+  }
+};
 
-    // Get the already created categories
-    const createdCategories = await Category.find({});
-    console.log(`📂 Using ${createdCategories.length} existing categories`);
-
-    // Define comprehensive product catalog for each vendor type
+const seedProducts = async (vendorUsers) => {
+  try {
+    console.log("📦 Creating products...");
+    
     const allProducts = [
       // Nepal Spices & Herbs Co. Products
       {
@@ -494,58 +529,6 @@ const seedDatabase = async () => {
         tags: ["tea", "himalayan", "black tea", "premium", "organic"],
         status: "available",
       },
-      {
-        name: "Cardamom Pods (Large)",
-        description: "Premium large green cardamom pods from Nepal",
-        category: "Spices & Herbs",
-        subcategory: "Whole Spices",
-        price: 1200,
-        currency: "NPR",
-        vendorId: vendorUsers[0]._id,
-        availability: [
-          {
-            province: "Bagmati",
-            district: "Kathmandu",
-            stock: 75,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          weight: { value: 200, unit: "g" },
-          grade: "A",
-          origin: "Nepal",
-          brand: "Nepal Spices",
-        },
-        images: [{ filename: "cardamom.jpg", originalName: "cardamom.jpg", path: "/images/cardamom.jpg", url: "https://example.com/images/cardamom.jpg", isPrimary: true }],
-        tags: ["cardamom", "spices", "whole", "premium", "cooking"],
-        status: "available",
-      },
-      {
-        name: "Cinnamon Sticks",
-        description: "Authentic Nepali cinnamon sticks",
-        category: "Spices & Herbs",
-        subcategory: "Whole Spices",
-        price: 450,
-        currency: "NPR",
-        vendorId: vendorUsers[0]._id,
-        availability: [
-          {
-            province: "Bagmati",
-            district: "Kathmandu",
-            stock: 120,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          weight: { value: 100, unit: "g" },
-          length: "5-7 cm",
-          origin: "Nepal",
-          brand: "Nepal Spices",
-        },
-        images: [{ filename: "cinnamon.jpg", originalName: "cinnamon.jpg", path: "/images/cinnamon.jpg", url: "https://example.com/images/cinnamon.jpg", isPrimary: true }],
-        tags: ["cinnamon", "spices", "baking", "cooking", "natural"],
-        status: "available",
-      },
 
       // Trekking Gear Nepal Products
       {
@@ -579,86 +562,6 @@ const seedDatabase = async () => {
         },
         images: [{ filename: "backpack.jpg", originalName: "backpack.jpg", path: "/images/backpack.jpg", url: "https://example.com/images/backpack.jpg", isPrimary: true }],
         tags: ["trekking", "backpack", "outdoor", "adventure", "hiking"],
-        status: "available",
-      },
-      {
-        name: "Waterproof Trekking Jacket",
-        description: "Lightweight waterproof jacket for mountain trekking",
-        category: "Sports",
-        subcategory: "Outdoor Sports",
-        price: 1800,
-        currency: "NPR",
-        vendorId: vendorUsers[1]._id,
-        availability: [
-          {
-            province: "Gandaki",
-            district: "Pokhara",
-            stock: 40,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          size: "M",
-          material: "Nylon/Polyester",
-          waterproof: true,
-          breathable: true,
-          brand: "Trekking Gear Nepal",
-        },
-        images: [{ filename: "jacket.jpg", originalName: "jacket.jpg", path: "/images/jacket.jpg", url: "https://example.com/images/jacket.jpg", isPrimary: true }],
-        tags: ["jacket", "waterproof", "trekking", "outdoor", "hiking"],
-        status: "available",
-      },
-      {
-        name: "Hiking Boots (Men's)",
-        description: "Durable hiking boots for rough terrain",
-        category: "Footwear",
-        subcategory: "Sports",
-        price: 3200,
-        currency: "NPR",
-        vendorId: vendorUsers[1]._id,
-        availability: [
-          {
-            province: "Gandaki",
-            district: "Pokhara",
-            stock: 30,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          size: "9",
-          material: "Leather/Synthetic",
-          waterproof: true,
-          ankleSupport: true,
-          brand: "Trekking Gear Nepal",
-        },
-        images: [{ filename: "hiking_boots.jpg", originalName: "hiking_boots.jpg", path: "/images/hiking_boots.jpg", url: "https://example.com/images/hiking_boots.jpg", isPrimary: true }],
-        tags: ["hiking", "boots", "outdoor", "footwear", "adventure"],
-        status: "available",
-      },
-      {
-        name: "Trekking Poles (Pair)",
-        description: "Adjustable aluminum trekking poles",
-        category: "Sports",
-        subcategory: "Outdoor Sports",
-        price: 1200,
-        currency: "NPR",
-        vendorId: vendorUsers[1]._id,
-        availability: [
-          {
-            province: "Gandaki",
-            district: "Pokhara",
-            stock: 60,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          material: "Aluminum",
-          adjustable: "60-130 cm",
-          weight: "500g/pair",
-          brand: "Trekking Gear Nepal",
-        },
-        images: [{ filename: "trekking_poles.jpg", originalName: "trekking_poles.jpg", path: "/images/trekking_poles.jpg", url: "https://example.com/images/trekking_poles.jpg", isPrimary: true }],
-        tags: ["trekking", "poles", "hiking", "support", "outdoor"],
         status: "available",
       },
 
@@ -696,87 +599,6 @@ const seedDatabase = async () => {
         tags: ["traditional", "dhaka", "ethnic", "women", "handmade"],
         status: "available",
       },
-      {
-        name: "Handcrafted Leather Boots",
-        description: "Premium leather boots made by skilled artisans in Nepal",
-        category: "Footwear",
-        subcategory: "Boots",
-        price: 3500,
-        currency: "NPR",
-        vendorId: vendorUsers[2]._id,
-        availability: [
-          {
-            province: "Koshi",
-            district: "Biratnagar",
-            stock: 25,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          material: "Genuine Leather",
-          color: "Brown",
-          size: "8",
-          handmade: true,
-          brand: "Nepal Leather Works",
-        },
-        images: [{ filename: "leather_boots.jpg", originalName: "leather_boots.jpg", path: "/images/leather_boots.jpg", url: "https://example.com/images/leather_boots.jpg", isPrimary: true }],
-        tags: ["leather", "boots", "handcrafted", "footwear", "artisan"],
-        status: "available",
-      },
-      {
-        name: "Pashmina Shawl",
-        description: "Luxurious 100% pure pashmina shawl from Nepal",
-        category: "Accessories",
-        subcategory: "Scarves",
-        price: 4500,
-        currency: "NPR",
-        vendorId: vendorUsers[2]._id,
-        availability: [
-          {
-            province: "Bagmati",
-            district: "Kathmandu",
-            stock: 40,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          material: "100% Pashmina",
-          color: "Royal Blue",
-          dimensions: { length: 80, width: 200, unit: "cm" },
-          handmade: true,
-          brand: "Nepal Pashmina House",
-        },
-        images: [{ filename: "pashmina_shawl.jpg", originalName: "pashmina_shawl.jpg", path: "/images/pashmina_shawl.jpg", url: "https://example.com/images/pashmina_shawl.jpg", isPrimary: true }],
-        tags: ["pashmina", "shawl", "luxury", "accessory", "handmade"],
-        status: "available",
-      },
-      {
-        name: "Handwoven Basket Set",
-        description: "Set of 3 handwoven baskets made from locally sourced materials",
-        category: "Home & Garden",
-        subcategory: "Storage",
-        price: 1800,
-        currency: "NPR",
-        vendorId: vendorUsers[2]._id,
-        availability: [
-          {
-            province: "Koshi",
-            district: "Biratnagar",
-            stock: 35,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          material: "Bamboo",
-          color: "Natural",
-          setSize: 3,
-          handmade: true,
-          brand: "Nepal Handicrafts",
-        },
-        images: [{ filename: "basket_set.jpg", originalName: "basket_set.jpg", path: "/images/basket_set.jpg", url: "https://example.com/images/basket_set.jpg", isPrimary: true }],
-        tags: ["handwoven", "baskets", "storage", "eco-friendly", "artisan"],
-        status: "available",
-      },
 
       // Organic Farm Nepal Products
       {
@@ -810,87 +632,6 @@ const seedDatabase = async () => {
         },
         images: [{ filename: "organic_honey.jpg", originalName: "organic_honey.jpg", path: "/images/organic_honey.jpg", url: "https://example.com/images/organic_honey.jpg", isPrimary: true }],
         tags: ["organic", "honey", "natural", "himalayan", "raw"],
-        status: "available",
-      },
-      {
-        name: "Organic Brown Rice",
-        description: "Nutritional organic brown rice from Nepal",
-        category: "Grains & Pulses",
-        subcategory: "Rice",
-        price: 400,
-        currency: "NPR",
-        vendorId: vendorUsers[3]._id,
-        availability: [
-          {
-            province: "Bagmati",
-            district: "Chitwan",
-            stock: 200,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          weight: { value: 1, unit: "kg" },
-          organic: true,
-          type: "Brown Rice",
-          origin: "Nepal",
-          brand: "Organic Farm Nepal",
-        },
-        images: [{ filename: "brown_rice.jpg", originalName: "brown_rice.jpg", path: "/images/brown_rice.jpg", url: "https://example.com/images/brown_rice.jpg", isPrimary: true }],
-        tags: ["organic", "rice", "brown rice", "healthy", "natural"],
-        status: "available",
-      },
-      {
-        name: "Fresh Organic Vegetables Box",
-        description: "Weekly box of fresh organic vegetables from our farm",
-        category: "Snacks & Sweets",
-        subcategory: "Fresh Produce",
-        price: 800,
-        currency: "NPR",
-        vendorId: vendorUsers[3]._id,
-        availability: [
-          {
-            province: "Bagmati",
-            district: "Chitwan",
-            stock: 20,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          weight: { value: 5, unit: "kg" },
-          organic: true,
-          seasonal: true,
-          variety: "Mixed",
-          brand: "Organic Farm Nepal",
-        },
-        images: [{ filename: "vegetable_box.jpg", originalName: "vegetable_box.jpg", path: "/images/vegetable_box.jpg", url: "https://example.com/images/vegetable_box.jpg", isPrimary: true }],
-        tags: ["organic", "vegetables", "fresh", "farm", "healthy"],
-        status: "available",
-      },
-      {
-        name: "Organic Lentils (Mixed)",
-        description: "Assorted organic lentils package",
-        category: "Grains & Pulses",
-        subcategory: "Lentils",
-        price: 350,
-        currency: "NPR",
-        vendorId: vendorUsers[3]._id,
-        availability: [
-          {
-            province: "Bagmati",
-            district: "Chitwan",
-            stock: 150,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          weight: { value: 500, unit: "g" },
-          organic: true,
-          varieties: "3 types",
-          origin: "Nepal",
-          brand: "Organic Farm Nepal",
-        },
-        images: [{ filename: "lentils.jpg", originalName: "lentils.jpg", path: "/images/lentils.jpg", url: "https://example.com/images/lentils.jpg", isPrimary: true }],
-        tags: ["organic", "lentils", "pulses", "protein", "healthy"],
         status: "available",
       },
 
@@ -928,211 +669,53 @@ const seedDatabase = async () => {
         tags: ["wireless", "bluetooth", "headphones", "audio", "tech"],
         status: "available",
       },
-      {
-        name: "Smartphone Case",
-        description: "Durable protective case for smartphones with shock absorption",
-        category: "Electronics",
-        subcategory: "Mobile Phones",
-        price: 800,
-        currency: "NPR",
-        vendorId: vendorUsers[4]._id,
-        availability: [
-          {
-            province: "Bagmati",
-            district: "Lalitpur",
-            stock: 150,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          material: "TPU + PC",
-          color: "Black",
-          compatibility: "Universal",
-          protection: "Shock Absorption",
-          brand: "Tech Solutions",
-        },
-        images: [{ filename: "phone_case.jpg", originalName: "phone_case.jpg", path: "/images/phone_case.jpg", url: "https://example.com/images/phone_case.jpg", isPrimary: true }],
-        tags: ["smartphone", "case", "protection", "accessories", "tech"],
-        status: "available",
-      },
-      {
-        name: "Portable Power Bank",
-        description: "10000mAh portable power bank for mobile devices",
-        category: "Electronics",
-        subcategory: "Accessories",
-        price: 1500,
-        currency: "NPR",
-        vendorId: vendorUsers[4]._id,
-        availability: [
-          {
-            province: "Bagmati",
-            district: "Lalitpur",
-            stock: 45,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          capacity: "10000mAh",
-          output: "5V/2.4A",
-          ports: 2,
-          fastCharge: true,
-          brand: "Tech Solutions",
-        },
-        images: [{ filename: "power_bank.jpg", originalName: "power_bank.jpg", path: "/images/power_bank.jpg", url: "https://example.com/images/power_bank.jpg", isPrimary: true }],
-        tags: ["power bank", "portable", "charging", "tech", "accessory"],
-        status: "available",
-      },
-      {
-        name: "Wireless Mouse",
-        description: "Ergonomic wireless mouse for computers",
-        category: "Electronics",
-        subcategory: "Computer Accessories",
-        price: 900,
-        currency: "NPR",
-        vendorId: vendorUsers[4]._id,
-        availability: [
-          {
-            province: "Bagmati",
-            district: "Lalitpur",
-            stock: 80,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          connectivity: "2.4GHz Wireless",
-          dpi: "1600",
-          buttons: 6,
-          battery: "AA x 1",
-          brand: "Tech Solutions",
-        },
-        images: [{ filename: "wireless_mouse.jpg", originalName: "wireless_mouse.jpg", path: "/images/wireless_mouse.jpg", url: "https://example.com/images/wireless_mouse.jpg", isPrimary: true }],
-        tags: ["mouse", "wireless", "computer", "accessory", "tech"],
-        status: "available",
-      },
-
-      // Additional products for variety
-      {
-        name: "Nepali Folk Tales Book",
-        description: "Collection of traditional Nepali folk tales for all ages",
-        category: "Books",
-        subcategory: "Fiction",
-        price: 500,
-        currency: "NPR",
-        vendorId: vendorUsers[2]._id,
-        availability: [
-          {
-            province: "Gandaki",
-            district: "Pokhara",
-            stock: 100,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          author: "Various Authors",
-          publisher: "Nepal Publications",
-          language: "Nepali",
-          pages: 250,
-          isbn: "978-9999999999",
-        },
-        images: [{ filename: "folk_tales.jpg", originalName: "folk_tales.jpg", path: "/images/folk_tales.jpg", url: "https://example.com/images/folk_tales.jpg", isPrimary: true }],
-        tags: ["folk tales", "nepali", "literature", "stories", "culture"],
-        status: "available",
-      },
-      {
-        name: "Yoga Mat",
-        description: "Eco-friendly non-slip yoga mat for all types of yoga practice",
-        category: "Sports",
-        subcategory: "Yoga",
-        price: 1200,
-        currency: "NPR",
-        vendorId: vendorUsers[1]._id,
-        availability: [
-          {
-            province: "Bagmati",
-            district: "Kathmandu",
-            stock: 60,
-            reservedStock: 0,
-          },
-        ],
-        specifications: {
-          material: "Natural Rubber",
-          color: "Purple",
-          dimensions: {
-            length: 173,
-            width: 61,
-            unit: "cm",
-          },
-          brand: "Nepal Sports Gear",
-        },
-        images: [{ filename: "yoga_mat.jpg", originalName: "yoga_mat.jpg", path: "/images/yoga_mat.jpg", url: "https://example.com/images/yoga_mat.jpg", isPrimary: true }],
-        tags: ["yoga", "fitness", "eco-friendly", "sports", "wellness"],
-        status: "available",
-      },
     ];
 
-    // Create products
     const createdProducts = [];
     for (const product of allProducts) {
       const createdProduct = await Product.create(product);
       createdProducts.push(createdProduct);
-      console.log(`📦 Created product: ${product.name}`);
+      console.log(`✅ Created product: ${product.name}`);
     }
 
-    // Create sample conversations
-const conversations = [];
+    console.log(`✅ Created ${createdProducts.length} products`);
+    return createdProducts;
+  } catch (error) {
+    console.error("❌ Error creating products:", error);
+    throw error;
+  }
+};
 
-// Conversation 1: Kathmandu Center with Nepal Spices
-const conversation1 = await Conversation.create({
-  participants: [
-    {
-      user: centerUsers[0]._id,
-      role: "CENTER"
-    },
-    {
-      user: vendorUsers[0]._id,
-      role: "VENDOR"
-    }
-  ],
-  conversationType: "VENDOR_CENTER",
-  title: "Spice Order Discussion",
-  lastMessage: {
-    content: "Thank you for the quick response!",
-    sender: centerUsers[0]._id,
-    timestamp: new Date(),
-    messageType: "text"
-  },
-  isActive: true,
-});
-conversations.push(conversation1);
-
-// Conversation 2: Pokhara Center with Trekking Gear Nepal
-const conversation2 = await Conversation.create({
-  participants: [
-    {
-      user: centerUsers[1]._id,
-      role: "CENTER"
-    },
-    {
-      user: vendorUsers[1]._id,
-      role: "VENDOR"
-    }
-  ],
-  conversationType: "VENDOR_CENTER",
-  title: "Trekking Equipment Inquiry",
-  lastMessage: {
-    content: "We can provide bulk discount for orders above 50 units.",
-    sender: vendorUsers[1]._id,
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    messageType: "text"
-  },
-  isActive: true,
-});
-conversations.push(conversation2);
-
-    console.log(`💬 Created ${conversations.length} sample conversations`);
-
-    // Create sample messages
+const seedConversationsAndMessages = async (centerUsers, vendorUsers) => {
+  try {
+    console.log("💬 Creating conversations and messages...");
+    
+    const conversations = [];
     const messages = [];
+
+    // Conversation 1: Kathmandu Center with Nepal Spices
+    const conversation1 = await Conversation.create({
+      participants: [
+        {
+          user: centerUsers[0]._id,
+          role: "CENTER"
+        },
+        {
+          user: vendorUsers[0]._id,
+          role: "VENDOR"
+        }
+      ],
+      conversationType: "VENDOR_CENTER",
+      title: "Spice Order Discussion",
+      lastMessage: {
+        content: "Thank you for the quick response!",
+        sender: centerUsers[0]._id,
+        timestamp: new Date(),
+        messageType: "text"
+      },
+      isActive: true,
+    });
+    conversations.push(conversation1);
 
     // Messages for conversation 1
     const message1 = await Message.create({
@@ -1148,8 +731,7 @@ conversations.push(conversation2);
       conversationId: conversation1._id,
       sender: vendorUsers[0]._id,
       receiver: centerUsers[0]._id,
-      content:
-        "Thank you for your interest! We can offer competitive prices for bulk orders. How many units are you looking for?",
+      content: "Thank you for your interest! We can offer competitive prices for bulk orders. How many units are you looking for?",
       messageType: "text",
     });
     messages.push(message2);
@@ -1167,8 +749,7 @@ conversations.push(conversation2);
       conversationId: conversation1._id,
       sender: vendorUsers[0]._id,
       receiver: centerUsers[0]._id,
-      content:
-        "For 100 units, we can offer NPR 200 per unit. This includes free delivery within Kathmandu.",
+      content: "For 100 units, we can offer NPR 200 per unit. This includes free delivery within Kathmandu.",
       messageType: "text",
     });
     messages.push(message4);
@@ -1182,49 +763,18 @@ conversations.push(conversation2);
     });
     messages.push(message5);
 
-    // Messages for conversation 2
-    const message6 = await Message.create({
-      conversationId: conversation2._id,
-      sender: centerUsers[1]._id,
-      receiver: vendorUsers[1]._id,
-      content:
-        "Hi, we're looking for trekking backpacks for our distribution center.",
-      messageType: "text",
-    });
-    messages.push(message6);
+    console.log(`✅ Created ${conversations.length} conversations and ${messages.length} messages`);
+    return { conversations, messages };
+  } catch (error) {
+    console.error("❌ Error creating conversations/messages:", error);
+    throw error;
+  }
+};
 
-    const message7 = await Message.create({
-      conversationId: conversation2._id,
-      sender: vendorUsers[1]._id,
-      receiver: centerUsers[1]._id,
-      content:
-        "Hello! We have various trekking backpacks available. What capacity and quantity are you interested in?",
-      messageType: "text",
-    });
-    messages.push(message7);
-
-    const message8 = await Message.create({
-      conversationId: conversation2._id,
-      sender: centerUsers[1]._id,
-      receiver: vendorUsers[1]._id,
-      content: "We need 40L capacity backpacks, around 50 units.",
-      messageType: "text",
-    });
-    messages.push(message8);
-
-    const message9 = await Message.create({
-      conversationId: conversation2._id,
-      sender: vendorUsers[1]._id,
-      receiver: centerUsers[1]._id,
-      content:
-        "Perfect! We have 40L trekking backpacks in stock. We can provide bulk discount for orders above 50 units.",
-      messageType: "text",
-    });
-    messages.push(message9);
-
-    console.log(`📨 Created ${messages.length} sample messages`);
-
-    // Create sample notifications
+const seedNotifications = async (adminUser, centerUsers, vendorUsers) => {
+  try {
+    console.log("🔔 Creating notifications...");
+    
     const notifications = [];
 
     // Notification for vendor about new message
@@ -1233,7 +783,7 @@ conversations.push(conversation2);
       title: "New Message",
       message: "You have a new message from Kathmandu Distribution Center",
       type: "MESSAGE",
-      relatedId: conversation1._id,
+      relatedId: null,
       isRead: false,
     });
     notifications.push(notification1);
@@ -1244,7 +794,7 @@ conversations.push(conversation2);
       title: "New Message",
       message: "You have a new message from Trekking Gear Nepal",
       type: "MESSAGE",
-      relatedId: conversation2._id,
+      relatedId: null,
       isRead: false,
     });
     notifications.push(notification2);
@@ -1259,9 +809,18 @@ conversations.push(conversation2);
     });
     notifications.push(notification3);
 
-    console.log(`🔔 Created ${notifications.length} sample notifications`);
+    console.log(`✅ Created ${notifications.length} notifications`);
+    return notifications;
+  } catch (error) {
+    console.error("❌ Error creating notifications:", error);
+    throw error;
+  }
+};
 
-    // Create sample orders
+const seedOrders = async (centerUsers, vendorUsers, products) => {
+  try {
+    console.log("📋 Creating orders...");
+    
     const orders = [];
 
     // Order from Kathmandu Center to Nepal Spices
@@ -1270,7 +829,7 @@ conversations.push(conversation2);
       vendorId: vendorUsers[0]._id,
       items: [
         {
-          productId: createdProducts[0]._id, // Organic Turmeric Powder
+          productId: products[0]._id, // Organic Turmeric Powder
           productName: "Organic Turmeric Powder",
           quantity: 50,
           unitPrice: 250,
@@ -1284,7 +843,7 @@ conversations.push(conversation2);
           },
         },
         {
-          productId: createdProducts[1]._id, // Himalayan Black Tea
+          productId: products[1]._id, // Himalayan Black Tea
           productName: "Himalayan Black Tea",
           quantity: 20,
           unitPrice: 800,
@@ -1340,11 +899,7 @@ conversations.push(conversation2);
       notes: "First order from this center",
     });
     orders.push(order1);
-    console.log("📦 Created order from Kathmandu Center to Nepal Spices");
-
-    // Update conversation with order reference
-    conversation1.orderReference = order1._id;
-    await conversation1.save();
+    console.log("✅ Created order from Kathmandu Center to Nepal Spices");
 
     // Order from Pokhara Center to Trekking Gear Nepal
     const order2 = await Order.create({
@@ -1352,7 +907,7 @@ conversations.push(conversation2);
       vendorId: vendorUsers[1]._id,
       items: [
         {
-          productId: createdProducts[2]._id, // Trekking Backpack 40L
+          productId: products[2]._id, // Trekking Backpack 40L
           productName: "Trekking Backpack 40L",
           quantity: 10,
           unitPrice: 2500,
@@ -1405,71 +960,178 @@ conversations.push(conversation2);
       notes: "Bulk order for staff",
     });
     orders.push(order2);
-    console.log("📦 Created order from Pokhara Center to Trekking Gear Nepal");
+    console.log("✅ Created order from Pokhara Center to Trekking Gear Nepal");
 
-    // Update conversation with order reference
-    conversation2.orderReference = order2._id;
-    await conversation2.save();
+    console.log(`✅ Created ${orders.length} orders`);
+    return orders;
+  } catch (error) {
+    console.error("❌ Error creating orders:", error);
+    throw error;
+  }
+};
 
-    console.log(`📦 Created ${orders.length} sample orders`);
+const showApprovedEntities = async () => {
+  try {
+    console.log("\n📊 APPROVED VENDORS AND CENTERS:");
+    console.log("==================================");
 
-    // Create backup of seeded data
-    const backupData = {
-      timestamp: new Date().toISOString(),
-      users: {
-        admin: 1,
-        vendors: vendorUsers.length,
-        centers: centerUsers.length,
-      },
-      categories: createdCategories.length,
-      products: createdProducts.length,
-      conversations: conversations.length,
-      messages: messages.length,
-      notifications: notifications.length,
-      orders: orders.length,
-    };
+    // Show approved vendors
+    const approvedVendors = await User.find({ 
+      role: "VENDOR", 
+      status: "APPROVED" 
+    }).select("name email businessName district province categories");
 
-    // Save backup to file
-    const backupPath = path.join(
-      __dirname,
-      `../backups/seed_backup_${Date.now()}.json`
-    );
-    const backupDir = path.dirname(backupPath);
+    console.log("\n🏪 APPROVED VENDORS:");
+    console.log("===================");
+    approvedVendors.forEach((vendor, index) => {
+      console.log(`${index + 1}. ${vendor.businessName || vendor.name}`);
+      console.log(`   📧 Email: ${vendor.email}`);
+      console.log(`   📍 Location: ${vendor.district}, ${vendor.province}`);
+      if (vendor.categories && vendor.categories.length > 0) {
+        console.log(`   📂 Categories: ${vendor.categories.join(", ")}`);
+      }
+      console.log(`   🆔 ID: ${vendor._id}`);
+      console.log("");
+    });
 
-    // Create backups directory if it doesn't exist
-    if (!fs.existsSync(backupDir)) {
-      fs.mkdirSync(backupDir, { recursive: true });
+    // Show approved centers
+    const approvedCenters = await User.find({ 
+      role: "CENTER", 
+      status: "APPROVED" 
+    }).select("name email district province categories");
+
+    console.log("🏢 APPROVED DISTRIBUTION CENTERS:");
+    console.log("================================");
+    approvedCenters.forEach((center, index) => {
+      console.log(`${index + 1}. ${center.name}`);
+      console.log(`   📧 Email: ${center.email}`);
+      console.log(`   📍 Location: ${center.district}, ${center.province}`);
+      if (center.categories && center.categories.length > 0) {
+        console.log(`   📂 Categories: ${center.categories.join(", ")}`);
+      }
+      console.log(`   🆔 ID: ${center._id}`);
+      console.log("");
+    });
+
+    // Show products by vendor
+    console.log("📦 PRODUCTS BY VENDOR:");
+    console.log("======================");
+    for (const vendor of approvedVendors) {
+      const vendorProducts = await Product.find({ vendorId: vendor._id })
+        .select("name category price stock status");
+      
+      console.log(`\n🏪 ${vendor.businessName || vendor.name}:`);
+      if (vendorProducts.length > 0) {
+        vendorProducts.forEach((product, pIndex) => {
+          console.log(`   ${pIndex + 1}. ${product.name}`);
+          console.log(`      📂 Category: ${product.category}`);
+          console.log(`      💰 Price: NPR ${product.price}`);
+          console.log(`      📊 Status: ${product.status}`);
+          const totalStock = product.availability?.reduce((sum, loc) => sum + (loc.stock || 0), 0) || 0;
+          console.log(`      📦 Total Stock: ${totalStock}`);
+        });
+      } else {
+        console.log("   No products found");
+      }
     }
 
-    fs.writeFileSync(backupPath, JSON.stringify(backupData, null, 2));
-    console.log(`💾 Backup saved to: ${backupPath}`);
+  } catch (error) {
+    console.error("❌ Error showing approved entities:", error);
+  }
+};
 
-    console.log("\n✅ Comprehensive database seeding completed successfully!");
-    console.log("\n📊 Seeding Summary:");
-    console.log(`   👤 Admin Users: 1`);
-    console.log(`   🏢 Distribution Centers: ${centerUsers.length}`);
-    console.log(`   🏪 Vendors: ${vendorUsers.length}`);
-    console.log(`   📂 Categories: ${createdCategories.length}`);
-    console.log(`   📦 Products: ${createdProducts.length}`);
-    console.log(`   💬 Conversations: ${conversations.length}`);
-    console.log(`   📨 Messages: ${messages.length}`);
-    console.log(`   🔔 Notifications: ${notifications.length}`);
-    console.log(`   📋 Orders: ${orders.length}`);
-    console.log(
-      "\n🎉 Your VendorRS application is now ready with comprehensive sample data!"
-    );
+const seedDatabase = async (mode = "full") => {
+  try {
+    console.log("🌱 Starting database seeding...");
+    
+    // Check if data already exists
+    const existingUsers = await User.countDocuments();
+    
+    if (existingUsers > 0 && mode === "full") {
+      console.log("📊 Database already contains data.");
+      console.log(`Found ${existingUsers} existing users.`);
+      
+      const answer = await question("❓ Do you want to clear all existing data and reseed? (yes/no): ");
+      if (answer.toLowerCase() !== 'yes') {
+        console.log("🚫 Seeding cancelled.");
+        rl.close();
+        await mongoose.connection.close();
+        return;
+      }
+      
+      // Create backup before clearing
+      await createBackup();
+      await clearDatabase();
+    }
+
+    console.log("📭 Proceeding with seeding...");
+
+    // Seed in sequence
+    const categories = await seedCategories();
+    const adminUser = await seedAdminUser();
+    const centerUsers = await seedCenters();
+    const vendorUsers = await seedVendors();
+    const products = await seedProducts(vendorUsers);
+    const { conversations, messages } = await seedConversationsAndMessages(centerUsers, vendorUsers);
+    const notifications = await seedNotifications(adminUser, centerUsers, vendorUsers);
+    const orders = await seedOrders(centerUsers, vendorUsers, products);
+
+    // Show comprehensive summary
+    console.log("\n🎉 COMPREHENSIVE DATABASE SEEDING COMPLETED!");
+    console.log("============================================");
+    console.log(`👤 Admin Users: 1`);
+    console.log(`🏢 Distribution Centers: ${centerUsers.length}`);
+    console.log(`🏪 Vendors: ${vendorUsers.length}`);
+    console.log(`📂 Categories: ${categories.length}`);
+    console.log(`📦 Products: ${products.length}`);
+    console.log(`💬 Conversations: ${conversations.length}`);
+    console.log(`📨 Messages: ${messages.length}`);
+    console.log(`🔔 Notifications: ${notifications.length}`);
+    console.log(`📋 Orders: ${orders.length}`);
+
+    // Show approved vendors and centers with their details
+    await showApprovedEntities();
+
+    console.log("\n🔑 LOGIN CREDENTIALS:");
+    console.log("====================");
+    console.log("👨‍💼 Admin:");
+    console.log(`   Email: ${process.env.ADMIN_EMAIL || "admin@example.com"}`);
+    console.log(`   Password: ${process.env.ADMIN_PASSWORD || "Password@123"}`);
+    
+    console.log("\n🏢 Distribution Centers:");
+    centerUsers.forEach(center => {
+      console.log(`   ${center.name}:`);
+      console.log(`      Email: ${center.email}`);
+      console.log(`      Password: ${process.env.CENTER_PASSWORD || "Password@123"}`);
+    });
+
+    console.log("\n🏪 Vendors:");
+    vendorUsers.forEach(vendor => {
+      console.log(`   ${vendor.businessName || vendor.name}:`);
+      console.log(`      Email: ${vendor.email}`);
+      console.log(`      Password: ${process.env.VENDOR_PASSWORD || "Password@123"}`);
+    });
+
+    console.log("\n🚀 Your VendorRS application is now ready with comprehensive sample data!");
+    console.log("💡 All vendors and centers are APPROVED and ready for testing!");
+
   } catch (error) {
     console.error("❌ Error seeding database:", error);
     console.error(error.stack);
   } finally {
+    rl.close();
     await mongoose.connection.close();
     console.log("🔒 Database connection closed");
   }
 };
 
+// Handle command line arguments
+const mode = process.argv.includes("--safe") ? "safe" : 
+            process.argv.includes("--minimal") ? "minimal" : "full";
+
 // Run the seeding
 connectDB().then(() => {
-  seedDatabase();
+  seedDatabase(mode);
 });
 
 module.exports = { seedDatabase };
