@@ -145,6 +145,19 @@ router.get(
         .skip(skip)
         .limit(limit);
 
+      console.log("Vendors fetched:", {
+        count: vendors.length,
+        documentsInfo: vendors.map(v => ({
+          id: v._id,
+          name: v.name,
+          documentsCount: v.documents ? v.documents.length : 0,
+          documents: v.documents ? v.documents.map(d => ({
+            filename: d.filename,
+            originalName: d.originalName
+          })) : []
+        }))
+      });
+
       const total = await User.countDocuments(query);
 
       res.json({
@@ -200,6 +213,42 @@ router.get(
       res.status(500).json({
         success: false,
         message: "Failed to fetch vendor",
+      });
+    }
+  }
+);
+
+// @route   GET /api/users/centers/:id
+// @desc    Get center by ID (Admin only)
+// @access  Private (Admin)
+router.get(
+  "/centers/:id",
+  authenticate,
+  authorize("ADMIN"),
+  validateObjectId("id"),
+  async (req, res) => {
+    try {
+      const center = await User.findOne({
+        _id: req.params.id,
+        role: "CENTER",
+      }).select("-password");
+
+      if (!center) {
+        return res.status(404).json({
+          success: false,
+          message: "Center not found",
+        });
+      }
+
+      res.json({
+        success: true,
+        data: { center },
+      });
+    } catch (error) {
+      console.error("Get center error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch center",
       });
     }
   }
@@ -661,6 +710,19 @@ router.get(
         .skip(skip)
         .limit(limit);
 
+      console.log("Centers fetched:", {
+        count: centerUsers.length,
+        documentsInfo: centerUsers.map(c => ({
+          id: c._id,
+          name: c.name,
+          documentsCount: c.documents ? c.documents.length : 0,
+          documents: c.documents ? c.documents.map(d => ({
+            filename: d.filename,
+            originalName: d.originalName
+          })) : []
+        }))
+      });
+
       const total = await User.countDocuments(query);
 
       console.log(`Found ${centerUsers.length} CENTER users`);
@@ -925,6 +987,38 @@ router.get("/messaging/centers", authenticate, async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch centers for messaging",
+    });
+  }
+});
+
+// @route   GET /api/users/messaging/vendors
+// @desc    Get vendors for messaging (accessible to admins)
+// @access  Private (ADMIN)
+router.get("/messaging/vendors", authenticate, async (req, res) => {
+  try {
+    // Allow only ADMIN role to access this endpoint
+    if (req.user.role !== "ADMIN") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Only admins can access this resource.",
+      });
+    }
+
+    const vendors = await User.find({
+      role: "VENDOR",
+      status: "APPROVED",
+      isActive: true,
+    }).select("-password");
+
+    res.json({
+      success: true,
+      data: { vendors },
+    });
+  } catch (error) {
+    console.error("Get vendors for messaging error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch vendors for messaging",
     });
   }
 });

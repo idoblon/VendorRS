@@ -153,7 +153,6 @@ export default function VendorSignupPage({
   const [submitState, setSubmitState] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
-  const [availableBranches, setAvailableBranches] = useState<string[]>([]);
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [loadingStates, setLoadingStates] = useState({
@@ -161,6 +160,7 @@ export default function VendorSignupPage({
     districts: false,
   });
   const [isDragOver, setIsDragOver] = useState(false);
+  const [availableBranches, setAvailableBranches] = useState<string[]>([]);
 
   const [formData, setFormData] = useState<SignupFormData>({
     vendorName: "",
@@ -992,7 +992,8 @@ export default function VendorSignupPage({
                   <label className="block text-gray-700 font-medium mb-1">
                     शाखा (Branch) *
                   </label>
-                  <select
+                  <input
+                    type="text"
                     value={formData.bankDetails.branch}
                     onChange={(e) =>
                       handleNestedInputChange(
@@ -1002,20 +1003,9 @@ export default function VendorSignupPage({
                       )
                     }
                     required
-                    disabled={!formData.bankDetails.bankName}
-                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 bg-white disabled:bg-gray-100"
-                  >
-                    <option value="">
-                      {!formData.bankDetails.bankName
-                        ? "पहिले बैंक छान्नुहोस्"
-                        : "शाखा छान्नुहोस्"}
-                    </option>
-                    {availableBranches.map((branch, index) => (
-                      <option key={index} value={branch}>
-                        {branch}
-                      </option>
-                    ))}
-                  </select>
+                    placeholder="Enter branch name"
+                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 bg-white"
+                  />
                 </div>
 
                 <div>

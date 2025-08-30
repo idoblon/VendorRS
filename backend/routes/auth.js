@@ -204,6 +204,32 @@ router.post(
 
       user = new User(userData);
 
+      // Save uploaded PAN document metadata to documents array
+      if (req.file) {
+        console.log("File uploaded successfully:", {
+          filename: req.file.filename,
+          originalName: req.file.originalname,
+          path: req.file.path,
+          size: req.file.size
+        });
+        
+        user.documents = user.documents || [];
+        user.documents.push({
+          filename: req.file.filename,
+          originalName: req.file.originalname,
+          path: req.file.path,
+          uploadDate: new Date(),
+        });
+        
+        console.log("Document metadata saved to user:", {
+          userId: user._id,
+          documentsCount: user.documents.length,
+          documents: user.documents
+        });
+      } else {
+        console.log("No file uploaded in this request");
+      }
+
       // REMOVE these lines - User model pre-save hook handles password hashing
       // const salt = await bcrypt.genSalt(10);
       // user.password = await bcrypt.hash(password, salt);

@@ -98,6 +98,39 @@ export const getProductById = async (productId: string): Promise<Product> => {
   }
 };
 
+// Create new product
+export const createProduct = async (productData: {
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  subcategory?: string;
+  availability: Array<{
+    centerId: string;
+    province: string;
+    district: string;
+    stock: number;
+    reservedStock?: number;
+  }>;
+  specifications?: Record<string, any>;
+  images?: Array<{
+    filename: string;
+    originalName: string;
+    path: string;
+    url: string;
+    isPrimary: boolean;
+  }>;
+  tags?: string[];
+}): Promise<Product> => {
+  try {
+    const response = await axiosInstance.post('/api/products', productData);
+    return response.data.data.product;
+  } catch (error) {
+    console.error('Error creating product:', error);
+    throw error;
+  }
+};
+
 // Get product categories
 export const getProductCategories = async (): Promise<string[]> => {
   try {

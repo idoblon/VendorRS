@@ -140,14 +140,27 @@ export function MessageBox({ isOpen, onClose, defaultView = "conversations" }: M
 
   const fetchUsers = async () => {
     try {
-      const [centersResponse, adminsResponse] = await Promise.all([
-        axiosInstance.get("/api/users/messaging/centers"),
-        axiosInstance.get("/api/users/messaging/admins"),
-      ]);
-      console.log("Centers response:", centersResponse.data);
-      console.log("Admins response:", adminsResponse.data);
-      setCenters(centersResponse.data.data.centers || []);
-      setAdmins(adminsResponse.data.data.admins || []);
+      if (currentUserRole === "ADMIN") {
+        // Admin can message both vendors and centers
+        const [vendorsResponse, centersResponse] = await Promise.all([
+          axiosInstance.get("/api/users/messaging/vendors"),
+          axiosInstance.get("/api/users/messaging/centers"),
+        ]);
+        console.log("Vendors response:", vendorsResponse.data);
+        console.log("Centers response:", centersResponse.data);
+        setCenters(centersResponse.data.data.centers || []);
+        setAdmins(vendorsResponse.data.data.vendors || []); // Using admins state for vendors for admin
+      } else if (currentUserRole === "VENDOR" || currentUserRole === "CENTER") {
+        // Vendor/Center can message centers and admins
+        const [centersResponse, adminsResponse] = await Promise.all([
+          axiosInstance.get("/api/users/messaging/centers"),
+          axiosInstance.get("/api/users/messaging/admins"),
+        ]);
+        console.log("Centers response:", centersResponse.data);
+        console.log("Admins response:", adminsResponse.data);
+        setCenters(centersResponse.data.data.centers || []);
+        setAdmins(adminsResponse.data.data.admins || []);
+      }
     } catch (error) {
       console.error("Failed to fetch users:", error);
       // Set empty arrays to prevent UI errors
@@ -182,7 +195,7 @@ export function MessageBox({ isOpen, onClose, defaultView = "conversations" }: M
     if (isOpen) {
       fetchCurrentUser();
       fetchConversations();
-      if (currentUserRole === "vendor" || currentUserRole === "center") {
+      if (currentUserRole === "vendor" || currentUserRole === "center" || currentUserRole === "ADMIN") {
         fetchUsers();
       }
       

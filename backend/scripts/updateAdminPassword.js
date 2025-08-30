@@ -5,7 +5,7 @@ const User = require('../models/User');
 
 const updateAdminPassword = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
+    await mongoose.connect('mongodb://localhost:27017/vrs', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });

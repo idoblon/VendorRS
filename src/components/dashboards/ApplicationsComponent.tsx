@@ -409,21 +409,21 @@ export function ApplicationsComponent() {
                           </p>
                         </div>
                       </div>
-                      <div className="mt-3">
-                        <p className="text-slate-500 text-sm">
-                          Documents Submitted
-                        </p>
-                        <div className="flex flex-wrap gap-2 mt-1">
+                        <div className="mt-3">
+                          <p className="text-slate-500 text-sm">
+                            Documents Submitted
+                          </p>
+                          <div className="flex flex-wrap gap-2 mt-1">
                           {application.documents.map((doc, index) => (
                             <span
                               key={index}
                               className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
                             >
-                              {doc}
+                              {doc.originalName || doc.filename || "Document"}
                             </span>
                           ))}
+                          </div>
                         </div>
-                      </div>
                       <p className="text-xs text-gray-500 mt-2">
                         Submitted:{" "}
                         {new Date(
@@ -611,7 +611,7 @@ export function ApplicationsComponent() {
                               key={index}
                               className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
                             >
-                              {doc}
+                              {doc.originalName || doc.filename || "Document"}
                             </span>
                           ))
                         ) : (

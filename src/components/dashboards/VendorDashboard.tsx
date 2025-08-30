@@ -14,6 +14,7 @@ import {
   MessageCircle,
   X,
   Eye,
+  LogOut,
 } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
@@ -22,6 +23,7 @@ import { getVendorAnalytics, getVendorOrders, getOrderDetails, getUserDocuments 
 import {
   getCentersByCategory,
   getCenterCategories,
+  Center,
 } from "../../utils/centerApi";
 import {
   getProducts,
@@ -51,8 +53,11 @@ export function VendorDashboard({
   // Search state
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [centerSearchResults, setCenterSearchResults] = useState<Center[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isSearchingCenters, setIsSearchingCenters] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [centerSearchError, setCenterSearchError] = useState<string | null>(null);
   const [categorySuggestions, setCategorySuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
@@ -201,7 +206,43 @@ export function VendorDashboard({
         
         // Fetch ALL products from all centers without any filters
         const productsData = await getProducts();
-        setProducts(productsData.products || []);
+        const fetchedProducts = productsData.products || [];
+        setProducts(fetchedProducts);
+        
+        // Debug: Log all products and their vendor business names
+        console.log("📦 Fetched products:", fetchedProducts.length);
+        fetchedProducts.forEach((product, index) => {
+          console.log(`Product ${index + 1}:`, {
+            name: product.name,
+            category: product.category,
+            vendorBusinessName: product.vendorId?.businessName || 'Unknown',
+            vendorEmail: product.vendorId?.email || 'Unknown',
+            vendorId: product.vendorId?._id || 'Unknown',
+            productId: product._id
+          });
+        });
+        
+        // Check if Local Footwear products are in the list
+        const localFootwearProducts = fetchedProducts.filter(p => 
+          p.vendorId?.businessName?.toLowerCase().includes('local footwear') ||
+          p.vendorId?.email?.toLowerCase().includes('yakamagar') ||
+          p.vendorId?.businessName?.toLowerCase().includes('footwear')
+        );
+        console.log("👟 Local Footwear products found:", localFootwearProducts.length);
+        localFootwearProducts.forEach(product => {
+          console.log("Local Footwear product:", {
+            name: product.name,
+            category: product.category,
+            businessName: product.vendorId?.businessName,
+            email: product.vendorId?.email,
+            vendorId: product.vendorId?._id,
+            productId: product._id
+          });
+        });
+        
+        // Log all vendor business names for debugging
+        const allVendorNames = [...new Set(fetchedProducts.map(p => p.vendorId?.businessName))];
+        console.log("🏢 All vendor business names in response:", allVendorNames);
         
         // Don't set any default category - show all products initially
         setSelectedCategory('');
@@ -483,7 +524,7 @@ export function VendorDashboard({
                       <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
                         {item.images && item.images.length > 0 ? (
                           <img
-                            src={item.images[0].url || "/placeholder.svg"}
+src={item.images[0].url || "/image/placeholder.svg"}
                             alt={item.name}
                             className="w-12 h-12 object-cover"
                           />
@@ -1302,8 +1343,8 @@ export function VendorDashboard({
       <Card className="p-6">
         <h3 className="text-xl font-semibold text-gray-900 mb-4">Documents</h3>
         <div className="space-y-3">
-          {vendorProfile.documents.map((doc) => (
-            <div key={doc.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          {vendorProfile.documents.map((doc, index) => (
+            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div>
                 <p className="font-medium text-gray-900">{doc.name}</p>
                 <p className="text-sm text-gray-500">{doc.type}</p>
@@ -1381,23 +1422,42 @@ export function VendorDashboard({
                 </Button>
               </div>
 
-              <div className="relative group">
-                <div className="text-sm cursor-pointer" onClick={() => setShowProfileModal(!showProfileModal)}>
-                  <p className="font-medium text-gray-900">
-                    {vendorProfile.businessName}
-                  </p>
-                  <p className="text-gray-500">Vendor</p>
-                </div>
-                
-                {/* Dropdown menu */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowProfileModal(!showProfileModal)}
+                  className="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  <span className="text-sm text-gray-600">
+                    Welcome, {vendorProfile.businessName}
+                  </span>
+                  <svg
+                    className={`h-4 w-4 text-gray-500 transition-transform ${
+                      showProfileModal ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
                 {showProfileModal && onLogout && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
-                    <button
-                      onClick={onLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:outline-none focus:bg-red-50"
-                    >
-                      Logout
-                    </button>
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className="p-2">
+                      <button
+                        onClick={onLogout}
+                        className="flex items-center space-x-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

@@ -16,6 +16,8 @@ import {
   LogOut,
   ChevronDown,
   X,
+  MessageCircle,
+  RefreshCw,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 import { Button } from "../ui/Button";
@@ -27,6 +29,9 @@ import {
   deleteCategory,
 } from "../../utils/categoryApi";
 import { User as UserType } from "../../types/index";
+import { MessageBox } from "../ui/MessageBox";
+import { getUnreadCount } from "../../utils/messageApi";
+import { createProduct, getProductsByCenter, Product as ApiProduct } from "../../utils/productApi";
 
 interface Product {
   id: string;
@@ -85,7 +90,7 @@ export default function CenterDashboard({
     price: "",
     category: "",
     stock: "",
-    status: "available" as const,
+    status: "available" as "available" | "out_of_stock" | "discontinued",
     images: [""],
   });
   const [categories, setCategories] = useState<{ _id: string; name: string }[]>(
@@ -93,9 +98,14 @@ export default function CenterDashboard({
   );
   const [newCategory, setNewCategory] = useState("");
   const [loading, setLoading] = useState(false);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [productsError, setProductsError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showMessages, setShowMessages] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  // Use real user data instead of mock data
+  // Use real user data from registration - only use properties that exist on User interface
   const centerProfile = {
     name: user.businessName || user.name || "Distribution Center",
     managerName: user.name || "Manager",
@@ -103,18 +113,16 @@ export default function CenterDashboard({
     phone: user.phone || "N/A",
     address: user.address || "N/A",
     district: user.district || "N/A",
-    region: user.region || "N/A",
     establishedDate: user.createdAt
       ? new Date(user.createdAt).toLocaleDateString()
       : "N/A",
     status: user.status || "Active",
-    capacity: "5000 kg", // This might need to come from user data if available
-    currentOrders: 28, // This should come from actual order data
-    utilization: "75%", // This should be calculated from actual data
-    documents: [
-      { name: "Registration Certificate", type: "PDF Document", id: "doc1" },
-      { name: "Facility Layout", type: "PDF Document", id: "doc2" },
-      { name: "Safety Compliance", type: "PDF Document", id: "doc3" },
+    panNumber: user.panNumber || "N/A",
+    // Use documents from user data if available
+    documents: user.documents || [
+      { name: "Registration Certificate", type: "PDF Document" },
+      { name: "Facility Layout", type: "PDF Document" },
+      { name: "Safety Compliance", type: "PDF Document" },
     ],
   };
 
@@ -426,21 +434,9 @@ export default function CenterDashboard({
     console.log(`Updating order ${orderId} to status: ${newStatus}`);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "secondary";
-      case "confirmed":
-        return "default";
-      case "processing":
-        return "secondary";
-      case "shipped":
-        return "default";
-      case "delivered":
-        return "default";
-      default:
-        return "secondary";
-    }
+  const getStatusColor = (status: string): "secondary" => {
+    // All statuses return "secondary" variant as per current logic
+    return "secondary";
   };
 
   const getStatusIcon = (status: string) => {
@@ -727,9 +723,40 @@ export default function CenterDashboard({
     );
   };
 
-  // Load categories when component mounts
+  // Fetch products for this center
+  const fetchProducts = async () => {
+    try {
+      setProductsLoading(true);
+      setProductsError(null);
+      const centerProducts = await getProductsByCenter(user.id);
+      
+      // Transform API products to match the local Product interface
+      const transformedProducts: Product[] = centerProducts.map(apiProduct => ({
+        id: apiProduct._id,
+        name: apiProduct.name,
+        description: apiProduct.description,
+        price: apiProduct.price,
+        category: apiProduct.category,
+        stock: apiProduct.availability.find(avail => avail.centerId === user.id)?.stock || 0,
+        status: apiProduct.status,
+        images: apiProduct.images.map(img => img.url),
+        createdDate: new Date(apiProduct.createdAt).toLocaleDateString(),
+        updatedDate: new Date(apiProduct.updatedAt).toLocaleDateString(),
+      }));
+      
+      setProducts(transformedProducts);
+    } catch (err) {
+      setProductsError("Failed to fetch products");
+      console.error("Error fetching products:", err);
+    } finally {
+      setProductsLoading(false);
+    }
+  };
+
+  // Load categories and products when component mounts
   useEffect(() => {
     fetchCategories();
+    fetchProducts();
   }, []);
 
   // Profile content
@@ -773,10 +800,6 @@ export default function CenterDashboard({
                   <span className="text-gray-500">Established Date:</span>{" "}
                   {centerProfile.establishedDate}
                 </p>
-                <p className="text-sm">
-                  <span className="text-gray-500">Region:</span>{" "}
-                  {centerProfile.region}
-                </p>
               </div>
             </div>
 
@@ -815,18 +838,18 @@ export default function CenterDashboard({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-500">Storage Capacity</p>
-              <p className="text-xl font-semibold">{centerProfile.capacity}</p>
+              <p className="text-xl font-semibold">1000 units</p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-500">Current Orders</p>
               <p className="text-xl font-semibold">
-                {centerProfile.currentOrders}
+                {pendingOrders}
               </p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-500">Utilization</p>
               <p className="text-xl font-semibold">
-                {centerProfile.utilization}
+                75%
               </p>
             </div>
           </div>
@@ -840,9 +863,9 @@ export default function CenterDashboard({
         <CardContent>
           {centerProfile.documents && centerProfile.documents.length > 0 ? (
             <div className="space-y-3">
-              {centerProfile.documents.map((doc) => (
+              {centerProfile.documents.map((doc, index) => (
                 <div
-                  key={doc.id}
+                  key={`${doc.name}-${index}`}
                   className="flex items-center justify-between p-3 border rounded-lg"
                 >
                   <div>
@@ -962,7 +985,6 @@ export default function CenterDashboard({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Region</p>
-                  <p className="font-medium">{centerProfile.region}</p>
                 </div>
               </div>
             </div>
@@ -1000,15 +1022,15 @@ export default function CenterDashboard({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Storage Capacity</p>
-                  <p className="font-medium">{centerProfile.capacity}</p>
+                  <p className="font-medium">1000 units</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Current Orders</p>
-                  <p className="font-medium">{centerProfile.currentOrders}</p>
+                  <p className="font-medium">{pendingOrders}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Utilization</p>
-                  <p className="font-medium">{centerProfile.utilization}</p>
+                  <p className="font-medium">75%</p>
                 </div>
               </div>
             </div>
@@ -1020,9 +1042,9 @@ export default function CenterDashboard({
               </h3>
               {centerProfile.documents && centerProfile.documents.length > 0 ? (
                 <div className="space-y-3">
-                  {centerProfile.documents.map((doc) => (
+                  {centerProfile.documents.map((doc, index) => (
                     <div
-                      key={doc.id}
+                      key={`${doc.name}-${index}`}
                       className="flex items-center justify-between p-3 border rounded-lg"
                     >
                       <div>
@@ -1108,6 +1130,19 @@ export default function CenterDashboard({
               </h1>
             </div>
             <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowMessages(true)}
+                className="flex items-center gap-2 relative"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Messages
+                {unreadCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </Button>
               <div className="relative">
                 <Button
                   variant="outline"
@@ -1370,21 +1405,21 @@ export default function CenterDashboard({
                               <Eye className="h-3 w-3" />
                             </Button>
                             <Button
-                              variant="default"
-                              size="sm"
-                              className="h-8 w-8 p-0 bg-blue-500 hover:bg-blue-600 text-white"
-                              title="Process Order"
-                              onClick={() => {
-                                // Handle order processing for this product
-                                console.log(
-                                  `Processing orders for ${product.name}`
-                                );
-                                // This would typically open a modal showing pending orders for this product
-                                // and allow the center to fulfill them
-                              }}
-                            >
-                              <ShoppingCart className="h-3 w-3" />
-                            </Button>
+                            variant="primary"
+                            size="sm"
+                            className="h-8 w-8 p-0 bg-blue-500 hover:bg-blue-600 text-white"
+                            title="Process Order"
+                            onClick={() => {
+                              // Handle order processing for this product
+                              console.log(
+                                `Processing orders for ${product.name}`
+                              );
+                              // This would typically open a modal showing pending orders for this product
+                              // and allow the center to fulfill them
+                            }}
+                          >
+                            <ShoppingCart className="h-3 w-3" />
+                          </Button>
                           </div>
                         </div>
                       </div>
@@ -1420,13 +1455,18 @@ export default function CenterDashboard({
                         </p>
                       </div>
                       <div className="text-right">
-                        <Badge
-                          variant={getStatusColor(order.status)}
-                          className="mb-2"
-                        >
-                          {getStatusIcon(order.status)}
-                          <span className="ml-1">{order.status}</span>
-                        </Badge>
+                          <Badge
+                            variant={getStatusColor(order.status) as
+                              | "secondary"
+                              | "default"
+                              | "outline"
+                              | "destructive"
+                              | undefined}
+                            className="mb-2"
+                          >
+                            {getStatusIcon(order.status)}
+                            <span className="ml-1">{order.status}</span>
+                          </Badge>
                         <p className="text-lg font-bold text-gray-900">
                           रू{order.totalAmount}
                         </p>
@@ -1454,26 +1494,26 @@ export default function CenterDashboard({
                       </div>
                       <div className="flex space-x-2">
                         <Button
-                          variant="default"
-                          size="sm"
-                          className="bg-green-500 hover:bg-green-600 text-white"
-                          onClick={() => {
-                            // Update order status to processing
-                            const updatedOrders = mockIncomingOrders.map((o) =>
-                              o.id === order.id
-                                ? { ...o, status: "processing" as const }
-                                : o
-                            );
-                            // In a real app, this would make an API call to update the order
-                            console.log(
-                              `Order ${order.id} status updated to processing`
-                            );
-                            alert(`Order ${order.id} is now being processed!`);
-                          }}
-                        >
-                          <Package className="h-4 w-4 mr-2" />
-                          Process Order
-                        </Button>
+                            variant="primary"
+                            size="sm"
+                            className="bg-green-500 hover:bg-green-600 text-white"
+                            onClick={() => {
+                              // Update order status to processing
+                              const updatedOrders = mockIncomingOrders.map((o) =>
+                                o.id === order.id
+                                  ? { ...o, status: "processing" as const }
+                                  : o
+                              );
+                              // In a real app, this would make an API call to update the order
+                              console.log(
+                                `Order ${order.id} status updated to processing`
+                              );
+                              alert(`Order ${order.id} is now being processed!`);
+                            }}
+                          >
+                            <Package className="h-4 w-4 mr-2" />
+                            Process Order
+                          </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -1490,6 +1530,10 @@ export default function CenterDashboard({
 
       {renderProfileModal()}
       {renderAddProductModal()}
+      <MessageBox 
+        isOpen={showMessages} 
+        onClose={() => setShowMessages(false)} 
+      />
     </div>
   );
 }

@@ -60,8 +60,29 @@ interface Vendor {
 interface DistributionCenter {
   _id: string;
   name: string;
-  location: string;
+  email: string;
+  phone: string;
+  businessName: string;
+  panNumber: string;
+  address: string;
+  province: string;
+  district: string;
+  categories: string[];
+  contactPersons: Array<{
+    name: string;
+    phone: string;
+    isPrimary?: boolean;
+  }>;
+  bankDetails?: {
+    bankName: string;
+    accountNumber: string;
+    branch: string;
+    holderName: string;
+  };
   status: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Notification {
@@ -82,6 +103,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [centerSearchTerm, setCenterSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [showVendorModal, setShowVendorModal] = useState(false);
   const [showCenterModal, setShowCenterModal] = useState(false);
@@ -104,6 +126,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   // Add MessageBox state
   const [isMessageBoxOpen, setIsMessageBoxOpen] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
 
   // Mock data for fallback
   const mockVendors: Vendor[] = [
@@ -127,14 +150,60 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
     {
       _id: "1",
       name: "Central Distribution Hub",
-      location: "Kathmandu, Bagmati",
+      email: "central@example.com",
+      phone: "+977123456789",
+      businessName: "Central Distribution Hub",
+      panNumber: "123456789",
+      address: "Kathmandu",
+      province: "Bagmati",
+      district: "Kathmandu",
+      categories: ["Electronics", "Clothing"],
+      contactPersons: [
+        {
+          name: "John Doe",
+          phone: "+977987654321",
+          isPrimary: true
+        }
+      ],
+      bankDetails: {
+        bankName: "Nepal Bank",
+        accountNumber: "1234567890",
+        branch: "Kathmandu Main",
+        holderName: "Central Distribution Hub"
+      },
       status: "active",
+      isActive: true,
+      createdAt: "2024-01-01T00:00:00.000Z",
+      updatedAt: "2024-01-01T00:00:00.000Z"
     },
     {
       _id: "2",
       name: "Eastern Regional Center",
-      location: "Biratnagar, Koshi",
+      email: "eastern@example.com",
+      phone: "+977987654321",
+      businessName: "Eastern Regional Center",
+      panNumber: "987654321",
+      address: "Biratnagar",
+      province: "Koshi",
+      district: "Biratnagar",
+      categories: ["Food", "Beverages"],
+      contactPersons: [
+        {
+          name: "Jane Smith",
+          phone: "+977123456789",
+          isPrimary: true
+        }
+      ],
+      bankDetails: {
+        bankName: "Global IME Bank",
+        accountNumber: "0987654321",
+        branch: "Biratnagar Main",
+        holderName: "Eastern Regional Center"
+      },
       status: "active",
+      isActive: true,
+      createdAt: "2024-01-02T00:00:00.000Z",
+      updatedAt: "2024-01-02T00:00:00.000Z"
     },
   ];
 
@@ -518,6 +587,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                     placeholder="Search vendors..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                      }
+                    }}
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -633,8 +707,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                   <input
                     type="text"
                     placeholder="Search centers..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={centerSearchTerm}
+                    onChange={(e) => setCenterSearchTerm(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                      }
+                    }}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                      }
+                    }}
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -648,10 +732,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                   (center) =>
                     center.name
                       .toLowerCase()
-                      .includes(searchTerm.toLowerCase()) ||
-                    center.location
+                      .includes(centerSearchTerm.toLowerCase()) ||
+                    center.address
                       .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
+                      .includes(centerSearchTerm.toLowerCase()) ||
+                    center.district
+                      .toLowerCase()
+                      .includes(centerSearchTerm.toLowerCase()) ||
+                    center.province
+                      .toLowerCase()
+                      .includes(centerSearchTerm.toLowerCase())
                 )
                 .map((center) => (
                   <Card
@@ -667,10 +757,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                           <h3 className="font-semibold text-gray-900">
                             {center.name}
                           </h3>
-                          <p className="text-sm text-gray-600 flex items-center">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            {center.location}
-                          </p>
+              <p className="text-sm text-gray-600 flex items-center">
+                <MapPin className="h-3 w-3 mr-1" />
+                {center.address}, {center.district}, {center.province}
+              </p>
                         </div>
                       </div>
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -766,6 +856,43 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
         );
       } else {
         alert("Failed to fetch vendor details. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Add handler for viewing center details
+  const handleViewCenter = async (centerId: string) => {
+    try {
+      setLoading(true);
+      console.log("Fetching center details for ID:", centerId);
+
+      const response = await axiosInstance.get(
+        `/api/users/centers/${centerId}`
+      );
+
+      console.log("Center details response:", response.data);
+
+      if (response.data.success) {
+        setSelectedCenter(response.data.data.center);
+        setShowCenterDetails(true);
+      } else {
+        console.error("API returned success: false", response.data);
+        alert("Failed to fetch center details");
+      }
+    } catch (error) {
+      console.error("Failed to fetch center details:", error);
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as any;
+        console.error("Error response:", axiosError.response?.data);
+        alert(
+          `Failed to fetch center details: ${
+            axiosError.response?.data?.message || "Unknown error"
+          }`
+        );
+      } else {
+        alert("Failed to fetch center details. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -880,18 +1007,45 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                 )}
               </div>
 
-              <span className="text-sm text-gray-600">
-                Welcome, {user.businessName || user.name}
-              </span>
-              <Button
-                onClick={onLogout}
-                variant="outline"
-                size="sm"
-                className="flex items-center space-x-2"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </Button>
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserDropdown(!showUserDropdown)}
+                  className="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  <span className="text-sm text-gray-600">
+                    Welcome, {user.businessName || user.name}
+                  </span>
+                  <svg
+                    className={`h-4 w-4 text-gray-500 transition-transform ${
+                      showUserDropdown ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {showUserDropdown && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className="p-2">
+                      <button
+                        onClick={onLogout}
+                        className="flex items-center space-x-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -970,6 +1124,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
       {showCenterModal && renderCenterModal()}
       {showCommissionModal && renderCommissionModal()}
       {showVendorDetails && renderVendorDetailsModal()}
+      {showCenterDetails && renderCenterDetailsModal()}
 
       {/* MessageBox Component */}
       <MessageBox
@@ -980,7 +1135,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
           getUnreadCount().then(setUnreadMessageCount).catch(console.error);
         }}
       />
-+      {showCenterDetails && renderCenterDetailsModal()}
     </div>
   );
 
@@ -1069,47 +1223,240 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
       </div>
     );
   }
-+
-+  function renderCenterDetailsModal() {
-+    if (!selectedCenter) return null;
-+
-+    return (
-+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-+        <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-+          <div className="flex items-center justify-between mb-6">
-+            <h2 className="text-2xl font-bold text-gray-900">
-+              Distribution Center Details
-+            </h2>
-+            <Button
-+              variant="ghost"
-+              size="sm"
-+              onClick={() => {
-+                setShowCenterDetails(false);
-+                setSelectedCenter(null);
-+              }}
-+            >
-+              <X className="h-4 w-4" />
-+            </Button>
-+          </div>
-+
-+          <div className="space-y-4">
-+            <div>
-+              <label className="text-sm font-medium text-gray-600">Name</label>
-+              <p className="text-gray-900 font-medium">{selectedCenter.name}</p>
-+            </div>
-+            <div>
-+              <label className="text-sm font-medium text-gray-600">Location</label>
-+              <p className="text-gray-900">{selectedCenter.location}</p>
-+            </div>
-+            <div>
-+              <label className="text-sm font-medium text-gray-600">Status</label>
-+              <p className="text-gray-900">{selectedCenter.status}</p>
-+            </div>
-+          </div>
-+        </div>
-+      </div>
-+    );
-+  }
+
+  function renderCenterDetailsModal() {
+    if (!selectedCenter) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Distribution Center Details
+            </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setShowCenterDetails(false);
+                setSelectedCenter(null);
+              }}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Basic Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                Basic Information
+              </h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Center Name
+                  </label>
+                  <p className="text-gray-900 font-medium">{selectedCenter.name}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Business Name
+                  </label>
+                  <p className="text-gray-900">{selectedCenter.businessName}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Email
+                  </label>
+                  <p className="text-gray-900">{selectedCenter.email}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Phone
+                  </label>
+                  <p className="text-gray-900">{selectedCenter.phone}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    PAN Number
+                  </label>
+                  <p className="text-gray-900">{selectedCenter.panNumber}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Status
+                  </label>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    {selectedCenter.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Address Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                Address Information
+              </h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Address
+                  </label>
+                  <p className="text-gray-900">{selectedCenter.address}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    District
+                  </label>
+                  <p className="text-gray-900">{selectedCenter.district}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Province
+                  </label>
+                  <p className="text-gray-900">{selectedCenter.province}</p>
+                </div>
+                {selectedCenter.createdAt && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">
+                      Registered On
+                    </label>
+                    <p className="text-gray-900">
+                      {new Date(selectedCenter.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Categories */}
+          {selectedCenter.categories && selectedCenter.categories.length > 0 && (
+            <div className="mt-6 space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                Product Categories
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {selectedCenter.categories.map((category, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                  >
+                    {category}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Bank Details */}
+          {selectedCenter.bankDetails && (
+            <div className="mt-6 space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                Bank Details
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Bank Name
+                  </label>
+                  <p className="text-gray-900">
+                    {selectedCenter.bankDetails.bankName}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Account Number
+                  </label>
+                  <p className="text-gray-900">
+                    {selectedCenter.bankDetails.accountNumber}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Branch
+                  </label>
+                  <p className="text-gray-900">
+                    {selectedCenter.bankDetails.branch}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Account Holder
+                  </label>
+                  <p className="text-gray-900">
+                    {selectedCenter.bankDetails.holderName}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Contact Persons */}
+          {selectedCenter.contactPersons && selectedCenter.contactPersons.length > 0 && (
+            <div className="mt-6 space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                Contact Persons
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {selectedCenter.contactPersons.map((person, index) => (
+                  <div
+                    key={index}
+                    className="border rounded-lg p-4 bg-gray-50"
+                  >
+                    <div className="space-y-2">
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">
+                          Name
+                        </label>
+                        <p className="text-gray-900">{person.name}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">
+                          Phone
+                        </label>
+                        <p className="text-gray-900">{person.phone}</p>
+                      </div>
+                      {person.isPrimary && (
+                        <div>
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Primary Contact
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="mt-6 flex space-x-4 justify-end">
+            <Button
+              variant="outline"
+              onClick={() => handleCenterAction(selectedCenter._id, "suspend")}
+              className="text-yellow-600 hover:text-yellow-700 hover:border-yellow-300"
+            >
+              <Pause className="h-4 w-4 mr-2" />
+              Suspend Center
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleCenterAction(selectedCenter._id, "delete")}
+              className="text-red-600 hover:text-red-700 hover:border-red-300"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Center
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   function renderCenterModal() {
     return (
@@ -1163,21 +1510,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                   }
                 </p>
               </div>
-              <div className="border rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-2">
-                  Coverage Areas
-                </h4>
-                <p className="text-xl font-bold text-blue-600">
-                  {
-                    new Set(
-                      distributionCenters.map((c) =>
-                        c.location.split(",")[1]?.trim()
-                      )
-                    ).size
-                  }{" "}
-                  Provinces
-                </p>
-              </div>
+                <div className="border rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-2">
+                    Coverage Areas
+                  </h4>
+                  <p className="text-xl font-bold text-blue-600">
+                    {
+                      new Set(
+                        distributionCenters.map((c) => c.province)
+                      ).size
+                    }{" "}
+                    Provinces
+                  </p>
+                </div>
             </div>
             <div className="space-y-3">
               <h4 className="font-medium text-gray-900">
@@ -1192,7 +1537,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                     <p className="font-medium text-gray-900">{center.name}</p>
                     <p className="text-sm text-gray-600 flex items-center">
                       <MapPin className="h-3 w-3 mr-1" />
-                      {center.location}
+                      {center.address}, {center.district}, {center.province}
                     </p>
                   </div>
                   <div className="text-right">
