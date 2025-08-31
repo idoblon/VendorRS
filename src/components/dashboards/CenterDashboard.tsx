@@ -23,15 +23,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./../ui/tabs";
 import { Badge } from "../ui/badge";
-import {
-  getCategories,
-  createCategory,
-  deleteCategory,
-} from "../../utils/categoryApi";
+import { getProductCategories } from "../../utils/productApi";
 import { User as UserType } from "../../types/index";
 import { MessageBox } from "../ui/MessageBox";
 import { getUnreadCount } from "../../utils/messageApi";
 import { createProduct, getProductsByCenter, Product as ApiProduct } from "../../utils/productApi";
+import axiosInstance from "../../utils/axios";
+import nepalAddressData from "../../data/nepaladdress.json";
 
 interface Product {
   id: string;
@@ -79,6 +77,94 @@ export default function CenterDashboard({
   user,
   onLogout,
 }: CenterDashboardProps) {
+  // Utility function to get province from district
+  const getProvinceFromDistrict = (districtName: string): string => {
+    if (!districtName || districtName.trim() === "") {
+      console.log("No district name provided");
+      return "";
+    }
+
+    const normalizedDistrictName = districtName.trim().toLowerCase();
+    console.log(`Attempting to find province for district: "${districtName}" (normalized: "${normalizedDistrictName}")`);
+
+    // Find the province that contains this district
+    for (const [provinceId, districts] of Object.entries(nepalAddressData.districts)) {
+      const district = districts.find(d => d.displayName.toLowerCase() === normalizedDistrictName);
+      if (district) {
+        const province = nepalAddressData.provinces.find(p => p.id === provinceId);
+        console.log(`Found province via exact match: ${province?.displayName} for district: ${districtName}`);
+        return province ? province.displayName : "";
+      }
+    }
+
+    // If exact match not found, try partial matching
+    for (const [provinceId, districts] of Object.entries(nepalAddressData.districts)) {
+      const district = districts.find(d =>
+        d.displayName.toLowerCase().includes(normalizedDistrictName) ||
+        normalizedDistrictName.includes(d.displayName.toLowerCase())
+      );
+      if (district) {
+        const province = nepalAddressData.provinces.find(p => p.id === provinceId);
+        console.log(`Found province via partial match: ${province?.displayName} for district: ${districtName}`);
+        return province ? province.displayName : "";
+      }
+    }
+
+    // If still not found, try fuzzy matching by removing common suffixes/prefixes
+    const cleanedDistrictName = normalizedDistrictName
+      .replace(/\s+/g, '') // Remove spaces
+      .replace(/district$/i, '') // Remove "district" suffix
+      .replace(/^district\s+/i, '') // Remove "district" prefix
+      .replace(/municipality$/i, '') // Remove "municipality" suffix
+      .replace(/municipal$/i, '') // Remove "municipal" suffix
+      .replace(/rural municipality$/i, '') // Remove "rural municipality" suffix
+      .replace(/sub-metropolitan$/i, '') // Remove "sub-metropolitan" suffix
+      .replace(/metropolitan$/i, ''); // Remove "metropolitan" suffix
+
+    console.log(`Trying fuzzy match with cleaned district name: "${cleanedDistrictName}"`);
+
+    for (const [provinceId, districts] of Object.entries(nepalAddressData.districts)) {
+      const district = districts.find(d => {
+        const cleanedDataDistrict = d.displayName.toLowerCase()
+          .replace(/\s+/g, '')
+          .replace(/district$/i, '')
+          .replace(/^district\s+/i, '')
+          .replace(/municipality$/i, '')
+          .replace(/municipal$/i, '')
+          .replace(/rural municipality$/i, '')
+          .replace(/sub-metropolitan$/i, '')
+          .replace(/metropolitan$/i, '');
+        return cleanedDataDistrict.includes(cleanedDistrictName) ||
+               cleanedDistrictName.includes(cleanedDataDistrict);
+      });
+      if (district) {
+        const province = nepalAddressData.provinces.find(p => p.id === provinceId);
+        console.log(`Found province via fuzzy match: ${province?.displayName} for district: ${districtName}`);
+        return province ? province.displayName : "";
+      }
+    }
+
+    // If still not found, try case-insensitive substring matching with all district names
+    for (const [provinceId, districts] of Object.entries(nepalAddressData.districts)) {
+      const district = districts.find(d => {
+        const districtLower = d.displayName.toLowerCase();
+        const districtNoSpaces = districtLower.replace(/\s+/g, '');
+        return districtLower.includes(normalizedDistrictName) ||
+               normalizedDistrictName.includes(districtLower) ||
+               districtNoSpaces.includes(cleanedDistrictName) ||
+               cleanedDistrictName.includes(districtNoSpaces);
+      });
+      if (district) {
+        const province = nepalAddressData.provinces.find(p => p.id === provinceId);
+        console.log(`Found province via comprehensive match: ${province?.displayName} for district: ${districtName}`);
+        return province ? province.displayName : "";
+      }
+    }
+
+    console.log(`Could not find province for district: "${districtName}". Available districts:`, Object.values(nepalAddressData.districts).flat().map(d => d.displayName));
+    return "";
+  };
+
   const [activeTab, setActiveTab] = useState("overview");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -93,9 +179,7 @@ export default function CenterDashboard({
     status: "available" as "available" | "out_of_stock" | "discontinued",
     images: [""],
   });
-  const [categories, setCategories] = useState<{ _id: string; name: string }[]>(
-    []
-  );
+  const [categories, setCategories] = useState<string[]>([]);
   const [newCategory, setNewCategory] = useState("");
   const [loading, setLoading] = useState(false);
   const [productsLoading, setProductsLoading] = useState(false);
@@ -104,327 +188,51 @@ export default function CenterDashboard({
   const [showMessages, setShowMessages] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
+  const [centerProfile, setCenterProfile] = useState<any>(null);
+
+  // Fetch center profile on component mount
+  useEffect(() => {
+    const fetchCenterProfile = async () => {
+      try {
+        const response = await axiosInstance.get("/api/users/profile");
+        if (response.data.success) {
+          setCenterProfile(response.data.data.user);
+        }
+      } catch (error) {
+        console.error("Failed to fetch center profile:", error);
+        // Fallback to user prop if profile fetch fails
+        setCenterProfile(user);
+      }
+    };
+
+    fetchCenterProfile();
+  }, [user]);
 
   // Use real user data from registration - only use properties that exist on User interface
-  const centerProfile = {
-    name: user.businessName || user.name || "Distribution Center",
-    managerName: user.name || "Manager",
-    email: user.email,
-    phone: user.phone || "N/A",
-    address: user.address || "N/A",
-    district: user.district || "N/A",
-    establishedDate: user.createdAt
-      ? new Date(user.createdAt).toLocaleDateString()
+  const displayProfile = centerProfile || user;
+  const profileData = {
+    name: displayProfile.businessName || displayProfile.name || "Distribution Center",
+    managerName: displayProfile.name || "Manager",
+    email: displayProfile.email,
+    phone: displayProfile.phone || "N/A",
+    address: displayProfile.address || "N/A",
+    district: displayProfile.district || "N/A",
+    establishedDate: displayProfile.createdAt
+      ? new Date(displayProfile.createdAt).toLocaleDateString()
       : "N/A",
-    status: user.status || "Active",
-    panNumber: user.panNumber || "N/A",
+    status: displayProfile.status || "Active",
+    panNumber: displayProfile.panNumber || "N/A",
     // Use documents from user data if available
-    documents: user.documents || [
+    documents: displayProfile.documents || [
       { name: "Registration Certificate", type: "PDF Document" },
       { name: "Facility Layout", type: "PDF Document" },
       { name: "Safety Compliance", type: "PDF Document" },
     ],
   };
 
-  // Mock data - Center's inventory with footwear items
-  const mockProducts: Product[] = [
-    {
-      id: "FW001",
-      name: "Nike Air Max 270",
-      description: "Iconic Nike Air Max with visible cushioning",
-      price: 8999,
-      category: "Footwear",
-      stock: 45,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-15",
-      updatedDate: "2024-01-20",
-    },
-    {
-      id: "FW002",
-      name: "Adidas Ultraboost 22",
-      description: "Premium running shoes with responsive cushioning",
-      price: 12999,
-      category: "Footwear",
-      stock: 32,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-10",
-      updatedDate: "2024-01-18",
-    },
-    {
-      id: "FW003",
-      name: "Converse Chuck Taylor",
-      description: "Classic canvas sneakers for everyday wear",
-      price: 4999,
-      category: "Footwear",
-      stock: 78,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-12",
-      updatedDate: "2024-01-19",
-    },
-    {
-      id: "FW004",
-      name: "Puma RS-X Sneakers",
-      description: "Bold chunky sneakers with retro design",
-      price: 7499,
-      category: "Footwear",
-      stock: 56,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-14",
-      updatedDate: "2024-01-21",
-    },
-    {
-      id: "FW005",
-      name: "Vans Old Skool",
-      description: "Skate shoes with signature side stripe",
-      price: 5999,
-      category: "Footwear",
-      stock: 89,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-16",
-      updatedDate: "2024-01-22",
-    },
-    {
-      id: "FW006",
-      name: "New Balance 990v5",
-      description: "Premium made in USA running shoes",
-      price: 11999,
-      category: "Footwear",
-      stock: 28,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-13",
-      updatedDate: "2024-01-20",
-    },
-    {
-      id: "FW007",
-      name: "Reebok Classic Leather",
-      description: "Timeless leather sneakers with retro appeal",
-      price: 6499,
-      category: "Footwear",
-      stock: 67,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-17",
-      updatedDate: "2024-01-23",
-    },
-    {
-      id: "FW008",
-      name: "Jordan Air Force 1",
-      description: "Iconic basketball shoes with premium materials",
-      price: 9999,
-      category: "Footwear",
-      stock: 41,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-11",
-      updatedDate: "2024-01-19",
-    },
-    {
-      id: "FW009",
-      name: "Timberland Boots",
-      description: "Durable waterproof boots for outdoor activities",
-      price: 13999,
-      category: "Footwear",
-      stock: 23,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-18",
-      updatedDate: "2024-01-24",
-    },
-    {
-      id: "FW010",
-      name: "Clarks Desert Boots",
-      description: "Classic suede chukka boots with crepe sole",
-      price: 8499,
-      category: "Footwear",
-      stock: 35,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-19",
-      updatedDate: "2024-01-25",
-    },
-    {
-      id: "FW011",
-      name: "Skechers Go Walk",
-      description: "Lightweight walking shoes with memory foam insole",
-      price: 4499,
-      category: "Footwear",
-      stock: 92,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-15",
-      updatedDate: "2024-01-21",
-    },
-    {
-      id: "FW012",
-      name: "Asics Gel-Kayano",
-      description: "High-performance running shoes with gel cushioning",
-      price: 10999,
-      category: "Footwear",
-      stock: 38,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-12",
-      updatedDate: "2024-01-18",
-    },
-    {
-      id: "FW013",
-      name: "Under Armour HOVR",
-      description: "Performance athletic shoes with energy return",
-      price: 9499,
-      category: "Footwear",
-      stock: 44,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-20",
-      updatedDate: "2024-01-26",
-    },
-    {
-      id: "FW014",
-      name: "Fila Disruptor II",
-      description: "Chunky platform sneakers with distinctive design",
-      price: 6999,
-      category: "Footwear",
-      stock: 61,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-14",
-      updatedDate: "2024-01-20",
-    },
-    {
-      id: "FW015",
-      name: "Dr. Martens 1460",
-      description: "Iconic leather boots with yellow stitching",
-      price: 14999,
-      category: "Footwear",
-      stock: 19,
-      status: "available",
-      images: [
-        "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop",
-      ],
-      createdDate: "2024-01-16",
-      updatedDate: "2024-01-22",
-    },
-  ];
 
-  // Mock data - Incoming orders from vendors
-  const mockIncomingOrders: IncomingOrder[] = [
-    {
-      id: "ORD-001",
-      vendorId: "vendor-1",
-      centerId: "center-1",
-      items: [
-        {
-          productId: "prod-1",
-          productName: "Bowl of Steamed Rice",
-          quantity: 10,
-          price: 150,
-          total: 1500,
-        },
-        {
-          productId: "prod-2",
-          productName: "Assorted Vegetables",
-          quantity: 5,
-          price: 200,
-          total: 1000,
-        },
-      ],
-      totalAmount: 2500,
-      status: "pending",
-      requestedDeliveryDate: "2024-01-25",
-      createdDate: "2024-01-20",
-      updatedDate: "2024-01-20",
-      vendor: {
-        id: "vendor-1",
-        name: "Fresh Foods Restaurant",
-        email: "orders@freshfoods.com",
-        phone: "+977-9841234567",
-      },
-    },
-    {
-      id: "ORD-002",
-      vendorId: "vendor-2",
-      centerId: "center-1",
-      items: [
-        {
-          productId: "prod-3",
-          productName: "Assorted Spices",
-          quantity: 3,
-          price: 300,
-          total: 900,
-        },
-      ],
-      totalAmount: 900,
-      status: "confirmed",
-      requestedDeliveryDate: "2024-01-24",
-      createdDate: "2024-01-18",
-      updatedDate: "2024-01-19",
-      vendor: {
-        id: "vendor-2",
-        name: "Spice Corner Cafe",
-        email: "supply@spicecorner.com",
-        phone: "+977-9851234567",
-      },
-    },
-    {
-      id: "ORD-003",
-      vendorId: "vendor-3",
-      centerId: "center-1",
-      items: [
-        {
-          productId: "prod-1",
-          productName: "Bowl of Steamed Rice",
-          quantity: 20,
-          price: 150,
-          total: 3000,
-        },
-      ],
-      totalAmount: 3000,
-      status: "processing",
-      requestedDeliveryDate: "2024-01-26",
-      createdDate: "2024-01-19",
-      updatedDate: "2024-01-21",
-      vendor: {
-        id: "vendor-3",
-        name: "Mountain View Hotel",
-        email: "procurement@mountainview.com",
-        phone: "+977-9861234567",
-      },
-    },
-  ];
+
+
 
   const updateOrderStatus = (
     orderId: string,
@@ -457,14 +265,9 @@ export default function CenterDashboard({
   };
 
   // Calculate overview stats
-  const totalRevenue = mockIncomingOrders.reduce(
-    (sum, order) => sum + order.totalAmount,
-    0
-  );
-  const pendingOrders = mockIncomingOrders.filter(
-    (order) => order.status === "pending"
-  ).length;
-  const totalProducts = mockProducts.length;
+  const totalRevenue = 0; // Will be calculated from real API data
+  const pendingOrders = 0; // Will be calculated from real API data
+  const totalProducts = products.length;
 
   const handleLogout = () => {
     // Call the onLogout prop function
@@ -475,7 +278,7 @@ export default function CenterDashboard({
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const data = await getCategories();
+      const data = await getProductCategories();
       setCategories(data);
       setError(null);
     } catch (err) {
@@ -491,38 +294,31 @@ export default function CenterDashboard({
 
     try {
       setLoading(true);
-      const data = await createCategory(newCategory.trim());
-      setCategories([...categories, data]);
+      // For centers, we don't allow adding categories - they can only view existing ones
       setNewCategory("");
-      setError(null);
+      setError("Centers cannot add new categories. Only administrators can manage categories.");
     } catch (err) {
-      setError("Failed to create category");
-      console.error("Error creating category:", err);
+      setError("Failed to add category");
+      console.error("Error adding category:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const removeCategory = async (categoryToRemove: {
-    _id: string;
-    name: string;
-  }) => {
+  const removeCategory = async (categoryToRemove: string) => {
     try {
       setLoading(true);
-      await deleteCategory(categoryToRemove._id);
-      setCategories(
-        categories.filter((cat) => cat._id !== categoryToRemove._id)
-      );
-      setError(null);
+      // For centers, we don't allow removing categories - they can only view existing ones
+      setError("Centers cannot remove categories. Only administrators can manage categories.");
     } catch (err) {
-      setError("Failed to delete category");
-      console.error("Error deleting category:", err);
+      setError("Failed to remove category");
+      console.error("Error removing category:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddProduct = () => {
+  const handleAddProduct = async () => {
     if (
       !newProduct.name ||
       !newProduct.price ||
@@ -533,34 +329,66 @@ export default function CenterDashboard({
       return;
     }
 
-    const productToAdd: Product = {
-      id: `prod-${Date.now()}`,
-      name: newProduct.name,
-      description: newProduct.description,
-      price: parseFloat(newProduct.price),
-      category: newProduct.category,
-      stock: parseInt(newProduct.stock),
-      status: newProduct.status,
-      images: newProduct.images.filter((img) => img.trim() !== ""),
-      createdDate: new Date().toISOString().split("T")[0],
-      updatedDate: new Date().toISOString().split("T")[0],
-    };
+    // Validate that center has province and district from registration
+    if (!displayProfile.province || !displayProfile.district) {
+      alert("Your center profile is missing province or district information. Please contact support to update your profile.");
+      return;
+    }
 
-    // In a real app, this would make an API call to create the product
-    console.log("Adding new product:", productToAdd);
-    alert(`Product "${productToAdd.name}" added successfully!`);
+    try {
+      setLoading(true);
 
-    // Reset form and close modal
-    setNewProduct({
-      name: "",
-      description: "",
-      price: "",
-      category: "",
-      stock: "",
-      status: "available",
-      images: [""],
-    });
-    setShowAddProductModal(false);
+      // Prepare product data for API using center's stored province and district
+      const productData = {
+        name: newProduct.name,
+        description: newProduct.description,
+        price: parseFloat(newProduct.price),
+        category: newProduct.category,
+        availability: [
+          {
+            centerId: displayProfile._id || displayProfile.id,
+            province: displayProfile.province,
+            district: displayProfile.district,
+            stock: parseInt(newProduct.stock),
+          },
+        ],
+        images: newProduct.images
+          .filter((img) => img.trim() !== "")
+          .map((imgUrl, index) => ({
+            filename: `image_${index + 1}`,
+            originalName: `image_${index + 1}`,
+            path: imgUrl,
+            url: imgUrl,
+            isPrimary: index === 0,
+          })),
+      };
+
+      // Make API call to create the product
+      await createProduct(productData);
+
+      // Refresh the products list to show the new product
+      await fetchProducts();
+
+      alert(`Product "${newProduct.name}" added successfully!`);
+
+      // Reset form and close modal
+      setNewProduct({
+        name: "",
+        description: "",
+        price: "",
+        category: "",
+        stock: "",
+        status: "available",
+        images: [""],
+      });
+      setShowAddProductModal(false);
+    } catch (err: any) {
+      console.error("Error adding product:", err);
+      const message = err?.response?.data?.message || "Failed to add product. Please try again.";
+      alert(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Add Product Modal
@@ -658,8 +486,8 @@ export default function CenterDashboard({
               >
                 <option value="">Select a category</option>
                 {categories.map((category) => (
-                  <option key={category._id} value={category.name}>
-                    {category.name}
+                  <option key={category} value={category}>
+                    {category}
                   </option>
                 ))}
               </select>
@@ -728,8 +556,9 @@ export default function CenterDashboard({
     try {
       setProductsLoading(true);
       setProductsError(null);
-      const centerProducts = await getProductsByCenter(user.id);
-      
+      const centerId = user._id || user.id;
+      const centerProducts = await getProductsByCenter(centerId);
+
       // Transform API products to match the local Product interface
       const transformedProducts: Product[] = centerProducts.map(apiProduct => ({
         id: apiProduct._id,
@@ -737,13 +566,13 @@ export default function CenterDashboard({
         description: apiProduct.description,
         price: apiProduct.price,
         category: apiProduct.category,
-        stock: apiProduct.availability.find(avail => avail.centerId === user.id)?.stock || 0,
+        stock: apiProduct.availability.find(avail => avail.centerId === centerId)?.stock || 0,
         status: apiProduct.status,
         images: apiProduct.images.map(img => img.url),
         createdDate: new Date(apiProduct.createdAt).toLocaleDateString(),
         updatedDate: new Date(apiProduct.updatedAt).toLocaleDateString(),
       }));
-      
+
       setProducts(transformedProducts);
     } catch (err) {
       setProductsError("Failed to fetch products");
@@ -784,21 +613,21 @@ export default function CenterDashboard({
               <div className="space-y-2">
                 <p className="text-sm">
                   <span className="text-gray-500">Center Name:</span>{" "}
-                  {centerProfile.name}
+                  {displayProfile.name}
                 </p>
                 <p className="text-sm">
                   <span className="text-gray-500">Manager:</span>{" "}
-                  {centerProfile.managerName}
+                  {displayProfile.managerName}
                 </p>
                 <p className="text-sm">
                   <span className="text-gray-500">Status:</span>
                   <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    {centerProfile.status}
+                    {displayProfile.status}
                   </span>
                 </p>
                 <p className="text-sm">
                   <span className="text-gray-500">Established Date:</span>{" "}
-                  {centerProfile.establishedDate}
+                  {displayProfile.establishedDate}
                 </p>
               </div>
             </div>
@@ -810,19 +639,19 @@ export default function CenterDashboard({
               <div className="space-y-2">
                 <p className="text-sm">
                   <span className="text-gray-500">Email:</span>{" "}
-                  {centerProfile.email}
+                  {displayProfile.email}
                 </p>
                 <p className="text-sm">
                   <span className="text-gray-500">Phone:</span>{" "}
-                  {centerProfile.phone}
+                  {displayProfile.phone}
                 </p>
                 <p className="text-sm">
                   <span className="text-gray-500">Address:</span>{" "}
-                  {centerProfile.address}
+                  {displayProfile.address}
                 </p>
                 <p className="text-sm">
                   <span className="text-gray-500">District:</span>{" "}
-                  {centerProfile.district}
+                  {displayProfile.district}
                 </p>
               </div>
             </div>
@@ -861,9 +690,9 @@ export default function CenterDashboard({
           <CardTitle>Uploaded Documents</CardTitle>
         </CardHeader>
         <CardContent>
-          {centerProfile.documents && centerProfile.documents.length > 0 ? (
+          {displayProfile.documents && displayProfile.documents.length > 0 ? (
             <div className="space-y-3">
-              {centerProfile.documents.map((doc, index) => (
+              {displayProfile.documents.map((doc: any, index: number) => (
                 <div
                   key={`${doc.name}-${index}`}
                   className="flex items-center justify-between p-3 border rounded-lg"
@@ -915,10 +744,10 @@ export default function CenterDashboard({
               ) : categories.length > 0 ? (
                 categories.map((category) => (
                   <div
-                    key={category._id}
+                    key={category}
                     className="flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
                   >
-                    <span>{category.name}</span>
+                    <span>{category}</span>
                     <button
                       onClick={() => removeCategory(category)}
                       className="ml-2 text-green-600 hover:text-green-900"
@@ -965,23 +794,23 @@ export default function CenterDashboard({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Center Name</p>
-                  <p className="font-medium">{centerProfile.name}</p>
+                  <p className="font-medium">{displayProfile.name}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Manager</p>
-                  <p className="font-medium">{centerProfile.managerName}</p>
+                  <p className="font-medium">{displayProfile.managerName}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Status</p>
                   <p className="font-medium">
                     <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      {centerProfile.status}
+                      {displayProfile.status}
                     </span>
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Established Date</p>
-                  <p className="font-medium">{centerProfile.establishedDate}</p>
+                  <p className="font-medium">{displayProfile.establishedDate}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Region</p>
@@ -997,19 +826,19 @@ export default function CenterDashboard({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium">{centerProfile.email}</p>
+                  <p className="font-medium">{displayProfile.email}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Phone</p>
-                  <p className="font-medium">{centerProfile.phone}</p>
+                  <p className="font-medium">{displayProfile.phone}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Address</p>
-                  <p className="font-medium">{centerProfile.address}</p>
+                  <p className="font-medium">{displayProfile.address}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">District</p>
-                  <p className="font-medium">{centerProfile.district}</p>
+                  <p className="font-medium">{displayProfile.district}</p>
                 </div>
               </div>
             </div>
@@ -1040,9 +869,9 @@ export default function CenterDashboard({
               <h3 className="text-lg font-medium text-gray-900 mb-3">
                 Uploaded Documents
               </h3>
-              {centerProfile.documents && centerProfile.documents.length > 0 ? (
+              {displayProfile.documents && displayProfile.documents.length > 0 ? (
                 <div className="space-y-3">
-                  {centerProfile.documents.map((doc, index) => (
+                  {displayProfile.documents.map((doc: any, index: number) => (
                     <div
                       key={`${doc.name}-${index}`}
                       className="flex items-center justify-between p-3 border rounded-lg"
@@ -1094,10 +923,10 @@ export default function CenterDashboard({
                   ) : categories.length > 0 ? (
                     categories.map((category) => (
                       <div
-                        key={category._id}
+                        key={category}
                         className="flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
                       >
-                        <span>{category.name}</span>
+                        <span>{category}</span>
                         <button
                           onClick={() => removeCategory(category)}
                           className="ml-2 text-green-600 hover:text-green-900"
@@ -1124,7 +953,14 @@ export default function CenterDashboard({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
-              <LayoutDashboard className="h-8 w-8 text-green-600 mr-3" />
+              <img
+                src="/image/vrslogo.png"
+                alt="VRS Logo"
+                className="w-8 h-8 object-contain mr-3"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
               <h1 className="text-2xl font-bold text-gray-900">
                 Center Dashboard
               </h1>
@@ -1150,29 +986,12 @@ export default function CenterDashboard({
                   className="flex items-center gap-2"
                 >
                   <User className="h-4 w-4" />
-                  Center Profile
+                  {displayProfile.name || "Center"}
                   <ChevronDown className="h-4 w-4" />
                 </Button>
                 {showProfileDropdown && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border z-50">
                     <div className="py-1">
-                      <div className="px-4 py-2 border-b">
-                        <p className="text-sm font-medium text-gray-900">
-                          {centerProfile.name}
-                        </p>
-                        <p className="text-xs text-gray-600">
-                          {centerProfile.email}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => {
-                          setShowProfileModal(true);
-                          setShowProfileDropdown(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        View Profile
-                      </button>
                       <button
                         onClick={() => {
                           onLogout();
@@ -1279,28 +1098,12 @@ export default function CenterDashboard({
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {mockIncomingOrders.slice(0, 3).map((order) => (
-                      <div
-                        key={order.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                      >
-                        <div>
-                          <p className="font-medium">{order.id}</p>
-                          <p className="text-sm text-gray-600">
-                            {order.vendor.name}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-medium">रू{order.totalAmount}</p>
-                          <Badge
-                            variant={getStatusColor(order.status)}
-                            className="text-xs"
-                          >
-                            {order.status}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
+                    {/* Recent orders will be loaded from API */}
+                    <div className="text-center py-8 text-gray-500">
+                      <ShoppingCart className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <p>No recent orders</p>
+                      <p className="text-sm">Orders will appear here once received</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1314,7 +1117,7 @@ export default function CenterDashboard({
                   Inventory Management
                 </h2>
                 <p className="text-gray-600 mt-1">
-                  Manage your products and stock levels ({mockProducts.length}{" "}
+                  Manage your products and stock levels ({products.length}{" "}
                   items)
                 </p>
               </div>
@@ -1324,14 +1127,14 @@ export default function CenterDashboard({
               </Button>
             </div>
 
-            {mockProducts.length === 0 ? (
+            {products.length === 0 ? (
               <div className="text-center py-12">
                 <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500">No products available</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {mockProducts.map((product) => (
+                {products.map((product) => (
                   <Card
                     key={product.id}
                     className="hover:shadow-lg transition-shadow"
@@ -1439,86 +1242,13 @@ export default function CenterDashboard({
             </div>
 
             <div className="space-y-4">
-              {mockIncomingOrders.map((order) => (
-                <Card key={order.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          {order.id}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          From: {order.vendor.name}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Contact: {order.vendor.phone}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                          <Badge
-                            variant={getStatusColor(order.status) as
-                              | "secondary"
-                              | "default"
-                              | "outline"
-                              | "destructive"
-                              | undefined}
-                            className="mb-2"
-                          >
-                            {getStatusIcon(order.status)}
-                            <span className="ml-1">{order.status}</span>
-                          </Badge>
-                        <p className="text-lg font-bold text-gray-900">
-                          रू{order.totalAmount}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 mb-4">
-                      {order.items.map((item, index) => (
-                        <div
-                          key={index}
-                          className="flex justify-between text-sm bg-gray-50 p-2 rounded"
-                        >
-                          <span>
-                            {item.productName} × {item.quantity}
-                          </span>
-                          <span>रू{item.total}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-600">
-                        <p>Requested Delivery: {order.requestedDeliveryDate}</p>
-                        <p>Order Date: {order.createdDate}</p>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button
-                            variant="primary"
-                            size="sm"
-                            className="bg-green-500 hover:bg-green-600 text-white"
-                            onClick={() => {
-                              // Update order status to processing
-                              const updatedOrders = mockIncomingOrders.map((o) =>
-                                o.id === order.id
-                                  ? { ...o, status: "processing" as const }
-                                  : o
-                              );
-                              // In a real app, this would make an API call to update the order
-                              console.log(
-                                `Order ${order.id} status updated to processing`
-                              );
-                              alert(`Order ${order.id} is now being processed!`);
-                            }}
-                          >
-                            <Package className="h-4 w-4 mr-2" />
-                            Process Order
-                          </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              {/* Orders will be loaded from API */}
+              <div className="text-center py-12 text-gray-500">
+                <ShoppingCart className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+                <p className="text-lg font-medium">No incoming orders</p>
+                <p className="text-sm">Orders from vendors will appear here once received</p>
+                <p className="text-sm mt-2">You can process and manage orders from this section</p>
+              </div>
             </div>
           </TabsContent>
 

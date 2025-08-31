@@ -113,14 +113,20 @@ const validateProduct = [
     .isIn([
       "Electronics",
       "Furniture",
-      "Stationery",
-      "Wearables",
+      "Clothing",
+      "Footwear",
       "Accessories",
       "Books",
       "Sports",
       "Home & Garden",
       "Automotive",
       "Health & Beauty",
+      "Spices & Herbs",
+      "Grains & Pulses",
+      "Beverages",
+      "Snacks & Sweets",
+      "Stationery",
+      "Wearables",
     ])
     .withMessage("Please select a valid category"),
 

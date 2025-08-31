@@ -1,0 +1,27 @@
+{
+  "timestamp": "2025-08-31T13:45:18.020Z",
+  "users": [
+    {
+      "_id": "68a6a5ad00f81bac14d707bd",
+      "name": "Admin User",
+      "email": "admin@example.com",
+      "password": "$2a$12$03MrDvFSJxLpcm5k.nrBUOcUcJckzWMiGN6Qfar.nuyn2XppEHeVq",
+      "phone": "1234567890",
+      "role": "ADMIN",
+      "status": "APPROVED",
+      "categories": [],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-21T04:50:53.569Z",
+      "updatedAt": "2025-08-31T13:32:16.994Z",
+      "__v": 0
+    }
+  ],
+  "categories": [],
+  "products": [],
+  "conversations": [],
+  "messages": [],
+  "notifications": [],
+  "orders": []
+}

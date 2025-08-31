@@ -69,9 +69,13 @@ const App = () => {
         ADMIN: "admin",
         VENDOR: "vendor",
         CENTER: "user", // Map CENTER to 'user' for CenterDashboard
+        admin: "admin",
+        vendor: "vendor",
+        center: "user", // Handle lowercase roles as well
       };
 
       user.role =
+        roleMapping[user.role] ||
         roleMapping[user.role.toUpperCase()] ||
         (user.role.toLowerCase() as UserRole);
     }
@@ -164,11 +168,10 @@ const App = () => {
       case "user": // Assuming 'user' represents center role
         return <CenterDashboard user={currentUser} onLogout={handleLogout} />;
       default:
-        // This should never happen due to type checking
-        const exhaustiveCheck: never = userRole;
+        // Handle any unmapped roles by logging and redirecting to login
         console.error("Invalid user role:", userRole);
         handleLogout();
-        return <LoginPage onLogin={handleLogin} />;
+        return <LoginPage onLogin={handleLogin} onShowSignup={() => setAuthView("signup")} />;
     }
   };
 

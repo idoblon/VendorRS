@@ -28,6 +28,7 @@ import axiosInstance from "../../utils/axios";
 import { User } from "../../types/index";
 import { MessageBox } from "../ui/MessageBox";
 import { getUnreadCount } from "../../utils/messageApi";
+import nepalAddressData from "../../data/nepaladdress.json";
 
 interface AdminDashboardProps {
   user: User;
@@ -95,6 +96,20 @@ interface Notification {
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
+  // Helper functions to map IDs to display names
+  const getProvinceName = (provinceId: string | number) => {
+    const province = nepalAddressData.provinces.find((p: any) => p.id === provinceId.toString());
+    return province ? province.displayName : provinceId;
+  };
+
+  const getDistrictName = (districtId: string | number) => {
+    for (const districtArray of Object.values(nepalAddressData.districts)) {
+      const district = districtArray.find((d: any) => d.id === districtId.toString());
+      if (district) return district.displayName;
+    }
+    return districtId;
+  };
+
   const [activeTab, setActiveTab] = useState("overview");
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [distributionCenters, setDistributionCenters] = useState<
@@ -759,7 +774,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                           </h3>
               <p className="text-sm text-gray-600 flex items-center">
                 <MapPin className="h-3 w-3 mr-1" />
-                {center.address}, {center.district}, {center.province}
+                {center.address}, {getDistrictName(center.district)}, {getProvinceName(center.province)}
               </p>
                         </div>
                       </div>
@@ -875,7 +890,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
       console.log("Center details response:", response.data);
 
       if (response.data.success) {
-        setSelectedCenter(response.data.data.center);
+        // Map district and province IDs to display names before setting state
+        const centerData = response.data.data.center;
+        const mappedCenter = {
+          ...centerData,
+          district: getDistrictName(centerData.district),
+          province: getProvinceName(centerData.province),
+        };
+        setSelectedCenter(mappedCenter);
         setShowCenterDetails(true);
       } else {
         console.error("API returned success: false", response.data);
@@ -917,6 +939,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
+              <img
+                src="/image/vrslogo.png"
+                alt="VRS Logo"
+                className="w-8 h-8 object-contain mr-3"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
               <h1 className="text-2xl font-bold text-gray-900">
                 Admin Dashboard
               </h1>

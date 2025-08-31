@@ -7,7 +7,7 @@ const orderSchema = new mongoose.Schema({
   },
   centerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'DistributionCenter',
+    ref: 'User',
     required: true
   },
   vendorId: {
@@ -103,7 +103,7 @@ const orderSchema = new mongoose.Schema({
   payment: {
     method: {
       type: String,
-      enum: ['UPI', 'Bank Transfer', 'Credit Card', 'Debit Card', 'Net Banking', 'Cash on Delivery'],
+      enum: ['UPI', 'Bank Transfer', 'Credit Card', 'Debit Card', 'Net Banking', 'Cash on Delivery', 'Stripe'],
       required: true
     },
     status: {
@@ -112,6 +112,7 @@ const orderSchema = new mongoose.Schema({
       default: 'PENDING'
     },
     transactionId: String,
+    stripePaymentIntentId: String, // For Stripe payments
     paidAmount: { type: Number, default: 0 },
     paidDate: Date,
     dueDate: Date

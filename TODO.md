@@ -1,43 +1,34 @@
-# Fix CenterDashboard Product Addition Issue
+# TODO for VendorDashboard Improvements
 
-## Problem Analysis
-The CenterDashboard currently uses mock data and does not integrate with backend APIs for product management. When users add products, they see "added successfully" but the product doesn't appear in inventory because:
-1. `handleAddProduct` only logs to console and doesn't call backend API
-2. Inventory display uses static `mockProducts` array instead of real data
-3. Missing `createProduct` function in productApi.ts
-4. Backend permissions may need adjustment for center role
+## Completed
+- Refactored and cleaned up `src/components/dashboards/VendorDashboard.tsx`
+- Fixed search error handling with proper typing
+- Improved cart modal rendering and state management
+- Enhanced product filtering and analytics card interactions
+- Added detailed order and profile views
+- Implemented real-time search with category suggestions
+- Added document viewing modal
+- Added message box toggle and unread count fetching
 
-## Implementation Plan
+## Next Steps
+- [ ] Test the VendorDashboard component thoroughly in the development environment
+- [ ] Verify search functionality with various category inputs
+- [ ] Test cart add/remove/update quantity and payment flow
+- [ ] Validate order list and order details rendering and interactions
+- [ ] Check profile data display and document viewing modal
+- [ ] Confirm message box toggle and unread message count updates
+- [ ] Review console logs for any errors or warnings during usage
+- [ ] Optimize performance if needed (e.g., debounce, memoization)
+- [ ] Add unit and integration tests for critical functions and components
+- [ ] Review UI responsiveness and accessibility compliance
 
-### Step 1: Add createProduct function to productApi.ts
-- Create a `createProduct` function that calls POST /api/products
-- Handle proper error handling and response parsing
+## Optional Enhancements
+- [ ] Integrate Stripe payment form for actual payment processing
+- [ ] Add user notifications for order status updates
+- [ ] Improve error handling and user feedback messages
+- [ ] Add pagination or infinite scroll for product and order lists
+- [ ] Implement user profile editing and update features
 
-### Step 2: Add getProductsByCenter function to productApi.ts
-- Implement function to fetch products for the current center
-- Use the existing `/api/products/center/:centerId` endpoint
+---
 
-### Step 3: Update CenterDashboard to use real API data
-- Replace `mockProducts` with state that fetches from backend
-- Update `handleAddProduct` to call `createProduct` API
-- Add loading states and error handling
-
-### Step 4: Check backend permissions (if needed)
-- Verify if center role has permission to create products
-- Adjust backend routes if necessary
-
-### Step 5: Test the implementation
-- Verify product creation works end-to-end
-- Test inventory display updates after adding products
-
-## Files to Modify
-1. `src/utils/productApi.ts` - Add createProduct and getProductsByCenter functions
-2. `src/components/dashboards/CenterDashboard.tsx` - Update to use real API data
-3. `backend/routes/products.js` - (If needed) Adjust permissions for center role
-
-## Current Status
-- [x] Step 1: Add createProduct function
-- [x] Step 2: Add getProductsByCenter function  
-- [x] Step 3: Update CenterDashboard (imports added, need to fix TypeScript errors)
-- [ ] Step 4: Check backend permissions
-- [ ] Step 5: Test implementation
+Please proceed with testing and let me know if you want me to assist with any of the next steps or enhancements.

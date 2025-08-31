@@ -34,6 +34,11 @@ const productSchema = new mongoose.Schema({
     required: true
   },
   availability: [{
+    centerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
     province: {
       type: String,
       required: true

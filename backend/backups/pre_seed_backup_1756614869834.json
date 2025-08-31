@@ -1,0 +1,1267 @@
+{
+  "timestamp": "2025-08-31T04:34:29.340Z",
+  "users": [
+    {
+      "_id": "68b2aae55900f2edd1395f8f",
+      "name": "System Administrator",
+      "email": "admin@example.com",
+      "password": "$2a$12$TsmeOmdsRhAN5DGyiC7KZug2Mldh1YxnNOWYyNS4FnZSGTRS2OdYa",
+      "phone": "+977 9817977212",
+      "role": "ADMIN",
+      "status": "APPROVED",
+      "categories": [],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-30T07:40:21.657Z",
+      "updatedAt": "2025-08-30T07:40:22.183Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae65900f2edd1395f91",
+      "name": "Kathmandu Distribution Center",
+      "email": "kathmandu@center.com",
+      "password": "$2a$12$DefijdQR0xiHy0rZhmIaJelTU5z39n6ZLHvM8pQv84.WuDjwcF9E6",
+      "phone": "+977 1 1234567",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "PANC123456789",
+      "district": "Kathmandu",
+      "province": "Bagmati",
+      "categories": [
+        "Spices & Herbs",
+        "Grains & Pulses",
+        "Beverages"
+      ],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-30T07:40:22.298Z",
+      "updatedAt": "2025-08-30T07:40:22.750Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae65900f2edd1395f93",
+      "name": "Pokhara Distribution Center",
+      "email": "pokhara@center.com",
+      "password": "$2a$12$4Y.yB.ZlfqHNXJ2ZKJOW5eNw5eWgAWLIc35amdt1DHy7m43Q6psx.",
+      "phone": "+977 61 123456",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "PANC987654321",
+      "district": "Pokhara",
+      "province": "Gandaki",
+      "categories": [
+        "Clothing",
+        "Footwear",
+        "Accessories"
+      ],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-30T07:40:22.812Z",
+      "updatedAt": "2025-08-30T07:40:23.250Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae75900f2edd1395f95",
+      "name": "Biratnagar Distribution Center",
+      "email": "biratnagar@center.com",
+      "password": "$2a$12$MyPjV7ZbdQU7lnmXuUVXSOsYdTKbIF4s0dGsYdq3KSKU2VveEPqkG",
+      "phone": "+977 1 1234567",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "PANC456789123",
+      "district": "Biratnagar",
+      "province": "Koshi",
+      "categories": [
+        "Electronics",
+        "Home & Garden",
+        "Sports"
+      ],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-30T07:40:23.339Z",
+      "updatedAt": "2025-08-30T07:40:23.784Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae75900f2edd1395f97",
+      "name": "Chitwan Distribution Center",
+      "email": "chitwan@center.com",
+      "password": "$2a$12$LNaDDXpRBqJ2v65XM7Z6g.qtoRoU8QbuuoPcJ7J2YMEFuTLWZ7qee",
+      "phone": "+977 56 123456",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "PANC789123456",
+      "district": "Chitwan",
+      "province": "Bagmati",
+      "categories": [
+        "Grains & Pulses",
+        "Beverages",
+        "Snacks & Sweets"
+      ],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-30T07:40:23.852Z",
+      "updatedAt": "2025-08-30T07:40:24.323Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae85900f2edd1395f99",
+      "name": "Butwal Distribution Center",
+      "email": "butwal@center.com",
+      "password": "$2a$12$7g5DzRWnCPXHUv/ndLFRzukSphOn.8rRE1JLou0l/NtGtnsFyMu8W",
+      "phone": "+977 71 123456",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "PANC321654987",
+      "district": "Butwal",
+      "province": "Lumbini",
+      "categories": [
+        "Clothing",
+        "Footwear",
+        "Accessories"
+      ],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-30T07:40:24.405Z",
+      "updatedAt": "2025-08-30T07:40:24.876Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae85900f2edd1395f9b",
+      "name": "Nepal Spices & Herbs Co.",
+      "email": "spices@vendor.com",
+      "password": "$2a$12$9atlLyUvotCqKsRHVVAo7e7ZUCBoPVpXiaueLGlPWtyTs3w.pq89W",
+      "phone": "+977 9801234567",
+      "role": "VENDOR",
+      "status": "APPROVED",
+      "businessName": "Nepal Spices & Herbs Co.",
+      "panNumber": "PAN123456789",
+      "address": "123 Spice Street",
+      "district": "Kathmandu",
+      "bankDetails": {
+        "bankName": "Nepal Bank Ltd.",
+        "accountNumber": "1234567890",
+        "ifscCode": "NB000012345",
+        "branch": "Kathmandu Branch",
+        "holderName": "Nepal Spices & Herbs Co."
+      },
+      "contactPersons": [
+        {
+          "name": "Rajesh Thapa",
+          "phone": "+977 9801234567",
+          "isPrimary": true,
+          "_id": "68b2aae85900f2edd1395f9c"
+        }
+      ],
+      "categories": [],
+      "isActive": true,
+      "documents": [],
+      "createdAt": "2025-08-30T07:40:24.947Z",
+      "updatedAt": "2025-08-30T07:40:25.442Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae95900f2edd1395f9e",
+      "name": "Trekking Gear Nepal",
+      "email": "trekking@vendor.com",
+      "password": "$2a$12$p0Az3PTx1M8ll2pBJ7.2SuGFNChAgCYg/yQtrBJC7SMxKHEgLQQ.y",
+      "phone": "+977 9801234568",
+      "role": "VENDOR",
+      "status": "APPROVED",
+      "businessName": "Trekking Gear Nepal",
+      "panNumber": "PAN987654321",
+      "address": "456 Trekking Road",
+      "district": "Pokhara",
+      "bankDetails": {
+        "bankName": "Nepal Investment Bank",
+        "accountNumber": "0987654321",
+        "ifscCode": "NIB000098765",
+        "branch": "Pokhara Branch",
+        "holderName": "Trekking Gear Nepal"
+      },
+      "contactPersons": [
+        {
+          "name": "Sunita Shrestha",
+          "phone": "+977 9801234568",
+          "isPrimary": true,
+          "_id": "68b2aae95900f2edd1395f9f"
+        }
+      ],
+      "categories": [],
+      "isActive": true,
+      "documents": [],
+      "createdAt": "2025-08-30T07:40:25.502Z",
+      "updatedAt": "2025-08-30T07:40:25.998Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaea5900f2edd1395fa1",
+      "name": "Nepal Handicrafts",
+      "email": "handicrafts@vendor.com",
+      "password": "$2a$12$xk9e./ucinyNG3.VHmJyG.RleugpVIxD0sa7LLPnxFSjuX0Ae1eNi",
+      "phone": "+977 9801234569",
+      "role": "VENDOR",
+      "status": "APPROVED",
+      "businessName": "Nepal Handicrafts",
+      "panNumber": "PAN456789123",
+      "address": "789 Craft Avenue",
+      "district": "Biratnagar",
+      "bankDetails": {
+        "bankName": "Nepal Finance Bank",
+        "accountNumber": "1122334455",
+        "ifscCode": "NFB00011223",
+        "branch": "Biratnagar Branch",
+        "holderName": "Nepal Handicrafts"
+      },
+      "contactPersons": [
+        {
+          "name": "Karma Sherpa",
+          "phone": "+977 9801234569",
+          "isPrimary": true,
+          "_id": "68b2aaea5900f2edd1395fa2"
+        }
+      ],
+      "categories": [],
+      "isActive": true,
+      "documents": [],
+      "createdAt": "2025-08-30T07:40:26.060Z",
+      "updatedAt": "2025-08-30T07:40:26.539Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaea5900f2edd1395fa4",
+      "name": "Organic Farm Nepal",
+      "email": "organic@vendor.com",
+      "password": "$2a$12$6TIoDk0LRj3BJhisZoKT2uIO2zPbIJzDxjys2HAxgopUi.qmdrbtW",
+      "phone": "+977 9801234570",
+      "role": "VENDOR",
+      "status": "APPROVED",
+      "businessName": "Organic Farm Nepal",
+      "panNumber": "PAN789123456",
+      "address": "321 Farm Road",
+      "district": "Chitwan",
+      "bankDetails": {
+        "bankName": "Agricultural Development Bank",
+        "accountNumber": "5566778899",
+        "ifscCode": "ADB00055667",
+        "branch": "Chitwan Branch",
+        "holderName": "Organic Farm Nepal"
+      },
+      "contactPersons": [
+        {
+          "name": "Bishnu Prasad",
+          "phone": "+977 9801234570",
+          "isPrimary": true,
+          "_id": "68b2aaea5900f2edd1395fa5"
+        }
+      ],
+      "categories": [],
+      "isActive": true,
+      "documents": [],
+      "createdAt": "2025-08-30T07:40:26.599Z",
+      "updatedAt": "2025-08-30T07:40:27.063Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaeb5900f2edd1395fa7",
+      "name": "Tech Solutions Nepal",
+      "email": "tech@vendor.com",
+      "password": "$2a$12$.2dMPqON6rl9Eld8h0nKQuPKRI3rrmnlcfatpLt9qq2w/quHaHr2i",
+      "phone": "+977 9801234571",
+      "role": "VENDOR",
+      "status": "APPROVED",
+      "businessName": "Tech Solutions Nepal",
+      "panNumber": "PAN321654987",
+      "address": "654 Tech Park",
+      "district": "Lalitpur",
+      "bankDetails": {
+        "bankName": "Standard Chartered Bank",
+        "accountNumber": "9988776655",
+        "ifscCode": "SCB00099887",
+        "branch": "Lalitpur Branch",
+        "holderName": "Tech Solutions Nepal"
+      },
+      "contactPersons": [
+        {
+          "name": "Anita Gurung",
+          "phone": "+977 9801234571",
+          "isPrimary": true,
+          "_id": "68b2aaeb5900f2edd1395fa8"
+        }
+      ],
+      "categories": [],
+      "isActive": true,
+      "documents": [],
+      "createdAt": "2025-08-30T07:40:27.127Z",
+      "updatedAt": "2025-08-30T07:40:27.560Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2d47ba45177fd52b454c1",
+      "name": "Local Footwear",
+      "email": "yakamagar@yopmail.com",
+      "password": "$2a$12$r.27Od.hjDFBLYzB/ytPjetA02lPv1MOm99luHGt8VJOg/JvpVeT6",
+      "phone": "+9779845122659",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "112500967",
+      "address": "26",
+      "district": "26",
+      "province": "3",
+      "categories": [],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-30T10:37:47.238Z",
+      "updatedAt": "2025-08-30T11:25:54.822Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b314d1b2d191634c1e3c7a",
+      "name": "All Nepal Footwear Pvt.Ltd",
+      "email": "aryanshth3070@yopmail.com",
+      "password": "$2a$12$2eX.4WM9pULu1Hcz8oFSkOn9iKIUZTiErWtvcvBC7SGtKKlTUrkYu",
+      "phone": "+9779845125689",
+      "role": "VENDOR",
+      "status": "APPROVED",
+      "businessName": "All Nepal Footwear Pvt.Ltd",
+      "panNumber": "215496850",
+      "address": "Jhapa, Province 1",
+      "district": "4",
+      "bankDetails": {
+        "bankName": "Citizens Bank International",
+        "accountNumber": "12547802369578",
+        "branch": "damak",
+        "holderName": "aryan shrestha"
+      },
+      "contactPersons": [
+        {
+          "name": "Aryan Shrestha",
+          "phone": "+9779845125689",
+          "isPrimary": false,
+          "_id": "68b314d1b2d191634c1e3c7b"
+        }
+      ],
+      "categories": [],
+      "isActive": true,
+      "documents": [
+        {
+          "filename": "panDocument-1756566736626-243777540.png",
+          "originalName": "Screenshot (1).png",
+          "path": "C:\\Users\\Asus\\OneDrive\\Desktop\\VendorRS\\backend\\uploads\\panDocument-1756566736626-243777540.png",
+          "uploadDate": "2025-08-30T15:12:17.049Z",
+          "_id": "68b314d1b2d191634c1e3c7c"
+        }
+      ],
+      "createdAt": "2025-08-30T15:12:17.048Z",
+      "updatedAt": "2025-08-30T15:12:45.255Z",
+      "__v": 0
+    }
+  ],
+  "categories": [
+    {
+      "_id": "68b2aae55900f2edd1395f80",
+      "name": "Electronics",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae55900f2edd1395f81",
+      "name": "Clothing",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae55900f2edd1395f82",
+      "name": "Books",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae55900f2edd1395f83",
+      "name": "Sports",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae55900f2edd1395f84",
+      "name": "Accessories",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae55900f2edd1395f85",
+      "name": "Furniture",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae55900f2edd1395f86",
+      "name": "Footwear",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae55900f2edd1395f87",
+      "name": "Home & Garden",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae55900f2edd1395f88",
+      "name": "Automotive",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae55900f2edd1395f89",
+      "name": "Health & Beauty",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae55900f2edd1395f8a",
+      "name": "Spices & Herbs",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae55900f2edd1395f8b",
+      "name": "Grains & Pulses",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae55900f2edd1395f8c",
+      "name": "Beverages",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aae55900f2edd1395f8d",
+      "name": "Snacks & Sweets",
+      "__v": 0
+    }
+  ],
+  "products": [
+    {
+      "_id": "68b2aaeb5900f2edd1395faa",
+      "name": "Organic Turmeric Powder",
+      "description": "Premium quality organic turmeric powder from Nepal",
+      "category": "Spices & Herbs",
+      "subcategory": "Ground Spices",
+      "price": 250,
+      "currency": "NPR",
+      "vendorId": "68b2aae85900f2edd1395f9b",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 100,
+          "reservedStock": 0,
+          "_id": "68b2aaeb5900f2edd1395fab",
+          "lastUpdated": "2025-08-30T07:40:27.622Z"
+        },
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 50,
+          "reservedStock": 0,
+          "_id": "68b2aaeb5900f2edd1395fac",
+          "lastUpdated": "2025-08-30T07:40:27.622Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 500,
+          "unit": "g"
+        },
+        "brand": "Nepal Spices",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "turmeric.jpg",
+          "originalName": "turmeric.jpg",
+          "path": "/images/turmeric.jpg",
+          "url": "https://example.com/images/turmeric.jpg",
+          "isPrimary": true,
+          "_id": "68b2aaeb5900f2edd1395fad",
+          "uploadDate": "2025-08-30T07:40:27.624Z"
+        }
+      ],
+      "tags": [
+        "organic",
+        "spices",
+        "turmeric",
+        "healthy",
+        "ayurvedic"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "organic-turmeric-powder"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-30T07:40:27.625Z",
+      "updatedAt": "2025-08-30T07:40:27.629Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaeb5900f2edd1395faf",
+      "name": "Himalayan Black Tea",
+      "description": "High-altitude black tea from the Himalayas",
+      "category": "Beverages",
+      "subcategory": "Tea",
+      "price": 800,
+      "currency": "NPR",
+      "vendorId": "68b2aae85900f2edd1395f9b",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 50,
+          "reservedStock": 5,
+          "_id": "68b2aaeb5900f2edd1395fb0",
+          "lastUpdated": "2025-08-30T07:40:27.764Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 250,
+          "unit": "g"
+        },
+        "brand": "Himalayan Tea Co.",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "black_tea.jpg",
+          "originalName": "black_tea.jpg",
+          "path": "/images/black_tea.jpg",
+          "url": "https://example.com/images/black_tea.jpg",
+          "isPrimary": true,
+          "_id": "68b2aaeb5900f2edd1395fb1",
+          "uploadDate": "2025-08-30T07:40:27.766Z"
+        }
+      ],
+      "tags": [
+        "tea",
+        "himalayan",
+        "black tea",
+        "premium",
+        "organic"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "himalayan-black-tea"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-30T07:40:27.766Z",
+      "updatedAt": "2025-08-30T07:40:27.769Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaeb5900f2edd1395fb3",
+      "name": "Trekking Backpack 40L",
+      "description": "Durable 40L trekking backpack for outdoor adventures",
+      "category": "Sports",
+      "subcategory": "Outdoor Sports",
+      "price": 2500,
+      "currency": "NPR",
+      "vendorId": "68b2aae95900f2edd1395f9e",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 25,
+          "reservedStock": 2,
+          "_id": "68b2aaeb5900f2edd1395fb4",
+          "lastUpdated": "2025-08-30T07:40:27.830Z"
+        },
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 15,
+          "reservedStock": 0,
+          "_id": "68b2aaeb5900f2edd1395fb5",
+          "lastUpdated": "2025-08-30T07:40:27.830Z"
+        }
+      ],
+      "specifications": {
+        "material": "Ripstop Nylon",
+        "brand": "Trekking Gear Nepal",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "backpack.jpg",
+          "originalName": "backpack.jpg",
+          "path": "/images/backpack.jpg",
+          "url": "https://example.com/images/backpack.jpg",
+          "isPrimary": true,
+          "_id": "68b2aaeb5900f2edd1395fb6",
+          "uploadDate": "2025-08-30T07:40:27.831Z"
+        }
+      ],
+      "tags": [
+        "trekking",
+        "backpack",
+        "outdoor",
+        "adventure",
+        "hiking"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "trekking-backpack-40l"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-30T07:40:27.831Z",
+      "updatedAt": "2025-08-30T07:40:27.834Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaeb5900f2edd1395fb8",
+      "name": "Traditional Dhaka Top",
+      "description": "Handwoven traditional Nepali dhaka top with intricate patterns",
+      "category": "Clothing",
+      "subcategory": "Ethnic Wear",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b2aaea5900f2edd1395fa1",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 50,
+          "reservedStock": 0,
+          "_id": "68b2aaeb5900f2edd1395fb9",
+          "lastUpdated": "2025-08-30T07:40:27.900Z"
+        },
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 25,
+          "reservedStock": 0,
+          "_id": "68b2aaeb5900f2edd1395fba",
+          "lastUpdated": "2025-08-30T07:40:27.900Z"
+        }
+      ],
+      "specifications": {
+        "color": "Multicolor",
+        "material": "Cotton",
+        "brand": "Nepali Textiles",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "dhaka_top.jpg",
+          "originalName": "dhaka_top.jpg",
+          "path": "/images/dhaka_top.jpg",
+          "url": "https://example.com/images/dhaka_top.jpg",
+          "isPrimary": true,
+          "_id": "68b2aaeb5900f2edd1395fbb",
+          "uploadDate": "2025-08-30T07:40:27.902Z"
+        }
+      ],
+      "tags": [
+        "traditional",
+        "dhaka",
+        "ethnic",
+        "women",
+        "handmade"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "traditional-dhaka-top"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-30T07:40:27.903Z",
+      "updatedAt": "2025-08-30T07:40:27.905Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaeb5900f2edd1395fbd",
+      "name": "Organic Honey",
+      "description": "Pure organic honey harvested from Himalayan wildflowers",
+      "category": "Beverages",
+      "subcategory": "Natural Products",
+      "price": 600,
+      "currency": "NPR",
+      "vendorId": "68b2aaea5900f2edd1395fa4",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Chitwan",
+          "stock": 80,
+          "reservedStock": 0,
+          "_id": "68b2aaeb5900f2edd1395fbe",
+          "lastUpdated": "2025-08-30T07:40:27.967Z"
+        },
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 40,
+          "reservedStock": 0,
+          "_id": "68b2aaeb5900f2edd1395fbf",
+          "lastUpdated": "2025-08-30T07:40:27.967Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 500,
+          "unit": "g"
+        },
+        "brand": "Organic Farm Nepal",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "organic_honey.jpg",
+          "originalName": "organic_honey.jpg",
+          "path": "/images/organic_honey.jpg",
+          "url": "https://example.com/images/organic_honey.jpg",
+          "isPrimary": true,
+          "_id": "68b2aaeb5900f2edd1395fc0",
+          "uploadDate": "2025-08-30T07:40:27.968Z"
+        }
+      ],
+      "tags": [
+        "organic",
+        "honey",
+        "natural",
+        "himalayan",
+        "raw"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "organic-honey"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-30T07:40:27.968Z",
+      "updatedAt": "2025-08-30T07:40:27.971Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaec5900f2edd1395fc2",
+      "name": "Wireless Bluetooth Headphones",
+      "description": "High-quality wireless headphones with noise cancellation",
+      "category": "Electronics",
+      "subcategory": "Audio",
+      "price": 2500,
+      "currency": "NPR",
+      "vendorId": "68b2aaeb5900f2edd1395fa7",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Lalitpur",
+          "stock": 30,
+          "reservedStock": 0,
+          "_id": "68b2aaec5900f2edd1395fc3",
+          "lastUpdated": "2025-08-30T07:40:28.035Z"
+        },
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 20,
+          "reservedStock": 0,
+          "_id": "68b2aaec5900f2edd1395fc4",
+          "lastUpdated": "2025-08-30T07:40:28.035Z"
+        }
+      ],
+      "specifications": {
+        "color": "Black",
+        "brand": "Tech Solutions",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "bluetooth_headphones.jpg",
+          "originalName": "bluetooth_headphones.jpg",
+          "path": "/images/bluetooth_headphones.jpg",
+          "url": "https://example.com/images/bluetooth_headphones.jpg",
+          "isPrimary": true,
+          "_id": "68b2aaec5900f2edd1395fc5",
+          "uploadDate": "2025-08-30T07:40:28.036Z"
+        }
+      ],
+      "tags": [
+        "wireless",
+        "bluetooth",
+        "headphones",
+        "audio",
+        "tech"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "wireless-bluetooth-headphones"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-30T07:40:28.036Z",
+      "updatedAt": "2025-08-30T07:40:28.038Z",
+      "__v": 0
+    }
+  ],
+  "conversations": [
+    {
+      "_id": "68b2aaec5900f2edd1395fc7",
+      "participants": [
+        {
+          "user": "68b2aae65900f2edd1395f91",
+          "role": "CENTER",
+          "_id": "68b2aaec5900f2edd1395fc8",
+          "joinedAt": "2025-08-30T07:40:28.102Z",
+          "lastSeen": "2025-08-30T07:40:28.102Z"
+        },
+        {
+          "user": "68b2aae85900f2edd1395f9b",
+          "role": "VENDOR",
+          "_id": "68b2aaec5900f2edd1395fc9",
+          "joinedAt": "2025-08-30T07:40:28.102Z",
+          "lastSeen": "2025-08-30T07:40:28.102Z"
+        }
+      ],
+      "conversationType": "VENDOR_CENTER",
+      "title": "Spice Order Discussion",
+      "lastMessage": {
+        "content": "Thank you for the quick response!",
+        "sender": "68b2aae65900f2edd1395f91",
+        "timestamp": "2025-08-30T07:40:28.101Z",
+        "messageType": "text"
+      },
+      "isActive": true,
+      "isArchived": false,
+      "settings": {
+        "notifications": true,
+        "autoArchive": false,
+        "retentionDays": 365
+      },
+      "metadata": {
+        "totalMessages": 0,
+        "lastActivityAt": "2025-08-30T07:40:28.103Z"
+      },
+      "unreadCount": [],
+      "archivedBy": [],
+      "createdAt": "2025-08-30T07:40:28.103Z",
+      "updatedAt": "2025-08-30T07:40:28.105Z",
+      "__v": 0
+    }
+  ],
+  "messages": [
+    {
+      "_id": "68b2aaec5900f2edd1395fcb",
+      "conversationId": "68b2aaec5900f2edd1395fc7",
+      "sender": "68b2aae65900f2edd1395f91",
+      "receiver": "68b2aae85900f2edd1395f9b",
+      "content": "Hello, we're interested in ordering turmeric powder in bulk.",
+      "messageType": "text",
+      "isRead": false,
+      "isEdited": false,
+      "isDeleted": false,
+      "priority": "MEDIUM",
+      "tags": [],
+      "attachments": [],
+      "reactions": [],
+      "createdAt": "2025-08-30T07:40:28.172Z",
+      "updatedAt": "2025-08-30T07:40:28.173Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaec5900f2edd1395fcd",
+      "conversationId": "68b2aaec5900f2edd1395fc7",
+      "sender": "68b2aae85900f2edd1395f9b",
+      "receiver": "68b2aae65900f2edd1395f91",
+      "content": "Thank you for your interest! We can offer competitive prices for bulk orders. How many units are you looking for?",
+      "messageType": "text",
+      "isRead": false,
+      "isEdited": false,
+      "isDeleted": false,
+      "priority": "MEDIUM",
+      "tags": [],
+      "attachments": [],
+      "reactions": [],
+      "createdAt": "2025-08-30T07:40:28.235Z",
+      "updatedAt": "2025-08-30T07:40:28.236Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaec5900f2edd1395fcf",
+      "conversationId": "68b2aaec5900f2edd1395fc7",
+      "sender": "68b2aae65900f2edd1395f91",
+      "receiver": "68b2aae85900f2edd1395f9b",
+      "content": "We need around 100 units. What's your best price?",
+      "messageType": "text",
+      "isRead": false,
+      "isEdited": false,
+      "isDeleted": false,
+      "priority": "MEDIUM",
+      "tags": [],
+      "attachments": [],
+      "reactions": [],
+      "createdAt": "2025-08-30T07:40:28.296Z",
+      "updatedAt": "2025-08-30T07:40:28.296Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaec5900f2edd1395fd1",
+      "conversationId": "68b2aaec5900f2edd1395fc7",
+      "sender": "68b2aae85900f2edd1395f9b",
+      "receiver": "68b2aae65900f2edd1395f91",
+      "content": "For 100 units, we can offer NPR 200 per unit. This includes free delivery within Kathmandu.",
+      "messageType": "text",
+      "isRead": false,
+      "isEdited": false,
+      "isDeleted": false,
+      "priority": "MEDIUM",
+      "tags": [],
+      "attachments": [],
+      "reactions": [],
+      "createdAt": "2025-08-30T07:40:28.390Z",
+      "updatedAt": "2025-08-30T07:40:28.391Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaec5900f2edd1395fd3",
+      "conversationId": "68b2aaec5900f2edd1395fc7",
+      "sender": "68b2aae65900f2edd1395f91",
+      "receiver": "68b2aae85900f2edd1395f9b",
+      "content": "That sounds great! Thank you for the quick response!",
+      "messageType": "text",
+      "isRead": false,
+      "isEdited": false,
+      "isDeleted": false,
+      "priority": "MEDIUM",
+      "tags": [],
+      "attachments": [],
+      "reactions": [],
+      "createdAt": "2025-08-30T07:40:28.449Z",
+      "updatedAt": "2025-08-30T07:40:28.450Z",
+      "__v": 0
+    }
+  ],
+  "notifications": [
+    {
+      "_id": "68b2aaec5900f2edd1395fd5",
+      "recipient": "68b2aae85900f2edd1395f9b",
+      "type": "MESSAGE",
+      "title": "New Message",
+      "message": "You have a new message from Kathmandu Distribution Center",
+      "relatedId": null,
+      "isRead": false,
+      "isActive": true,
+      "createdAt": "2025-08-30T07:40:28.511Z",
+      "updatedAt": "2025-08-30T07:40:28.512Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaec5900f2edd1395fd7",
+      "recipient": "68b2aae65900f2edd1395f93",
+      "type": "MESSAGE",
+      "title": "New Message",
+      "message": "You have a new message from Trekking Gear Nepal",
+      "relatedId": null,
+      "isRead": false,
+      "isActive": true,
+      "createdAt": "2025-08-30T07:40:28.573Z",
+      "updatedAt": "2025-08-30T07:40:28.574Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaec5900f2edd1395fd9",
+      "recipient": "68b2aae55900f2edd1395f8f",
+      "type": "SYSTEM",
+      "title": "System Update",
+      "message": "Database has been successfully seeded with sample data",
+      "isRead": true,
+      "isActive": true,
+      "createdAt": "2025-08-30T07:40:28.631Z",
+      "updatedAt": "2025-08-30T07:40:28.631Z",
+      "__v": 0,
+      "readAt": "2025-08-30T07:44:39.755Z"
+    },
+    {
+      "_id": "68b2d47ba45177fd52b454c4",
+      "recipient": "68b2aae55900f2edd1395f8f",
+      "sender": "68b2d47ba45177fd52b454c1",
+      "type": "CENTER_APPLICATION",
+      "title": "New Center Application",
+      "message": "Local Footwear has applied to join the platform as a distribution center.",
+      "relatedId": "68b2d47ba45177fd52b454c1",
+      "onModel": "User",
+      "isRead": true,
+      "isActive": true,
+      "createdAt": "2025-08-30T10:37:47.775Z",
+      "updatedAt": "2025-08-30T10:37:47.775Z",
+      "__v": 0,
+      "readAt": "2025-08-30T11:02:02.221Z"
+    },
+    {
+      "_id": "68b2dfc74294f2e83e252d0e",
+      "recipient": "68b2d47ba45177fd52b454c1",
+      "sender": "68b2aae55900f2edd1395f8f",
+      "type": "STATUS_UPDATE",
+      "title": "Application Approved",
+      "message": "Congratulations! Your center application has been approved. Your Center ID is: 68b2d47ba45177fd52b454c1. You can now access all center features.",
+      "relatedId": "68b2d47ba45177fd52b454c1",
+      "onModel": "User",
+      "isRead": false,
+      "isActive": true,
+      "createdAt": "2025-08-30T11:25:59.087Z",
+      "updatedAt": "2025-08-30T11:25:59.090Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b314d1b2d191634c1e3c7f",
+      "recipient": "68b2aae55900f2edd1395f8f",
+      "sender": "68b314d1b2d191634c1e3c7a",
+      "type": "VENDOR_APPLICATION",
+      "title": "New Vendor Application",
+      "message": "All Nepal Footwear Pvt.Ltd has applied to join the platform.",
+      "relatedId": "68b314d1b2d191634c1e3c7a",
+      "onModel": "User",
+      "isRead": true,
+      "isActive": true,
+      "createdAt": "2025-08-30T15:12:17.619Z",
+      "updatedAt": "2025-08-30T15:12:17.619Z",
+      "__v": 0,
+      "readAt": "2025-08-30T15:46:21.229Z"
+    },
+    {
+      "_id": "68b314f0b2d191634c1e3cc5",
+      "recipient": "68b314d1b2d191634c1e3c7a",
+      "sender": "68b2aae55900f2edd1395f8f",
+      "type": "STATUS_UPDATE",
+      "title": "Application Approved",
+      "message": "Congratulations! Your vendor application has been approved. Your Vendor ID is: 68b314d1b2d191634c1e3c7a. You can now access all vendor features and start listing your products.",
+      "relatedId": "68b314d1b2d191634c1e3c7a",
+      "onModel": "User",
+      "isRead": false,
+      "isActive": true,
+      "createdAt": "2025-08-30T15:12:48.891Z",
+      "updatedAt": "2025-08-30T15:12:48.891Z",
+      "__v": 0
+    }
+  ],
+  "orders": [
+    {
+      "_id": "68b2aaec5900f2edd1395fdb",
+      "centerId": "68b2aae65900f2edd1395f91",
+      "vendorId": "68b2aae85900f2edd1395f9b",
+      "items": [
+        {
+          "productId": "68b2aaeb5900f2edd1395faa",
+          "productName": "Organic Turmeric Powder",
+          "quantity": 50,
+          "unitPrice": 250,
+          "totalPrice": 12500,
+          "_id": "68b2aaec5900f2edd1395fdc"
+        },
+        {
+          "productId": "68b2aaeb5900f2edd1395faf",
+          "productName": "Himalayan Black Tea",
+          "quantity": 20,
+          "unitPrice": 800,
+          "totalPrice": 16000,
+          "_id": "68b2aaec5900f2edd1395fdd"
+        }
+      ],
+      "orderSummary": {
+        "subtotal": 28500,
+        "tax": {
+          "rate": 13,
+          "amount": 3705
+        },
+        "shipping": {
+          "method": "Standard",
+          "cost": 500
+        },
+        "discount": {
+          "type": "percentage",
+          "value": 5,
+          "amount": 1425
+        },
+        "totalAmount": 31280,
+        "adminCommission": {
+          "amount": 0,
+          "percentage": 0
+        }
+      },
+      "status": "CONFIRMED",
+      "deliveryDetails": {
+        "expectedDate": "2025-09-06T07:40:28.701Z",
+        "address": {
+          "street": "123 Distribution Street",
+          "city": "Kathmandu",
+          "state": "Bagmati",
+          "pincode": "44600",
+          "country": "Nepal"
+        },
+        "instructions": "Please deliver during business hours"
+      },
+      "payment": {
+        "method": "Bank Transfer",
+        "status": "COMPLETED",
+        "transactionId": "TXN123456789",
+        "paidAmount": 31280,
+        "paidDate": "2025-08-30T07:40:28.755Z",
+        "dueDate": "2025-09-29T07:40:28.755Z"
+      },
+      "priority": "HIGH",
+      "tags": [
+        "spices",
+        "organic",
+        "bulk"
+      ],
+      "notes": "First order from this center",
+      "isActive": true,
+      "statusHistory": [],
+      "communication": [],
+      "attachments": [],
+      "createdAt": "2025-08-30T07:40:28.758Z",
+      "updatedAt": "2025-08-30T07:40:28.851Z",
+      "orderNumber": "ORD-000001",
+      "__v": 0
+    },
+    {
+      "_id": "68b2aaec5900f2edd1395fe0",
+      "centerId": "68b2aae65900f2edd1395f93",
+      "vendorId": "68b2aae95900f2edd1395f9e",
+      "items": [
+        {
+          "productId": "68b2aaeb5900f2edd1395fb3",
+          "productName": "Trekking Backpack 40L",
+          "quantity": 10,
+          "unitPrice": 2500,
+          "totalPrice": 25000,
+          "specifications": {
+            "color": "Black",
+            "size": "40L"
+          },
+          "_id": "68b2aaec5900f2edd1395fe1"
+        }
+      ],
+      "orderSummary": {
+        "subtotal": 25000,
+        "tax": {
+          "rate": 13,
+          "amount": 3250
+        },
+        "shipping": {
+          "method": "Express",
+          "cost": 1000
+        },
+        "discount": {
+          "type": "fixed",
+          "value": 0,
+          "amount": 0
+        },
+        "totalAmount": 29250,
+        "adminCommission": {
+          "amount": 0,
+          "percentage": 0
+        }
+      },
+      "status": "PENDING",
+      "deliveryDetails": {
+        "expectedDate": "2025-09-04T07:40:28.918Z",
+        "address": {
+          "street": "456 Mountain View",
+          "city": "Pokhara",
+          "state": "Gandaki",
+          "pincode": "33700",
+          "country": "Nepal"
+        },
+        "instructions": "Deliver to the warehouse"
+      },
+      "payment": {
+        "method": "Credit Card",
+        "status": "PENDING",
+        "transactionId": null,
+        "paidAmount": 0,
+        "paidDate": null,
+        "dueDate": "2025-09-29T07:40:28.918Z"
+      },
+      "priority": "MEDIUM",
+      "tags": [
+        "trekking",
+        "outdoor"
+      ],
+      "notes": "Bulk order for staff",
+      "isActive": true,
+      "statusHistory": [],
+      "communication": [],
+      "attachments": [],
+      "createdAt": "2025-08-30T07:40:28.920Z",
+      "updatedAt": "2025-08-30T07:40:28.978Z",
+      "orderNumber": "ORD-000002",
+      "__v": 0
+    }
+  ]
+}

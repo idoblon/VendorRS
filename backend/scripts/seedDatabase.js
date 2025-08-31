@@ -463,10 +463,10 @@ const seedVendors = async () => {
   }
 };
 
-const seedProducts = async (vendorUsers) => {
+const seedProducts = async (vendorUsers, centerUsers) => {
   try {
     console.log("📦 Creating products...");
-    
+
     const allProducts = [
       // Nepal Spices & Herbs Co. Products
       {
@@ -479,12 +479,14 @@ const seedProducts = async (vendorUsers) => {
         vendorId: vendorUsers[0]._id,
         availability: [
           {
+            centerId: centerUsers[0]._id, // Kathmandu Distribution Center
             province: "Bagmati",
             district: "Kathmandu",
             stock: 100,
             reservedStock: 0,
           },
           {
+            centerId: centerUsers[1]._id, // Pokhara Distribution Center
             province: "Gandaki",
             district: "Pokhara",
             stock: 50,
@@ -498,7 +500,7 @@ const seedProducts = async (vendorUsers) => {
           shelfLife: "24 months",
           brand: "Nepal Spices",
         },
-        images: [{ filename: "turmeric.jpg", originalName: "turmeric.jpg", path: "/images/turmeric.jpg", url: "https://example.com/images/turmeric.jpg", isPrimary: true }],
+        images: [{ filename: "spices.jpg", originalName: "spices.jpg", path: "/images/spices.jpg", url: "/image/placeholder.svg", isPrimary: true }],
         tags: ["organic", "spices", "turmeric", "healthy", "ayurvedic"],
         status: "available",
       },
@@ -512,6 +514,7 @@ const seedProducts = async (vendorUsers) => {
         vendorId: vendorUsers[0]._id,
         availability: [
           {
+            centerId: centerUsers[0]._id, // Kathmandu Distribution Center
             province: "Bagmati",
             district: "Kathmandu",
             stock: 50,
@@ -525,7 +528,7 @@ const seedProducts = async (vendorUsers) => {
           caffeine: "Medium",
           brand: "Himalayan Tea Co.",
         },
-        images: [{ filename: "black_tea.jpg", originalName: "black_tea.jpg", path: "/images/black_tea.jpg", url: "https://example.com/images/black_tea.jpg", isPrimary: true }],
+        images: [{ filename: "beverages.jpg", originalName: "beverages.jpg", path: "/images/beverages.jpg", url: "/image/placeholder.svg", isPrimary: true }],
         tags: ["tea", "himalayan", "black tea", "premium", "organic"],
         status: "available",
       },
@@ -541,12 +544,14 @@ const seedProducts = async (vendorUsers) => {
         vendorId: vendorUsers[1]._id,
         availability: [
           {
+            centerId: centerUsers[1]._id, // Pokhara Distribution Center
             province: "Gandaki",
             district: "Pokhara",
             stock: 25,
             reservedStock: 2,
           },
           {
+            centerId: centerUsers[0]._id, // Kathmandu Distribution Center
             province: "Bagmati",
             district: "Kathmandu",
             stock: 15,
@@ -560,7 +565,7 @@ const seedProducts = async (vendorUsers) => {
           compartments: 5,
           brand: "Trekking Gear Nepal",
         },
-        images: [{ filename: "backpack.jpg", originalName: "backpack.jpg", path: "/images/backpack.jpg", url: "https://example.com/images/backpack.jpg", isPrimary: true }],
+        images: [{ filename: "sports.jpg", originalName: "sports.jpg", path: "/images/sports.jpg", url: "/image/placeholder.svg", isPrimary: true }],
         tags: ["trekking", "backpack", "outdoor", "adventure", "hiking"],
         status: "available",
       },
@@ -576,12 +581,14 @@ const seedProducts = async (vendorUsers) => {
         vendorId: vendorUsers[2]._id,
         availability: [
           {
+            centerId: centerUsers[0]._id, // Kathmandu Distribution Center
             province: "Bagmati",
             district: "Kathmandu",
             stock: 50,
             reservedStock: 0,
           },
           {
+            centerId: centerUsers[2]._id, // Biratnagar Distribution Center
             province: "Koshi",
             district: "Biratnagar",
             stock: 25,
@@ -595,7 +602,7 @@ const seedProducts = async (vendorUsers) => {
           handmade: true,
           brand: "Nepali Textiles",
         },
-        images: [{ filename: "dhaka_top.jpg", originalName: "dhaka_top.jpg", path: "/images/dhaka_top.jpg", url: "https://example.com/images/dhaka_top.jpg", isPrimary: true }],
+        images: [{ filename: "clothing.jpg", originalName: "clothing.jpg", path: "/images/clothing.jpg", url: "/image/placeholder.svg", isPrimary: true }],
         tags: ["traditional", "dhaka", "ethnic", "women", "handmade"],
         status: "available",
       },
@@ -611,12 +618,14 @@ const seedProducts = async (vendorUsers) => {
         vendorId: vendorUsers[3]._id,
         availability: [
           {
+            centerId: centerUsers[3]._id, // Chitwan Distribution Center
             province: "Bagmati",
             district: "Chitwan",
             stock: 80,
             reservedStock: 0,
           },
           {
+            centerId: centerUsers[0]._id, // Kathmandu Distribution Center
             province: "Bagmati",
             district: "Kathmandu",
             stock: 40,
@@ -630,7 +639,7 @@ const seedProducts = async (vendorUsers) => {
           raw: true,
           brand: "Organic Farm Nepal",
         },
-        images: [{ filename: "organic_honey.jpg", originalName: "organic_honey.jpg", path: "/images/organic_honey.jpg", url: "https://example.com/images/organic_honey.jpg", isPrimary: true }],
+        images: [{ filename: "beverages.jpg", originalName: "beverages.jpg", path: "/images/beverages.jpg", url: "/image/placeholder.svg", isPrimary: true }],
         tags: ["organic", "honey", "natural", "himalayan", "raw"],
         status: "available",
       },
@@ -646,12 +655,14 @@ const seedProducts = async (vendorUsers) => {
         vendorId: vendorUsers[4]._id,
         availability: [
           {
+            centerId: centerUsers[0]._id, // Kathmandu Distribution Center (closest to Lalitpur)
             province: "Bagmati",
             district: "Lalitpur",
             stock: 30,
             reservedStock: 0,
           },
           {
+            centerId: centerUsers[0]._id, // Kathmandu Distribution Center
             province: "Bagmati",
             district: "Kathmandu",
             stock: 20,
@@ -665,7 +676,7 @@ const seedProducts = async (vendorUsers) => {
           color: "Black",
           brand: "Tech Solutions",
         },
-        images: [{ filename: "bluetooth_headphones.jpg", originalName: "bluetooth_headphones.jpg", path: "/images/bluetooth_headphones.jpg", url: "https://example.com/images/bluetooth_headphones.jpg", isPrimary: true }],
+        images: [{ filename: "bluetooth_headphones.jpg", originalName: "bluetooth_headphones.jpg", path: "/images/bluetooth_headphones.jpg", url: "/image/placeholder.svg", isPrimary: true }],
         tags: ["wireless", "bluetooth", "headphones", "audio", "tech"],
         status: "available",
       },
@@ -1071,7 +1082,7 @@ const seedDatabase = async (mode = "full") => {
     const adminUser = await seedAdminUser();
     const centerUsers = await seedCenters();
     const vendorUsers = await seedVendors();
-    const products = await seedProducts(vendorUsers);
+    const products = await seedProducts(vendorUsers, centerUsers);
     const { conversations, messages } = await seedConversationsAndMessages(centerUsers, vendorUsers);
     const notifications = await seedNotifications(adminUser, centerUsers, vendorUsers);
     const orders = await seedOrders(centerUsers, vendorUsers, products);

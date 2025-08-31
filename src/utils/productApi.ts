@@ -15,7 +15,14 @@ export interface Product {
     phone: string;
   };
   availability: Array<{
-    centerId: string;
+    centerId: string | {
+      _id: string;
+      name: string;
+      code?: string;
+      location?: string;
+      province?: string;
+      district?: string;
+    };
     province: string;
     district: string;
     stock: number;

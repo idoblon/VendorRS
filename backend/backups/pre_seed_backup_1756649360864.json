@@ -1,0 +1,6048 @@
+{
+  "timestamp": "2025-08-31T14:09:20.358Z",
+  "users": [
+    {
+      "_id": "68b3d0d674da8ca0c270fd1b",
+      "name": "System Administrator",
+      "email": "admin@example.com",
+      "password": "$2a$12$UT6KCCtEg5IIuhftd/gGYu..zHE/32ZdUj1D1LA/2B.zasUMt9Odq",
+      "phone": "+977 9817977212",
+      "role": "ADMIN",
+      "status": "APPROVED",
+      "categories": [],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-31T04:34:30.533Z",
+      "updatedAt": "2025-08-31T04:34:31.051Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d774da8ca0c270fd1d",
+      "name": "Kathmandu Distribution Center",
+      "email": "kathmandu@center.com",
+      "password": "$2a$12$/c3l9I.1fUqq4gVkE7w0MuN.lR1L5eSmWAbw0BftTcrbFbo3ua8iG",
+      "phone": "+977 1 1234567",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "PANC123456789",
+      "district": "Kathmandu",
+      "province": "Bagmati",
+      "categories": [
+        "Spices & Herbs",
+        "Grains & Pulses",
+        "Beverages"
+      ],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-31T04:34:31.132Z",
+      "updatedAt": "2025-08-31T04:34:31.589Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d774da8ca0c270fd1f",
+      "name": "Pokhara Distribution Center",
+      "email": "pokhara@center.com",
+      "password": "$2a$12$B9/E6S7DWvNER7c9.1vX0ebYCSWmSJjo8mNsPR8XM1aMvKLob//Ay",
+      "phone": "+977 61 123456",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "PANC987654321",
+      "district": "Pokhara",
+      "province": "Gandaki",
+      "categories": [
+        "Clothing",
+        "Footwear",
+        "Accessories"
+      ],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-31T04:34:31.662Z",
+      "updatedAt": "2025-08-31T04:34:32.097Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d874da8ca0c270fd21",
+      "name": "Biratnagar Distribution Center",
+      "email": "biratnagar@center.com",
+      "password": "$2a$12$6kNRSyt7IqdPgjUJcjZYDu4w6GpQswKNPM5RTggHUm.x2.UEWx9em",
+      "phone": "+977 1 1234567",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "PANC456789123",
+      "district": "Biratnagar",
+      "province": "Koshi",
+      "categories": [
+        "Electronics",
+        "Home & Garden",
+        "Sports"
+      ],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-31T04:34:32.169Z",
+      "updatedAt": "2025-08-31T04:34:32.614Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d874da8ca0c270fd23",
+      "name": "Chitwan Distribution Center",
+      "email": "chitwan@center.com",
+      "password": "$2a$12$95V80DtL5nQsigZ0vpAJcerPrjfG8LCZeD4qz39zt4CjDxqW37IWC",
+      "phone": "+977 56 123456",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "PANC789123456",
+      "district": "Chitwan",
+      "province": "Bagmati",
+      "categories": [
+        "Grains & Pulses",
+        "Beverages",
+        "Snacks & Sweets"
+      ],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-31T04:34:32.686Z",
+      "updatedAt": "2025-08-31T04:34:33.089Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d974da8ca0c270fd25",
+      "name": "Butwal Distribution Center",
+      "email": "butwal@center.com",
+      "password": "$2a$12$NgUviZMdVP3Sk/Cb3ubXXObYxaHb/m9MchgUg0.ek1wIsng2.0Ooy",
+      "phone": "+977 71 123456",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "PANC321654987",
+      "district": "Butwal",
+      "province": "Lumbini",
+      "categories": [
+        "Clothing",
+        "Footwear",
+        "Accessories"
+      ],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [],
+      "createdAt": "2025-08-31T04:34:33.162Z",
+      "updatedAt": "2025-08-31T04:34:33.481Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d974da8ca0c270fd27",
+      "name": "Nepal Spices & Herbs Co.",
+      "email": "spices@vendor.com",
+      "password": "$2a$12$9aihpPVNqlmG1o4miB.RXeVjhqOeByjYHl1m3KQiI0UWWnMZM8Ri6",
+      "phone": "+977 9801234567",
+      "role": "VENDOR",
+      "status": "APPROVED",
+      "businessName": "Nepal Spices & Herbs Co.",
+      "panNumber": "PAN123456789",
+      "address": "123 Spice Street",
+      "district": "Kathmandu",
+      "bankDetails": {
+        "bankName": "Nepal Bank Ltd.",
+        "accountNumber": "1234567890",
+        "ifscCode": "NB000012345",
+        "branch": "Kathmandu Branch",
+        "holderName": "Nepal Spices & Herbs Co."
+      },
+      "contactPersons": [
+        {
+          "name": "Rajesh Thapa",
+          "phone": "+977 9801234567",
+          "isPrimary": true,
+          "_id": "68b3d0d974da8ca0c270fd28"
+        }
+      ],
+      "categories": [],
+      "isActive": true,
+      "documents": [],
+      "createdAt": "2025-08-31T04:34:33.558Z",
+      "updatedAt": "2025-08-31T04:34:33.862Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d974da8ca0c270fd2a",
+      "name": "Trekking Gear Nepal",
+      "email": "trekking@vendor.com",
+      "password": "$2a$12$bO8psTqtJWgnytqK9gec9erz4fWcuJgc.ho9aTKsks4rxZnssm/ri",
+      "phone": "+977 9801234568",
+      "role": "VENDOR",
+      "status": "APPROVED",
+      "businessName": "Trekking Gear Nepal",
+      "panNumber": "PAN987654321",
+      "address": "456 Trekking Road",
+      "district": "Pokhara",
+      "bankDetails": {
+        "bankName": "Nepal Investment Bank",
+        "accountNumber": "0987654321",
+        "ifscCode": "NIB000098765",
+        "branch": "Pokhara Branch",
+        "holderName": "Trekking Gear Nepal"
+      },
+      "contactPersons": [
+        {
+          "name": "Sunita Shrestha",
+          "phone": "+977 9801234568",
+          "isPrimary": true,
+          "_id": "68b3d0d974da8ca0c270fd2b"
+        }
+      ],
+      "categories": [],
+      "isActive": true,
+      "documents": [],
+      "createdAt": "2025-08-31T04:34:33.955Z",
+      "updatedAt": "2025-08-31T04:34:34.276Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0da74da8ca0c270fd2d",
+      "name": "Nepal Handicrafts",
+      "email": "handicrafts@vendor.com",
+      "password": "$2a$12$MThVz9GmwSB6/14RBp86Mu7qU6yT4KtB5PY40klxl4XbZsYzobxPu",
+      "phone": "+977 9801234569",
+      "role": "VENDOR",
+      "status": "APPROVED",
+      "businessName": "Nepal Handicrafts",
+      "panNumber": "PAN456789123",
+      "address": "789 Craft Avenue",
+      "district": "Biratnagar",
+      "bankDetails": {
+        "bankName": "Nepal Finance Bank",
+        "accountNumber": "1122334455",
+        "ifscCode": "NFB00011223",
+        "branch": "Biratnagar Branch",
+        "holderName": "Nepal Handicrafts"
+      },
+      "contactPersons": [
+        {
+          "name": "Karma Sherpa",
+          "phone": "+977 9801234569",
+          "isPrimary": true,
+          "_id": "68b3d0da74da8ca0c270fd2e"
+        }
+      ],
+      "categories": [],
+      "isActive": true,
+      "documents": [],
+      "createdAt": "2025-08-31T04:34:34.346Z",
+      "updatedAt": "2025-08-31T04:34:34.666Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0da74da8ca0c270fd30",
+      "name": "Organic Farm Nepal",
+      "email": "organic@vendor.com",
+      "password": "$2a$12$LNm7b5KV2PICWREgRoUO7uziSRnwqKvBPnf/TGTNWSI8J4ORUVA0q",
+      "phone": "+977 9801234570",
+      "role": "VENDOR",
+      "status": "APPROVED",
+      "businessName": "Organic Farm Nepal",
+      "panNumber": "PAN789123456",
+      "address": "321 Farm Road",
+      "district": "Chitwan",
+      "bankDetails": {
+        "bankName": "Agricultural Development Bank",
+        "accountNumber": "5566778899",
+        "ifscCode": "ADB00055667",
+        "branch": "Chitwan Branch",
+        "holderName": "Organic Farm Nepal"
+      },
+      "contactPersons": [
+        {
+          "name": "Bishnu Prasad",
+          "phone": "+977 9801234570",
+          "isPrimary": true,
+          "_id": "68b3d0da74da8ca0c270fd31"
+        }
+      ],
+      "categories": [],
+      "isActive": true,
+      "documents": [],
+      "createdAt": "2025-08-31T04:34:34.738Z",
+      "updatedAt": "2025-08-31T04:34:35.044Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0db74da8ca0c270fd33",
+      "name": "Tech Solutions Nepal",
+      "email": "tech@vendor.com",
+      "password": "$2a$12$8ncJTPmQUQ0rMw94vRfOQukcWAZoBrwR7AHskXw07JjYJtz8BSSN2",
+      "phone": "+977 9801234571",
+      "role": "VENDOR",
+      "status": "APPROVED",
+      "businessName": "Tech Solutions Nepal",
+      "panNumber": "PAN321654987",
+      "address": "654 Tech Park",
+      "district": "Lalitpur",
+      "bankDetails": {
+        "bankName": "Standard Chartered Bank",
+        "accountNumber": "9988776655",
+        "ifscCode": "SCB00099887",
+        "branch": "Lalitpur Branch",
+        "holderName": "Tech Solutions Nepal"
+      },
+      "contactPersons": [
+        {
+          "name": "Anita Gurung",
+          "phone": "+977 9801234571",
+          "isPrimary": true,
+          "_id": "68b3d0db74da8ca0c270fd34"
+        }
+      ],
+      "categories": [],
+      "isActive": true,
+      "documents": [],
+      "createdAt": "2025-08-31T04:34:35.116Z",
+      "updatedAt": "2025-08-31T04:34:35.455Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d32cae90818023fde62d",
+      "name": "Lamjung Local Beverage Co.",
+      "email": "razanraja123@yopmail.com",
+      "password": "$2a$12$icD2NIwxh7SQVmos1OI0iONULpvFllbYUCOWlX4jziUM/R87ZihUu",
+      "phone": "+9779845780021",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "547869581",
+      "address": "39",
+      "district": "39",
+      "province": "4",
+      "categories": [],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [
+        {
+          "filename": "panDocument-1756615467960-829020757.png",
+          "originalName": "aws.png",
+          "path": "C:\\Users\\hp\\Projects\\VendorRS\\backend\\uploads\\panDocument-1756615467960-829020757.png",
+          "uploadDate": "2025-08-31T04:44:28.089Z",
+          "_id": "68b3d32cae90818023fde62e"
+        }
+      ],
+      "createdAt": "2025-08-31T04:44:28.085Z",
+      "updatedAt": "2025-08-31T04:45:20.750Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d5e64e661441ed47e57a",
+      "name": "Beverage Industry Pvt.Ltd",
+      "email": "aryanshresth3070@yopmail.com",
+      "password": "$2a$12$xeu0cMvyoazEaHGseOMP2.EqICcsZi6sMx9n/MNzb8J0atm1YQMiq",
+      "phone": "+9779845362150",
+      "role": "VENDOR",
+      "status": "APPROVED",
+      "businessName": "Beverage Industry Pvt.Ltd",
+      "panNumber": "124578695",
+      "address": "Manang, Gandaki Province",
+      "district": "40",
+      "bankDetails": {
+        "bankName": "Lumbini Bikas Bank",
+        "accountNumber": "1547869584712",
+        "branch": "manang",
+        "holderName": "aryan shrestha"
+      },
+      "contactPersons": [
+        {
+          "name": "aryan shrestha",
+          "phone": "+9779845362150",
+          "isPrimary": false,
+          "_id": "68b3d5e64e661441ed47e57b"
+        }
+      ],
+      "categories": [],
+      "isActive": true,
+      "documents": [
+        {
+          "filename": "panDocument-1756616166119-468053465.png",
+          "originalName": "aws.png",
+          "path": "C:\\Users\\hp\\Projects\\VendorRS\\backend\\uploads\\panDocument-1756616166119-468053465.png",
+          "uploadDate": "2025-08-31T04:56:06.263Z",
+          "_id": "68b3d5e64e661441ed47e57c"
+        }
+      ],
+      "createdAt": "2025-08-31T04:56:06.262Z",
+      "updatedAt": "2025-08-31T04:56:26.051Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d7f54518531391725a31",
+      "name": "Home made crotches",
+      "email": "priyarai99@yopmail.com",
+      "password": "$2a$12$U7PIEmcXc4tzfE3sOSfkAOVTYPAXw738eT2chIO5yPbGdAAHmNRNS",
+      "phone": "+9779840000000",
+      "role": "CENTER",
+      "status": "APPROVED",
+      "panNumber": "215478639",
+      "address": "3",
+      "district": "3",
+      "province": "1",
+      "categories": [],
+      "isActive": true,
+      "contactPersons": [],
+      "documents": [
+        {
+          "filename": "panDocument-1756616693249-417208663.png",
+          "originalName": "cart.png",
+          "path": "C:\\Users\\hp\\Projects\\VendorRS\\backend\\uploads\\panDocument-1756616693249-417208663.png",
+          "uploadDate": "2025-08-31T05:04:53.346Z",
+          "_id": "68b3d7f54518531391725a32"
+        }
+      ],
+      "createdAt": "2025-08-31T05:04:53.344Z",
+      "updatedAt": "2025-08-31T05:05:24.025Z",
+      "__v": 0
+    }
+  ],
+  "categories": [
+    {
+      "_id": "68b3d0d674da8ca0c270fd0c",
+      "name": "Electronics",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d674da8ca0c270fd0d",
+      "name": "Clothing",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d674da8ca0c270fd0e",
+      "name": "Books",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d674da8ca0c270fd0f",
+      "name": "Sports",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d674da8ca0c270fd10",
+      "name": "Accessories",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d674da8ca0c270fd11",
+      "name": "Furniture",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d674da8ca0c270fd12",
+      "name": "Footwear",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d674da8ca0c270fd13",
+      "name": "Home & Garden",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d674da8ca0c270fd14",
+      "name": "Automotive",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d674da8ca0c270fd15",
+      "name": "Health & Beauty",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d674da8ca0c270fd16",
+      "name": "Spices & Herbs",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d674da8ca0c270fd17",
+      "name": "Grains & Pulses",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d674da8ca0c270fd18",
+      "name": "Beverages",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0d674da8ca0c270fd19",
+      "name": "Snacks & Sweets",
+      "__v": 0
+    }
+  ],
+  "products": [
+    {
+      "_id": "68b3d0db74da8ca0c270fd36",
+      "name": "Organic Turmeric Powder",
+      "description": "Premium quality organic turmeric powder from Nepal",
+      "category": "Spices & Herbs",
+      "subcategory": "Ground Spices",
+      "price": 250,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 100,
+          "reservedStock": 0,
+          "_id": "68b3d0db74da8ca0c270fd37",
+          "lastUpdated": "2025-08-31T04:34:35.537Z"
+        },
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 50,
+          "reservedStock": 0,
+          "_id": "68b3d0db74da8ca0c270fd38",
+          "lastUpdated": "2025-08-31T04:34:35.537Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 500,
+          "unit": "g"
+        },
+        "brand": "Nepal Spices",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "turmeric.jpg",
+          "originalName": "turmeric.jpg",
+          "path": "/images/turmeric.jpg",
+          "url": "https://example.com/images/turmeric.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0db74da8ca0c270fd39",
+          "uploadDate": "2025-08-31T04:34:35.538Z"
+        }
+      ],
+      "tags": [
+        "organic",
+        "spices",
+        "turmeric",
+        "healthy",
+        "ayurvedic"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "organic-turmeric-powder"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:35.539Z",
+      "updatedAt": "2025-08-31T04:34:35.541Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0db74da8ca0c270fd3b",
+      "name": "Himalayan Black Tea",
+      "description": "High-altitude black tea from the Himalayas",
+      "category": "Beverages",
+      "subcategory": "Tea",
+      "price": 800,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 50,
+          "reservedStock": 5,
+          "_id": "68b3d0db74da8ca0c270fd3c",
+          "lastUpdated": "2025-08-31T04:34:35.620Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 250,
+          "unit": "g"
+        },
+        "brand": "Himalayan Tea Co.",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "black_tea.jpg",
+          "originalName": "black_tea.jpg",
+          "path": "/images/black_tea.jpg",
+          "url": "https://example.com/images/black_tea.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0db74da8ca0c270fd3d",
+          "uploadDate": "2025-08-31T04:34:35.621Z"
+        }
+      ],
+      "tags": [
+        "tea",
+        "himalayan",
+        "black tea",
+        "premium",
+        "organic"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "himalayan-black-tea"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:35.621Z",
+      "updatedAt": "2025-08-31T04:34:35.622Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0db74da8ca0c270fd3f",
+      "name": "Trekking Backpack 40L",
+      "description": "Durable 40L trekking backpack for outdoor adventures",
+      "category": "Sports",
+      "subcategory": "Outdoor Sports",
+      "price": 2500,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 25,
+          "reservedStock": 2,
+          "_id": "68b3d0db74da8ca0c270fd40",
+          "lastUpdated": "2025-08-31T04:34:35.691Z"
+        },
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 15,
+          "reservedStock": 0,
+          "_id": "68b3d0db74da8ca0c270fd41",
+          "lastUpdated": "2025-08-31T04:34:35.691Z"
+        }
+      ],
+      "specifications": {
+        "material": "Ripstop Nylon",
+        "brand": "Trekking Gear Nepal",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "backpack.jpg",
+          "originalName": "backpack.jpg",
+          "path": "/images/backpack.jpg",
+          "url": "https://example.com/images/backpack.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0db74da8ca0c270fd42",
+          "uploadDate": "2025-08-31T04:34:35.692Z"
+        }
+      ],
+      "tags": [
+        "trekking",
+        "backpack",
+        "outdoor",
+        "adventure",
+        "hiking"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "trekking-backpack-40l"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:35.692Z",
+      "updatedAt": "2025-08-31T04:34:35.693Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0db74da8ca0c270fd44",
+      "name": "Traditional Dhaka Top",
+      "description": "Handwoven traditional Nepali dhaka top with intricate patterns",
+      "category": "Clothing",
+      "subcategory": "Ethnic Wear",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 50,
+          "reservedStock": 0,
+          "_id": "68b3d0db74da8ca0c270fd45",
+          "lastUpdated": "2025-08-31T04:34:35.763Z"
+        },
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 25,
+          "reservedStock": 0,
+          "_id": "68b3d0db74da8ca0c270fd46",
+          "lastUpdated": "2025-08-31T04:34:35.763Z"
+        }
+      ],
+      "specifications": {
+        "color": "Multicolor",
+        "material": "Cotton",
+        "brand": "Nepali Textiles",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "dhaka_top.jpg",
+          "originalName": "dhaka_top.jpg",
+          "path": "/images/dhaka_top.jpg",
+          "url": "https://example.com/images/dhaka_top.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0db74da8ca0c270fd47",
+          "uploadDate": "2025-08-31T04:34:35.763Z"
+        }
+      ],
+      "tags": [
+        "traditional",
+        "dhaka",
+        "ethnic",
+        "women",
+        "handmade"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "traditional-dhaka-top"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:35.764Z",
+      "updatedAt": "2025-08-31T04:34:35.765Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0db74da8ca0c270fd49",
+      "name": "Organic Honey",
+      "description": "Pure organic honey harvested from Himalayan wildflowers",
+      "category": "Beverages",
+      "subcategory": "Natural Products",
+      "price": 600,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Chitwan",
+          "stock": 80,
+          "reservedStock": 0,
+          "_id": "68b3d0db74da8ca0c270fd4a",
+          "lastUpdated": "2025-08-31T04:34:35.833Z"
+        },
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 40,
+          "reservedStock": 0,
+          "_id": "68b3d0db74da8ca0c270fd4b",
+          "lastUpdated": "2025-08-31T04:34:35.833Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 500,
+          "unit": "g"
+        },
+        "brand": "Organic Farm Nepal",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "organic_honey.jpg",
+          "originalName": "organic_honey.jpg",
+          "path": "/images/organic_honey.jpg",
+          "url": "https://example.com/images/organic_honey.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0db74da8ca0c270fd4c",
+          "uploadDate": "2025-08-31T04:34:35.834Z"
+        }
+      ],
+      "tags": [
+        "organic",
+        "honey",
+        "natural",
+        "himalayan",
+        "raw"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "organic-honey"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:35.834Z",
+      "updatedAt": "2025-08-31T04:34:35.835Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0db74da8ca0c270fd4e",
+      "name": "Wireless Bluetooth Headphones",
+      "description": "High-quality wireless headphones with noise cancellation",
+      "category": "Electronics",
+      "subcategory": "Audio",
+      "price": 2500,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Lalitpur",
+          "stock": 30,
+          "reservedStock": 0,
+          "_id": "68b3d0db74da8ca0c270fd4f",
+          "lastUpdated": "2025-08-31T04:34:35.907Z"
+        },
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 20,
+          "reservedStock": 0,
+          "_id": "68b3d0db74da8ca0c270fd50",
+          "lastUpdated": "2025-08-31T04:34:35.907Z"
+        }
+      ],
+      "specifications": {
+        "color": "Black",
+        "brand": "Tech Solutions",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "bluetooth_headphones.jpg",
+          "originalName": "bluetooth_headphones.jpg",
+          "path": "/images/bluetooth_headphones.jpg",
+          "url": "https://example.com/images/bluetooth_headphones.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0db74da8ca0c270fd51",
+          "uploadDate": "2025-08-31T04:34:35.907Z"
+        }
+      ],
+      "tags": [
+        "wireless",
+        "bluetooth",
+        "headphones",
+        "audio",
+        "tech"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "wireless-bluetooth-headphones"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:35.908Z",
+      "updatedAt": "2025-08-31T04:34:35.909Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f242d87571ea6b8995",
+      "name": "Wireless Bluetooth Headphones",
+      "description": "High-quality wireless headphones with noise cancellation",
+      "category": "Electronics",
+      "subcategory": "Audio",
+      "price": 2500,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 30,
+          "reservedStock": 0,
+          "_id": "68b3d0f242d87571ea6b8996",
+          "lastUpdated": "2025-08-31T04:34:58.447Z"
+        }
+      ],
+      "specifications": {
+        "color": "Black",
+        "brand": "TechSound",
+        "model": "WS-500",
+        "warranty": {
+          "duration": 12,
+          "unit": "months",
+          "terms": "1-year warranty on manufacturing defects"
+        },
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "wireless_headphones.jpg",
+          "originalName": "wireless_headphones.jpg",
+          "path": "/images/wireless_headphones.jpg",
+          "url": "https://example.com/images/wireless_headphones.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f242d87571ea6b8997",
+          "uploadDate": "2025-08-31T04:34:58.449Z"
+        }
+      ],
+      "tags": [
+        "wireless",
+        "bluetooth",
+        "headphones",
+        "audio"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "wireless-bluetooth-headphones"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:58.450Z",
+      "updatedAt": "2025-08-31T04:34:58.457Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f242d87571ea6b8999",
+      "name": "Modern Wooden Dining Table",
+      "description": "Elegant 6-seater dining table made from sustainable wood",
+      "category": "Furniture",
+      "subcategory": "Dining",
+      "price": 15000,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 10,
+          "reservedStock": 0,
+          "_id": "68b3d0f242d87571ea6b899a",
+          "lastUpdated": "2025-08-31T04:34:58.519Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 180,
+          "width": 90,
+          "height": 75,
+          "unit": "cm"
+        },
+        "color": "Natural Wood",
+        "material": "Teak Wood",
+        "brand": "Nepal Furniture Co.",
+        "warranty": {
+          "duration": 24,
+          "unit": "months",
+          "terms": "2-year warranty on structural integrity"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "dining_table.jpg",
+          "originalName": "dining_table.jpg",
+          "path": "/images/dining_table.jpg",
+          "url": "https://example.com/images/dining_table.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f242d87571ea6b899b",
+          "uploadDate": "2025-08-31T04:34:58.520Z"
+        }
+      ],
+      "tags": [
+        "dining",
+        "wooden",
+        "furniture",
+        "table"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "modern-wooden-dining-table"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:58.520Z",
+      "updatedAt": "2025-08-31T04:34:58.522Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f242d87571ea6b899e",
+      "name": "Traditional Dhaka Top",
+      "description": "Handwoven traditional Nepali dhaka top with intricate patterns",
+      "category": "Clothing",
+      "subcategory": "Ethnic Wear",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 50,
+          "reservedStock": 0,
+          "_id": "68b3d0f242d87571ea6b899f",
+          "lastUpdated": "2025-08-31T04:34:58.575Z"
+        }
+      ],
+      "specifications": {
+        "color": "Multicolor",
+        "material": "Cotton",
+        "brand": "Nepali Textiles",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "dhaka_top.jpg",
+          "originalName": "dhaka_top.jpg",
+          "path": "/images/dhaka_top.jpg",
+          "url": "https://example.com/images/dhaka_top.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f242d87571ea6b89a0",
+          "uploadDate": "2025-08-31T04:34:58.576Z"
+        }
+      ],
+      "tags": [
+        "traditional",
+        "dhaka",
+        "ethnic",
+        "women"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "traditional-dhaka-top"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:58.576Z",
+      "updatedAt": "2025-08-31T04:34:58.577Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f242d87571ea6b89a2",
+      "name": "Handcrafted Leather Boots",
+      "description": "Premium leather boots made by skilled artisans in Nepal",
+      "category": "Footwear",
+      "subcategory": "Boots",
+      "price": 3500,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 25,
+          "reservedStock": 0,
+          "_id": "68b3d0f242d87571ea6b89a3",
+          "lastUpdated": "2025-08-31T04:34:58.632Z"
+        }
+      ],
+      "specifications": {
+        "color": "Brown",
+        "material": "Genuine Leather",
+        "brand": "Nepal Leather Works",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "leather_boots.jpg",
+          "originalName": "leather_boots.jpg",
+          "path": "/images/leather_boots.jpg",
+          "url": "https://example.com/images/leather_boots.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f242d87571ea6b89a4",
+          "uploadDate": "2025-08-31T04:34:58.633Z"
+        }
+      ],
+      "tags": [
+        "leather",
+        "boots",
+        "handcrafted",
+        "footwear"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "handcrafted-leather-boots"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:58.633Z",
+      "updatedAt": "2025-08-31T04:34:58.634Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f242d87571ea6b89a6",
+      "name": "Pashmina Shawl",
+      "description": "Luxurious 100% pure pashmina shawl from Nepal",
+      "category": "Accessories",
+      "subcategory": "Scarves",
+      "price": 4500,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 40,
+          "reservedStock": 0,
+          "_id": "68b3d0f242d87571ea6b89a7",
+          "lastUpdated": "2025-08-31T04:34:58.697Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 80,
+          "width": 200,
+          "unit": "cm"
+        },
+        "color": "Royal Blue",
+        "material": "100% Pashmina",
+        "brand": "Nepal Pashmina House",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "pashmina_shawl.jpg",
+          "originalName": "pashmina_shawl.jpg",
+          "path": "/images/pashmina_shawl.jpg",
+          "url": "https://example.com/images/pashmina_shawl.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f242d87571ea6b89a8",
+          "uploadDate": "2025-08-31T04:34:58.698Z"
+        }
+      ],
+      "tags": [
+        "pashmina",
+        "shawl",
+        "luxury",
+        "accessory"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "pashmina-shawl"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:58.698Z",
+      "updatedAt": "2025-08-31T04:34:58.699Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f242d87571ea6b89aa",
+      "name": "Nepali Folk Tales",
+      "description": "Collection of traditional Nepali folk tales for all ages",
+      "category": "Books",
+      "subcategory": "Fiction",
+      "price": 500,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 100,
+          "reservedStock": 0,
+          "_id": "68b3d0f242d87571ea6b89ab",
+          "lastUpdated": "2025-08-31T04:34:58.757Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "folk_tales.jpg",
+          "originalName": "folk_tales.jpg",
+          "path": "/images/folk_tales.jpg",
+          "url": "https://example.com/images/folk_tales.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f242d87571ea6b89ac",
+          "uploadDate": "2025-08-31T04:34:58.758Z"
+        }
+      ],
+      "tags": [
+        "folk tales",
+        "nepali",
+        "literature",
+        "stories"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "nepali-folk-tales"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:58.758Z",
+      "updatedAt": "2025-08-31T04:34:58.759Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f242d87571ea6b89ae",
+      "name": "Yoga Mat",
+      "description": "Eco-friendly non-slip yoga mat for all types of yoga practice",
+      "category": "Sports",
+      "subcategory": "Yoga",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 60,
+          "reservedStock": 0,
+          "_id": "68b3d0f242d87571ea6b89af",
+          "lastUpdated": "2025-08-31T04:34:58.812Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 173,
+          "width": 61,
+          "unit": "cm"
+        },
+        "color": "Purple",
+        "material": "Natural Rubber",
+        "brand": "Nepal Sports Gear",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "yoga_mat.jpg",
+          "originalName": "yoga_mat.jpg",
+          "path": "/images/yoga_mat.jpg",
+          "url": "https://example.com/images/yoga_mat.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f242d87571ea6b89b0",
+          "uploadDate": "2025-08-31T04:34:58.813Z"
+        }
+      ],
+      "tags": [
+        "yoga",
+        "fitness",
+        "eco-friendly",
+        "sports"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "yoga-mat"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:58.813Z",
+      "updatedAt": "2025-08-31T04:34:58.814Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f242d87571ea6b89b2",
+      "name": "Handwoven Basket Set",
+      "description": "Set of 3 handwoven baskets made from locally sourced materials",
+      "category": "Home & Garden",
+      "subcategory": "Storage",
+      "price": 1800,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 35,
+          "reservedStock": 0,
+          "_id": "68b3d0f242d87571ea6b89b3",
+          "lastUpdated": "2025-08-31T04:34:58.865Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "unit": "cm"
+        },
+        "color": "Natural",
+        "material": "Bamboo and Grass",
+        "brand": "Nepal Handicrafts",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "basket_set.jpg",
+          "originalName": "basket_set.jpg",
+          "path": "/images/basket_set.jpg",
+          "url": "https://example.com/images/basket_set.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f242d87571ea6b89b4",
+          "uploadDate": "2025-08-31T04:34:58.866Z"
+        }
+      ],
+      "tags": [
+        "handwoven",
+        "basket",
+        "storage",
+        "home"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "handwoven-basket-set"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:58.866Z",
+      "updatedAt": "2025-08-31T04:34:58.867Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f242d87571ea6b89b6",
+      "name": "Car Air Freshener",
+      "description": "Long-lasting aromatic car air freshener with traditional Nepali scents",
+      "category": "Automotive",
+      "subcategory": "Accessories",
+      "price": 300,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 200,
+          "reservedStock": 0,
+          "_id": "68b3d0f242d87571ea6b89b7",
+          "lastUpdated": "2025-08-31T04:34:58.929Z"
+        }
+      ],
+      "specifications": {
+        "color": "Green",
+        "brand": "Nepal Automotive",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "air_freshener.jpg",
+          "originalName": "air_freshener.jpg",
+          "path": "/images/air_freshener.jpg",
+          "url": "https://example.com/images/air_freshener.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f242d87571ea6b89b8",
+          "uploadDate": "2025-08-31T04:34:58.929Z"
+        }
+      ],
+      "tags": [
+        "air freshener",
+        "aromatic",
+        "car",
+        "automotive"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "car-air-freshener"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:58.929Z",
+      "updatedAt": "2025-08-31T04:34:58.931Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f242d87571ea6b89ba",
+      "name": "Himalayan Salt Soap",
+      "description": "Natural soap made with Himalayan salt and herbal extracts",
+      "category": "Health & Beauty",
+      "subcategory": "Skincare",
+      "price": 250,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 150,
+          "reservedStock": 0,
+          "_id": "68b3d0f242d87571ea6b89bb",
+          "lastUpdated": "2025-08-31T04:34:58.982Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 150,
+          "unit": "g"
+        },
+        "brand": "Nepal Natural Care",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "salt_soap.jpg",
+          "originalName": "salt_soap.jpg",
+          "path": "/images/salt_soap.jpg",
+          "url": "https://example.com/images/salt_soap.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f242d87571ea6b89bc",
+          "uploadDate": "2025-08-31T04:34:58.983Z"
+        }
+      ],
+      "tags": [
+        "himalayan",
+        "salt",
+        "soap",
+        "natural",
+        "skincare"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "himalayan-salt-soap"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:58.983Z",
+      "updatedAt": "2025-08-31T04:34:58.984Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89be",
+      "name": "Organic Cardamom",
+      "description": "Premium quality organic cardamom pods from Nepal",
+      "category": "Spices & Herbs",
+      "subcategory": "Spices",
+      "price": 800,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 80,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89bf",
+          "lastUpdated": "2025-08-31T04:34:59.040Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 100,
+          "unit": "g"
+        },
+        "color": "Green",
+        "brand": "Nepal Spices",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "cardamom.jpg",
+          "originalName": "cardamom.jpg",
+          "path": "/images/cardamom.jpg",
+          "url": "https://example.com/images/cardamom.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89c0",
+          "uploadDate": "2025-08-31T04:34:59.040Z"
+        }
+      ],
+      "tags": [
+        "cardamom",
+        "organic",
+        "spices",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "organic-cardamom"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.040Z",
+      "updatedAt": "2025-08-31T04:34:59.041Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89c2",
+      "name": "Basmati Rice",
+      "description": "Premium quality basmati rice imported from India",
+      "category": "Grains & Pulses",
+      "subcategory": "Rice",
+      "price": 150,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 500,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89c3",
+          "lastUpdated": "2025-08-31T04:34:59.095Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 1000,
+          "unit": "g"
+        },
+        "brand": "Nepal Grains",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "basmati_rice.jpg",
+          "originalName": "basmati_rice.jpg",
+          "path": "/images/basmati_rice.jpg",
+          "url": "https://example.com/images/basmati_rice.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89c4",
+          "uploadDate": "2025-08-31T04:34:59.095Z"
+        }
+      ],
+      "tags": [
+        "basmati",
+        "rice",
+        "grains",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "basmati-rice"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.095Z",
+      "updatedAt": "2025-08-31T04:34:59.096Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89c6",
+      "name": "Himalayan Herbal Tea",
+      "description": "Blend of Himalayan herbs for a refreshing and healthy tea",
+      "category": "Beverages",
+      "subcategory": "Tea",
+      "price": 400,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 120,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89c7",
+          "lastUpdated": "2025-08-31T04:34:59.146Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 100,
+          "unit": "g"
+        },
+        "brand": "Nepal Tea House",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "herbal_tea.jpg",
+          "originalName": "herbal_tea.jpg",
+          "path": "/images/herbal_tea.jpg",
+          "url": "https://example.com/images/herbal_tea.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89c8",
+          "uploadDate": "2025-08-31T04:34:59.146Z"
+        }
+      ],
+      "tags": [
+        "herbal",
+        "tea",
+        "himalayan",
+        "healthy"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "himalayan-herbal-tea"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.146Z",
+      "updatedAt": "2025-08-31T04:34:59.147Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89ca",
+      "name": "Mixed Dry Fruits",
+      "description": "Assorted premium dry fruits for healthy snacking",
+      "category": "Snacks & Sweets",
+      "subcategory": "Dry Fruits",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 90,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89cb",
+          "lastUpdated": "2025-08-31T04:34:59.199Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 500,
+          "unit": "g"
+        },
+        "brand": "Nepal Nuts",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "dry_fruits.jpg",
+          "originalName": "dry_fruits.jpg",
+          "path": "/images/dry_fruits.jpg",
+          "url": "https://example.com/images/dry_fruits.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89cc",
+          "uploadDate": "2025-08-31T04:34:59.200Z"
+        }
+      ],
+      "tags": [
+        "dry fruits",
+        "snacks",
+        "healthy",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "mixed-dry-fruits"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.200Z",
+      "updatedAt": "2025-08-31T04:34:59.201Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89ce",
+      "name": "Wireless Bluetooth Headphones",
+      "description": "High-quality wireless headphones with noise cancellation",
+      "category": "Electronics",
+      "subcategory": "Audio",
+      "price": 2500,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 30,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89cf",
+          "lastUpdated": "2025-08-31T04:34:59.258Z"
+        }
+      ],
+      "specifications": {
+        "color": "Black",
+        "brand": "TechSound",
+        "model": "WS-500",
+        "warranty": {
+          "duration": 12,
+          "unit": "months",
+          "terms": "1-year warranty on manufacturing defects"
+        },
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "wireless_headphones.jpg",
+          "originalName": "wireless_headphones.jpg",
+          "path": "/images/wireless_headphones.jpg",
+          "url": "https://example.com/images/wireless_headphones.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89d0",
+          "uploadDate": "2025-08-31T04:34:59.259Z"
+        }
+      ],
+      "tags": [
+        "wireless",
+        "bluetooth",
+        "headphones",
+        "audio"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "wireless-bluetooth-headphones"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.259Z",
+      "updatedAt": "2025-08-31T04:34:59.259Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89d2",
+      "name": "Modern Wooden Dining Table",
+      "description": "Elegant 6-seater dining table made from sustainable wood",
+      "category": "Furniture",
+      "subcategory": "Dining",
+      "price": 15000,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 10,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89d3",
+          "lastUpdated": "2025-08-31T04:34:59.331Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 180,
+          "width": 90,
+          "height": 75,
+          "unit": "cm"
+        },
+        "color": "Natural Wood",
+        "material": "Teak Wood",
+        "brand": "Nepal Furniture Co.",
+        "warranty": {
+          "duration": 24,
+          "unit": "months",
+          "terms": "2-year warranty on structural integrity"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "dining_table.jpg",
+          "originalName": "dining_table.jpg",
+          "path": "/images/dining_table.jpg",
+          "url": "https://example.com/images/dining_table.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89d4",
+          "uploadDate": "2025-08-31T04:34:59.331Z"
+        }
+      ],
+      "tags": [
+        "dining",
+        "wooden",
+        "furniture",
+        "table"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "modern-wooden-dining-table"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.331Z",
+      "updatedAt": "2025-08-31T04:34:59.332Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89d6",
+      "name": "Traditional Dhaka Top",
+      "description": "Handwoven traditional Nepali dhaka top with intricate patterns",
+      "category": "Clothing",
+      "subcategory": "Ethnic Wear",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 50,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89d7",
+          "lastUpdated": "2025-08-31T04:34:59.383Z"
+        }
+      ],
+      "specifications": {
+        "color": "Multicolor",
+        "material": "Cotton",
+        "brand": "Nepali Textiles",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "dhaka_top.jpg",
+          "originalName": "dhaka_top.jpg",
+          "path": "/images/dhaka_top.jpg",
+          "url": "https://example.com/images/dhaka_top.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89d8",
+          "uploadDate": "2025-08-31T04:34:59.383Z"
+        }
+      ],
+      "tags": [
+        "traditional",
+        "dhaka",
+        "ethnic",
+        "women"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "traditional-dhaka-top"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.383Z",
+      "updatedAt": "2025-08-31T04:34:59.384Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89da",
+      "name": "Handcrafted Leather Boots",
+      "description": "Premium leather boots made by skilled artisans in Nepal",
+      "category": "Footwear",
+      "subcategory": "Boots",
+      "price": 3500,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 25,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89db",
+          "lastUpdated": "2025-08-31T04:34:59.440Z"
+        }
+      ],
+      "specifications": {
+        "color": "Brown",
+        "material": "Genuine Leather",
+        "brand": "Nepal Leather Works",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "leather_boots.jpg",
+          "originalName": "leather_boots.jpg",
+          "path": "/images/leather_boots.jpg",
+          "url": "https://example.com/images/leather_boots.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89dc",
+          "uploadDate": "2025-08-31T04:34:59.440Z"
+        }
+      ],
+      "tags": [
+        "leather",
+        "boots",
+        "handcrafted",
+        "footwear"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "handcrafted-leather-boots"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.440Z",
+      "updatedAt": "2025-08-31T04:34:59.441Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89de",
+      "name": "Pashmina Shawl",
+      "description": "Luxurious 100% pure pashmina shawl from Nepal",
+      "category": "Accessories",
+      "subcategory": "Scarves",
+      "price": 4500,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 40,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89df",
+          "lastUpdated": "2025-08-31T04:34:59.496Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 80,
+          "width": 200,
+          "unit": "cm"
+        },
+        "color": "Royal Blue",
+        "material": "100% Pashmina",
+        "brand": "Nepal Pashmina House",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "pashmina_shawl.jpg",
+          "originalName": "pashmina_shawl.jpg",
+          "path": "/images/pashmina_shawl.jpg",
+          "url": "https://example.com/images/pashmina_shawl.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89e0",
+          "uploadDate": "2025-08-31T04:34:59.496Z"
+        }
+      ],
+      "tags": [
+        "pashmina",
+        "shawl",
+        "luxury",
+        "accessory"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "pashmina-shawl"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.497Z",
+      "updatedAt": "2025-08-31T04:34:59.497Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89e2",
+      "name": "Nepali Folk Tales",
+      "description": "Collection of traditional Nepali folk tales for all ages",
+      "category": "Books",
+      "subcategory": "Fiction",
+      "price": 500,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 100,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89e3",
+          "lastUpdated": "2025-08-31T04:34:59.547Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "folk_tales.jpg",
+          "originalName": "folk_tales.jpg",
+          "path": "/images/folk_tales.jpg",
+          "url": "https://example.com/images/folk_tales.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89e4",
+          "uploadDate": "2025-08-31T04:34:59.547Z"
+        }
+      ],
+      "tags": [
+        "folk tales",
+        "nepali",
+        "literature",
+        "stories"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "nepali-folk-tales"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.547Z",
+      "updatedAt": "2025-08-31T04:34:59.548Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89e6",
+      "name": "Yoga Mat",
+      "description": "Eco-friendly non-slip yoga mat for all types of yoga practice",
+      "category": "Sports",
+      "subcategory": "Yoga",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 60,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89e7",
+          "lastUpdated": "2025-08-31T04:34:59.602Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 173,
+          "width": 61,
+          "unit": "cm"
+        },
+        "color": "Purple",
+        "material": "Natural Rubber",
+        "brand": "Nepal Sports Gear",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "yoga_mat.jpg",
+          "originalName": "yoga_mat.jpg",
+          "path": "/images/yoga_mat.jpg",
+          "url": "https://example.com/images/yoga_mat.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89e8",
+          "uploadDate": "2025-08-31T04:34:59.602Z"
+        }
+      ],
+      "tags": [
+        "yoga",
+        "fitness",
+        "eco-friendly",
+        "sports"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "yoga-mat"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.602Z",
+      "updatedAt": "2025-08-31T04:34:59.603Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89ea",
+      "name": "Handwoven Basket Set",
+      "description": "Set of 3 handwoven baskets made from locally sourced materials",
+      "category": "Home & Garden",
+      "subcategory": "Storage",
+      "price": 1800,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 35,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89eb",
+          "lastUpdated": "2025-08-31T04:34:59.655Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "unit": "cm"
+        },
+        "color": "Natural",
+        "material": "Bamboo and Grass",
+        "brand": "Nepal Handicrafts",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "basket_set.jpg",
+          "originalName": "basket_set.jpg",
+          "path": "/images/basket_set.jpg",
+          "url": "https://example.com/images/basket_set.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89ec",
+          "uploadDate": "2025-08-31T04:34:59.656Z"
+        }
+      ],
+      "tags": [
+        "handwoven",
+        "basket",
+        "storage",
+        "home"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "handwoven-basket-set"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.656Z",
+      "updatedAt": "2025-08-31T04:34:59.656Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89ee",
+      "name": "Car Air Freshener",
+      "description": "Long-lasting aromatic car air freshener with traditional Nepali scents",
+      "category": "Automotive",
+      "subcategory": "Accessories",
+      "price": 300,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 200,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89ef",
+          "lastUpdated": "2025-08-31T04:34:59.709Z"
+        }
+      ],
+      "specifications": {
+        "color": "Green",
+        "brand": "Nepal Automotive",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "air_freshener.jpg",
+          "originalName": "air_freshener.jpg",
+          "path": "/images/air_freshener.jpg",
+          "url": "https://example.com/images/air_freshener.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89f0",
+          "uploadDate": "2025-08-31T04:34:59.709Z"
+        }
+      ],
+      "tags": [
+        "air freshener",
+        "aromatic",
+        "car",
+        "automotive"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "car-air-freshener"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.709Z",
+      "updatedAt": "2025-08-31T04:34:59.710Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89f2",
+      "name": "Himalayan Salt Soap",
+      "description": "Natural soap made with Himalayan salt and herbal extracts",
+      "category": "Health & Beauty",
+      "subcategory": "Skincare",
+      "price": 250,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 150,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89f3",
+          "lastUpdated": "2025-08-31T04:34:59.772Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 150,
+          "unit": "g"
+        },
+        "brand": "Nepal Natural Care",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "salt_soap.jpg",
+          "originalName": "salt_soap.jpg",
+          "path": "/images/salt_soap.jpg",
+          "url": "https://example.com/images/salt_soap.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89f4",
+          "uploadDate": "2025-08-31T04:34:59.772Z"
+        }
+      ],
+      "tags": [
+        "himalayan",
+        "salt",
+        "soap",
+        "natural",
+        "skincare"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "himalayan-salt-soap"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.772Z",
+      "updatedAt": "2025-08-31T04:34:59.773Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89f6",
+      "name": "Organic Cardamom",
+      "description": "Premium quality organic cardamom pods from Nepal",
+      "category": "Spices & Herbs",
+      "subcategory": "Spices",
+      "price": 800,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 80,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89f7",
+          "lastUpdated": "2025-08-31T04:34:59.828Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 100,
+          "unit": "g"
+        },
+        "color": "Green",
+        "brand": "Nepal Spices",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "cardamom.jpg",
+          "originalName": "cardamom.jpg",
+          "path": "/images/cardamom.jpg",
+          "url": "https://example.com/images/cardamom.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89f8",
+          "uploadDate": "2025-08-31T04:34:59.828Z"
+        }
+      ],
+      "tags": [
+        "cardamom",
+        "organic",
+        "spices",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "organic-cardamom"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.829Z",
+      "updatedAt": "2025-08-31T04:34:59.829Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89fa",
+      "name": "Basmati Rice",
+      "description": "Premium quality basmati rice imported from India",
+      "category": "Grains & Pulses",
+      "subcategory": "Rice",
+      "price": 150,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 500,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89fb",
+          "lastUpdated": "2025-08-31T04:34:59.887Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 1000,
+          "unit": "g"
+        },
+        "brand": "Nepal Grains",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "basmati_rice.jpg",
+          "originalName": "basmati_rice.jpg",
+          "path": "/images/basmati_rice.jpg",
+          "url": "https://example.com/images/basmati_rice.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b89fc",
+          "uploadDate": "2025-08-31T04:34:59.888Z"
+        }
+      ],
+      "tags": [
+        "basmati",
+        "rice",
+        "grains",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "basmati-rice"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.888Z",
+      "updatedAt": "2025-08-31T04:34:59.889Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f342d87571ea6b89fe",
+      "name": "Himalayan Herbal Tea",
+      "description": "Blend of Himalayan herbs for a refreshing and healthy tea",
+      "category": "Beverages",
+      "subcategory": "Tea",
+      "price": 400,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 120,
+          "reservedStock": 0,
+          "_id": "68b3d0f342d87571ea6b89ff",
+          "lastUpdated": "2025-08-31T04:34:59.940Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 100,
+          "unit": "g"
+        },
+        "brand": "Nepal Tea House",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "herbal_tea.jpg",
+          "originalName": "herbal_tea.jpg",
+          "path": "/images/herbal_tea.jpg",
+          "url": "https://example.com/images/herbal_tea.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f342d87571ea6b8a00",
+          "uploadDate": "2025-08-31T04:34:59.941Z"
+        }
+      ],
+      "tags": [
+        "herbal",
+        "tea",
+        "himalayan",
+        "healthy"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "himalayan-herbal-tea"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:59.941Z",
+      "updatedAt": "2025-08-31T04:34:59.942Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a02",
+      "name": "Mixed Dry Fruits",
+      "description": "Assorted premium dry fruits for healthy snacking",
+      "category": "Snacks & Sweets",
+      "subcategory": "Dry Fruits",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 90,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a03",
+          "lastUpdated": "2025-08-31T04:35:00.002Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 500,
+          "unit": "g"
+        },
+        "brand": "Nepal Nuts",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "dry_fruits.jpg",
+          "originalName": "dry_fruits.jpg",
+          "path": "/images/dry_fruits.jpg",
+          "url": "https://example.com/images/dry_fruits.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a04",
+          "uploadDate": "2025-08-31T04:35:00.003Z"
+        }
+      ],
+      "tags": [
+        "dry fruits",
+        "snacks",
+        "healthy",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "mixed-dry-fruits"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.003Z",
+      "updatedAt": "2025-08-31T04:35:00.003Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a06",
+      "name": "Wireless Bluetooth Headphones",
+      "description": "High-quality wireless headphones with noise cancellation",
+      "category": "Electronics",
+      "subcategory": "Audio",
+      "price": 2500,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 30,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a07",
+          "lastUpdated": "2025-08-31T04:35:00.054Z"
+        }
+      ],
+      "specifications": {
+        "color": "Black",
+        "brand": "TechSound",
+        "model": "WS-500",
+        "warranty": {
+          "duration": 12,
+          "unit": "months",
+          "terms": "1-year warranty on manufacturing defects"
+        },
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "wireless_headphones.jpg",
+          "originalName": "wireless_headphones.jpg",
+          "path": "/images/wireless_headphones.jpg",
+          "url": "https://example.com/images/wireless_headphones.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a08",
+          "uploadDate": "2025-08-31T04:35:00.054Z"
+        }
+      ],
+      "tags": [
+        "wireless",
+        "bluetooth",
+        "headphones",
+        "audio"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "wireless-bluetooth-headphones"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.054Z",
+      "updatedAt": "2025-08-31T04:35:00.055Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a0a",
+      "name": "Modern Wooden Dining Table",
+      "description": "Elegant 6-seater dining table made from sustainable wood",
+      "category": "Furniture",
+      "subcategory": "Dining",
+      "price": 15000,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 10,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a0b",
+          "lastUpdated": "2025-08-31T04:35:00.110Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 180,
+          "width": 90,
+          "height": 75,
+          "unit": "cm"
+        },
+        "color": "Natural Wood",
+        "material": "Teak Wood",
+        "brand": "Nepal Furniture Co.",
+        "warranty": {
+          "duration": 24,
+          "unit": "months",
+          "terms": "2-year warranty on structural integrity"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "dining_table.jpg",
+          "originalName": "dining_table.jpg",
+          "path": "/images/dining_table.jpg",
+          "url": "https://example.com/images/dining_table.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a0c",
+          "uploadDate": "2025-08-31T04:35:00.111Z"
+        }
+      ],
+      "tags": [
+        "dining",
+        "wooden",
+        "furniture",
+        "table"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "modern-wooden-dining-table"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.111Z",
+      "updatedAt": "2025-08-31T04:35:00.111Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a0e",
+      "name": "Traditional Dhaka Top",
+      "description": "Handwoven traditional Nepali dhaka top with intricate patterns",
+      "category": "Clothing",
+      "subcategory": "Ethnic Wear",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 50,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a0f",
+          "lastUpdated": "2025-08-31T04:35:00.160Z"
+        }
+      ],
+      "specifications": {
+        "color": "Multicolor",
+        "material": "Cotton",
+        "brand": "Nepali Textiles",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "dhaka_top.jpg",
+          "originalName": "dhaka_top.jpg",
+          "path": "/images/dhaka_top.jpg",
+          "url": "https://example.com/images/dhaka_top.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a10",
+          "uploadDate": "2025-08-31T04:35:00.160Z"
+        }
+      ],
+      "tags": [
+        "traditional",
+        "dhaka",
+        "ethnic",
+        "women"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "traditional-dhaka-top"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.160Z",
+      "updatedAt": "2025-08-31T04:35:00.161Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a12",
+      "name": "Handcrafted Leather Boots",
+      "description": "Premium leather boots made by skilled artisans in Nepal",
+      "category": "Footwear",
+      "subcategory": "Boots",
+      "price": 3500,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 25,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a13",
+          "lastUpdated": "2025-08-31T04:35:00.210Z"
+        }
+      ],
+      "specifications": {
+        "color": "Brown",
+        "material": "Genuine Leather",
+        "brand": "Nepal Leather Works",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "leather_boots.jpg",
+          "originalName": "leather_boots.jpg",
+          "path": "/images/leather_boots.jpg",
+          "url": "https://example.com/images/leather_boots.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a14",
+          "uploadDate": "2025-08-31T04:35:00.210Z"
+        }
+      ],
+      "tags": [
+        "leather",
+        "boots",
+        "handcrafted",
+        "footwear"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "handcrafted-leather-boots"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.210Z",
+      "updatedAt": "2025-08-31T04:35:00.211Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a16",
+      "name": "Pashmina Shawl",
+      "description": "Luxurious 100% pure pashmina shawl from Nepal",
+      "category": "Accessories",
+      "subcategory": "Scarves",
+      "price": 4500,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 40,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a17",
+          "lastUpdated": "2025-08-31T04:35:00.261Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 80,
+          "width": 200,
+          "unit": "cm"
+        },
+        "color": "Royal Blue",
+        "material": "100% Pashmina",
+        "brand": "Nepal Pashmina House",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "pashmina_shawl.jpg",
+          "originalName": "pashmina_shawl.jpg",
+          "path": "/images/pashmina_shawl.jpg",
+          "url": "https://example.com/images/pashmina_shawl.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a18",
+          "uploadDate": "2025-08-31T04:35:00.262Z"
+        }
+      ],
+      "tags": [
+        "pashmina",
+        "shawl",
+        "luxury",
+        "accessory"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "pashmina-shawl"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.262Z",
+      "updatedAt": "2025-08-31T04:35:00.263Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a1a",
+      "name": "Nepali Folk Tales",
+      "description": "Collection of traditional Nepali folk tales for all ages",
+      "category": "Books",
+      "subcategory": "Fiction",
+      "price": 500,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 100,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a1b",
+          "lastUpdated": "2025-08-31T04:35:00.317Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "folk_tales.jpg",
+          "originalName": "folk_tales.jpg",
+          "path": "/images/folk_tales.jpg",
+          "url": "https://example.com/images/folk_tales.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a1c",
+          "uploadDate": "2025-08-31T04:35:00.317Z"
+        }
+      ],
+      "tags": [
+        "folk tales",
+        "nepali",
+        "literature",
+        "stories"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "nepali-folk-tales"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.317Z",
+      "updatedAt": "2025-08-31T04:35:00.318Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a1e",
+      "name": "Yoga Mat",
+      "description": "Eco-friendly non-slip yoga mat for all types of yoga practice",
+      "category": "Sports",
+      "subcategory": "Yoga",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 60,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a1f",
+          "lastUpdated": "2025-08-31T04:35:00.367Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 173,
+          "width": 61,
+          "unit": "cm"
+        },
+        "color": "Purple",
+        "material": "Natural Rubber",
+        "brand": "Nepal Sports Gear",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "yoga_mat.jpg",
+          "originalName": "yoga_mat.jpg",
+          "path": "/images/yoga_mat.jpg",
+          "url": "https://example.com/images/yoga_mat.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a20",
+          "uploadDate": "2025-08-31T04:35:00.367Z"
+        }
+      ],
+      "tags": [
+        "yoga",
+        "fitness",
+        "eco-friendly",
+        "sports"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "yoga-mat"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.367Z",
+      "updatedAt": "2025-08-31T04:35:00.368Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a22",
+      "name": "Handwoven Basket Set",
+      "description": "Set of 3 handwoven baskets made from locally sourced materials",
+      "category": "Home & Garden",
+      "subcategory": "Storage",
+      "price": 1800,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 35,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a23",
+          "lastUpdated": "2025-08-31T04:35:00.419Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "unit": "cm"
+        },
+        "color": "Natural",
+        "material": "Bamboo and Grass",
+        "brand": "Nepal Handicrafts",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "basket_set.jpg",
+          "originalName": "basket_set.jpg",
+          "path": "/images/basket_set.jpg",
+          "url": "https://example.com/images/basket_set.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a24",
+          "uploadDate": "2025-08-31T04:35:00.420Z"
+        }
+      ],
+      "tags": [
+        "handwoven",
+        "basket",
+        "storage",
+        "home"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "handwoven-basket-set"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.420Z",
+      "updatedAt": "2025-08-31T04:35:00.421Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a26",
+      "name": "Car Air Freshener",
+      "description": "Long-lasting aromatic car air freshener with traditional Nepali scents",
+      "category": "Automotive",
+      "subcategory": "Accessories",
+      "price": 300,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 200,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a27",
+          "lastUpdated": "2025-08-31T04:35:00.476Z"
+        }
+      ],
+      "specifications": {
+        "color": "Green",
+        "brand": "Nepal Automotive",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "air_freshener.jpg",
+          "originalName": "air_freshener.jpg",
+          "path": "/images/air_freshener.jpg",
+          "url": "https://example.com/images/air_freshener.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a28",
+          "uploadDate": "2025-08-31T04:35:00.476Z"
+        }
+      ],
+      "tags": [
+        "air freshener",
+        "aromatic",
+        "car",
+        "automotive"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "car-air-freshener"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.476Z",
+      "updatedAt": "2025-08-31T04:35:00.477Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a2a",
+      "name": "Himalayan Salt Soap",
+      "description": "Natural soap made with Himalayan salt and herbal extracts",
+      "category": "Health & Beauty",
+      "subcategory": "Skincare",
+      "price": 250,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 150,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a2b",
+          "lastUpdated": "2025-08-31T04:35:00.530Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 150,
+          "unit": "g"
+        },
+        "brand": "Nepal Natural Care",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "salt_soap.jpg",
+          "originalName": "salt_soap.jpg",
+          "path": "/images/salt_soap.jpg",
+          "url": "https://example.com/images/salt_soap.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a2c",
+          "uploadDate": "2025-08-31T04:35:00.531Z"
+        }
+      ],
+      "tags": [
+        "himalayan",
+        "salt",
+        "soap",
+        "natural",
+        "skincare"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "himalayan-salt-soap"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.531Z",
+      "updatedAt": "2025-08-31T04:35:00.532Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a2e",
+      "name": "Organic Cardamom",
+      "description": "Premium quality organic cardamom pods from Nepal",
+      "category": "Spices & Herbs",
+      "subcategory": "Spices",
+      "price": 800,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 80,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a2f",
+          "lastUpdated": "2025-08-31T04:35:00.586Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 100,
+          "unit": "g"
+        },
+        "color": "Green",
+        "brand": "Nepal Spices",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "cardamom.jpg",
+          "originalName": "cardamom.jpg",
+          "path": "/images/cardamom.jpg",
+          "url": "https://example.com/images/cardamom.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a30",
+          "uploadDate": "2025-08-31T04:35:00.586Z"
+        }
+      ],
+      "tags": [
+        "cardamom",
+        "organic",
+        "spices",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "organic-cardamom"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.587Z",
+      "updatedAt": "2025-08-31T04:35:00.588Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a32",
+      "name": "Basmati Rice",
+      "description": "Premium quality basmati rice imported from India",
+      "category": "Grains & Pulses",
+      "subcategory": "Rice",
+      "price": 150,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 500,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a33",
+          "lastUpdated": "2025-08-31T04:35:00.642Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 1000,
+          "unit": "g"
+        },
+        "brand": "Nepal Grains",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "basmati_rice.jpg",
+          "originalName": "basmati_rice.jpg",
+          "path": "/images/basmati_rice.jpg",
+          "url": "https://example.com/images/basmati_rice.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a34",
+          "uploadDate": "2025-08-31T04:35:00.643Z"
+        }
+      ],
+      "tags": [
+        "basmati",
+        "rice",
+        "grains",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "basmati-rice"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.643Z",
+      "updatedAt": "2025-08-31T04:35:00.643Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a36",
+      "name": "Himalayan Herbal Tea",
+      "description": "Blend of Himalayan herbs for a refreshing and healthy tea",
+      "category": "Beverages",
+      "subcategory": "Tea",
+      "price": 400,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 120,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a37",
+          "lastUpdated": "2025-08-31T04:35:00.693Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 100,
+          "unit": "g"
+        },
+        "brand": "Nepal Tea House",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "herbal_tea.jpg",
+          "originalName": "herbal_tea.jpg",
+          "path": "/images/herbal_tea.jpg",
+          "url": "https://example.com/images/herbal_tea.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a38",
+          "uploadDate": "2025-08-31T04:35:00.693Z"
+        }
+      ],
+      "tags": [
+        "herbal",
+        "tea",
+        "himalayan",
+        "healthy"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "himalayan-herbal-tea"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.693Z",
+      "updatedAt": "2025-08-31T04:35:00.694Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a3a",
+      "name": "Mixed Dry Fruits",
+      "description": "Assorted premium dry fruits for healthy snacking",
+      "category": "Snacks & Sweets",
+      "subcategory": "Dry Fruits",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd2d",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 90,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a3b",
+          "lastUpdated": "2025-08-31T04:35:00.750Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 500,
+          "unit": "g"
+        },
+        "brand": "Nepal Nuts",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "dry_fruits.jpg",
+          "originalName": "dry_fruits.jpg",
+          "path": "/images/dry_fruits.jpg",
+          "url": "https://example.com/images/dry_fruits.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a3c",
+          "uploadDate": "2025-08-31T04:35:00.750Z"
+        }
+      ],
+      "tags": [
+        "dry fruits",
+        "snacks",
+        "healthy",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "mixed-dry-fruits"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.751Z",
+      "updatedAt": "2025-08-31T04:35:00.751Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a3e",
+      "name": "Wireless Bluetooth Headphones",
+      "description": "High-quality wireless headphones with noise cancellation",
+      "category": "Electronics",
+      "subcategory": "Audio",
+      "price": 2500,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 30,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a3f",
+          "lastUpdated": "2025-08-31T04:35:00.804Z"
+        }
+      ],
+      "specifications": {
+        "color": "Black",
+        "brand": "TechSound",
+        "model": "WS-500",
+        "warranty": {
+          "duration": 12,
+          "unit": "months",
+          "terms": "1-year warranty on manufacturing defects"
+        },
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "wireless_headphones.jpg",
+          "originalName": "wireless_headphones.jpg",
+          "path": "/images/wireless_headphones.jpg",
+          "url": "https://example.com/images/wireless_headphones.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a40",
+          "uploadDate": "2025-08-31T04:35:00.805Z"
+        }
+      ],
+      "tags": [
+        "wireless",
+        "bluetooth",
+        "headphones",
+        "audio"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "wireless-bluetooth-headphones"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.805Z",
+      "updatedAt": "2025-08-31T04:35:00.805Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a42",
+      "name": "Modern Wooden Dining Table",
+      "description": "Elegant 6-seater dining table made from sustainable wood",
+      "category": "Furniture",
+      "subcategory": "Dining",
+      "price": 15000,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 10,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a43",
+          "lastUpdated": "2025-08-31T04:35:00.862Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 180,
+          "width": 90,
+          "height": 75,
+          "unit": "cm"
+        },
+        "color": "Natural Wood",
+        "material": "Teak Wood",
+        "brand": "Nepal Furniture Co.",
+        "warranty": {
+          "duration": 24,
+          "unit": "months",
+          "terms": "2-year warranty on structural integrity"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "dining_table.jpg",
+          "originalName": "dining_table.jpg",
+          "path": "/images/dining_table.jpg",
+          "url": "https://example.com/images/dining_table.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a44",
+          "uploadDate": "2025-08-31T04:35:00.863Z"
+        }
+      ],
+      "tags": [
+        "dining",
+        "wooden",
+        "furniture",
+        "table"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "modern-wooden-dining-table"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.863Z",
+      "updatedAt": "2025-08-31T04:35:00.864Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a46",
+      "name": "Traditional Dhaka Top",
+      "description": "Handwoven traditional Nepali dhaka top with intricate patterns",
+      "category": "Clothing",
+      "subcategory": "Ethnic Wear",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 50,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a47",
+          "lastUpdated": "2025-08-31T04:35:00.918Z"
+        }
+      ],
+      "specifications": {
+        "color": "Multicolor",
+        "material": "Cotton",
+        "brand": "Nepali Textiles",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "dhaka_top.jpg",
+          "originalName": "dhaka_top.jpg",
+          "path": "/images/dhaka_top.jpg",
+          "url": "https://example.com/images/dhaka_top.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a48",
+          "uploadDate": "2025-08-31T04:35:00.918Z"
+        }
+      ],
+      "tags": [
+        "traditional",
+        "dhaka",
+        "ethnic",
+        "women"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "traditional-dhaka-top"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.919Z",
+      "updatedAt": "2025-08-31T04:35:00.919Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f442d87571ea6b8a4a",
+      "name": "Handcrafted Leather Boots",
+      "description": "Premium leather boots made by skilled artisans in Nepal",
+      "category": "Footwear",
+      "subcategory": "Boots",
+      "price": 3500,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 25,
+          "reservedStock": 0,
+          "_id": "68b3d0f442d87571ea6b8a4b",
+          "lastUpdated": "2025-08-31T04:35:00.970Z"
+        }
+      ],
+      "specifications": {
+        "color": "Brown",
+        "material": "Genuine Leather",
+        "brand": "Nepal Leather Works",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "leather_boots.jpg",
+          "originalName": "leather_boots.jpg",
+          "path": "/images/leather_boots.jpg",
+          "url": "https://example.com/images/leather_boots.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f442d87571ea6b8a4c",
+          "uploadDate": "2025-08-31T04:35:00.970Z"
+        }
+      ],
+      "tags": [
+        "leather",
+        "boots",
+        "handcrafted",
+        "footwear"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "handcrafted-leather-boots"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:00.970Z",
+      "updatedAt": "2025-08-31T04:35:00.970Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a4e",
+      "name": "Pashmina Shawl",
+      "description": "Luxurious 100% pure pashmina shawl from Nepal",
+      "category": "Accessories",
+      "subcategory": "Scarves",
+      "price": 4500,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 40,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a4f",
+          "lastUpdated": "2025-08-31T04:35:01.032Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 80,
+          "width": 200,
+          "unit": "cm"
+        },
+        "color": "Royal Blue",
+        "material": "100% Pashmina",
+        "brand": "Nepal Pashmina House",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "pashmina_shawl.jpg",
+          "originalName": "pashmina_shawl.jpg",
+          "path": "/images/pashmina_shawl.jpg",
+          "url": "https://example.com/images/pashmina_shawl.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a50",
+          "uploadDate": "2025-08-31T04:35:01.032Z"
+        }
+      ],
+      "tags": [
+        "pashmina",
+        "shawl",
+        "luxury",
+        "accessory"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "pashmina-shawl"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.033Z",
+      "updatedAt": "2025-08-31T04:35:01.033Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a52",
+      "name": "Nepali Folk Tales",
+      "description": "Collection of traditional Nepali folk tales for all ages",
+      "category": "Books",
+      "subcategory": "Fiction",
+      "price": 500,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 100,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a53",
+          "lastUpdated": "2025-08-31T04:35:01.084Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "folk_tales.jpg",
+          "originalName": "folk_tales.jpg",
+          "path": "/images/folk_tales.jpg",
+          "url": "https://example.com/images/folk_tales.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a54",
+          "uploadDate": "2025-08-31T04:35:01.084Z"
+        }
+      ],
+      "tags": [
+        "folk tales",
+        "nepali",
+        "literature",
+        "stories"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "nepali-folk-tales"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.084Z",
+      "updatedAt": "2025-08-31T04:35:01.085Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a56",
+      "name": "Yoga Mat",
+      "description": "Eco-friendly non-slip yoga mat for all types of yoga practice",
+      "category": "Sports",
+      "subcategory": "Yoga",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 60,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a57",
+          "lastUpdated": "2025-08-31T04:35:01.136Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 173,
+          "width": 61,
+          "unit": "cm"
+        },
+        "color": "Purple",
+        "material": "Natural Rubber",
+        "brand": "Nepal Sports Gear",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "yoga_mat.jpg",
+          "originalName": "yoga_mat.jpg",
+          "path": "/images/yoga_mat.jpg",
+          "url": "https://example.com/images/yoga_mat.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a58",
+          "uploadDate": "2025-08-31T04:35:01.136Z"
+        }
+      ],
+      "tags": [
+        "yoga",
+        "fitness",
+        "eco-friendly",
+        "sports"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "yoga-mat"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.136Z",
+      "updatedAt": "2025-08-31T04:35:01.137Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a5a",
+      "name": "Handwoven Basket Set",
+      "description": "Set of 3 handwoven baskets made from locally sourced materials",
+      "category": "Home & Garden",
+      "subcategory": "Storage",
+      "price": 1800,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 35,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a5b",
+          "lastUpdated": "2025-08-31T04:35:01.198Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "unit": "cm"
+        },
+        "color": "Natural",
+        "material": "Bamboo and Grass",
+        "brand": "Nepal Handicrafts",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "basket_set.jpg",
+          "originalName": "basket_set.jpg",
+          "path": "/images/basket_set.jpg",
+          "url": "https://example.com/images/basket_set.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a5c",
+          "uploadDate": "2025-08-31T04:35:01.199Z"
+        }
+      ],
+      "tags": [
+        "handwoven",
+        "basket",
+        "storage",
+        "home"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "handwoven-basket-set"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.199Z",
+      "updatedAt": "2025-08-31T04:35:01.199Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a5e",
+      "name": "Car Air Freshener",
+      "description": "Long-lasting aromatic car air freshener with traditional Nepali scents",
+      "category": "Automotive",
+      "subcategory": "Accessories",
+      "price": 300,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 200,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a5f",
+          "lastUpdated": "2025-08-31T04:35:01.249Z"
+        }
+      ],
+      "specifications": {
+        "color": "Green",
+        "brand": "Nepal Automotive",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "air_freshener.jpg",
+          "originalName": "air_freshener.jpg",
+          "path": "/images/air_freshener.jpg",
+          "url": "https://example.com/images/air_freshener.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a60",
+          "uploadDate": "2025-08-31T04:35:01.250Z"
+        }
+      ],
+      "tags": [
+        "air freshener",
+        "aromatic",
+        "car",
+        "automotive"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "car-air-freshener"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.250Z",
+      "updatedAt": "2025-08-31T04:35:01.250Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a62",
+      "name": "Himalayan Salt Soap",
+      "description": "Natural soap made with Himalayan salt and herbal extracts",
+      "category": "Health & Beauty",
+      "subcategory": "Skincare",
+      "price": 250,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 150,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a63",
+          "lastUpdated": "2025-08-31T04:35:01.308Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 150,
+          "unit": "g"
+        },
+        "brand": "Nepal Natural Care",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "salt_soap.jpg",
+          "originalName": "salt_soap.jpg",
+          "path": "/images/salt_soap.jpg",
+          "url": "https://example.com/images/salt_soap.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a64",
+          "uploadDate": "2025-08-31T04:35:01.309Z"
+        }
+      ],
+      "tags": [
+        "himalayan",
+        "salt",
+        "soap",
+        "natural",
+        "skincare"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "himalayan-salt-soap"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.309Z",
+      "updatedAt": "2025-08-31T04:35:01.309Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a66",
+      "name": "Organic Cardamom",
+      "description": "Premium quality organic cardamom pods from Nepal",
+      "category": "Spices & Herbs",
+      "subcategory": "Spices",
+      "price": 800,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 80,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a67",
+          "lastUpdated": "2025-08-31T04:35:01.363Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 100,
+          "unit": "g"
+        },
+        "color": "Green",
+        "brand": "Nepal Spices",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "cardamom.jpg",
+          "originalName": "cardamom.jpg",
+          "path": "/images/cardamom.jpg",
+          "url": "https://example.com/images/cardamom.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a68",
+          "uploadDate": "2025-08-31T04:35:01.363Z"
+        }
+      ],
+      "tags": [
+        "cardamom",
+        "organic",
+        "spices",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "organic-cardamom"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.363Z",
+      "updatedAt": "2025-08-31T04:35:01.364Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a6a",
+      "name": "Basmati Rice",
+      "description": "Premium quality basmati rice imported from India",
+      "category": "Grains & Pulses",
+      "subcategory": "Rice",
+      "price": 150,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 500,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a6b",
+          "lastUpdated": "2025-08-31T04:35:01.420Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 1000,
+          "unit": "g"
+        },
+        "brand": "Nepal Grains",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "basmati_rice.jpg",
+          "originalName": "basmati_rice.jpg",
+          "path": "/images/basmati_rice.jpg",
+          "url": "https://example.com/images/basmati_rice.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a6c",
+          "uploadDate": "2025-08-31T04:35:01.421Z"
+        }
+      ],
+      "tags": [
+        "basmati",
+        "rice",
+        "grains",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "basmati-rice"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.421Z",
+      "updatedAt": "2025-08-31T04:35:01.421Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a6e",
+      "name": "Himalayan Herbal Tea",
+      "description": "Blend of Himalayan herbs for a refreshing and healthy tea",
+      "category": "Beverages",
+      "subcategory": "Tea",
+      "price": 400,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 120,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a6f",
+          "lastUpdated": "2025-08-31T04:35:01.474Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 100,
+          "unit": "g"
+        },
+        "brand": "Nepal Tea House",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "herbal_tea.jpg",
+          "originalName": "herbal_tea.jpg",
+          "path": "/images/herbal_tea.jpg",
+          "url": "https://example.com/images/herbal_tea.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a70",
+          "uploadDate": "2025-08-31T04:35:01.475Z"
+        }
+      ],
+      "tags": [
+        "herbal",
+        "tea",
+        "himalayan",
+        "healthy"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "himalayan-herbal-tea"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.475Z",
+      "updatedAt": "2025-08-31T04:35:01.475Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a72",
+      "name": "Mixed Dry Fruits",
+      "description": "Assorted premium dry fruits for healthy snacking",
+      "category": "Snacks & Sweets",
+      "subcategory": "Dry Fruits",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0da74da8ca0c270fd30",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 90,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a73",
+          "lastUpdated": "2025-08-31T04:35:01.529Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 500,
+          "unit": "g"
+        },
+        "brand": "Nepal Nuts",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "dry_fruits.jpg",
+          "originalName": "dry_fruits.jpg",
+          "path": "/images/dry_fruits.jpg",
+          "url": "https://example.com/images/dry_fruits.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a74",
+          "uploadDate": "2025-08-31T04:35:01.529Z"
+        }
+      ],
+      "tags": [
+        "dry fruits",
+        "snacks",
+        "healthy",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "mixed-dry-fruits"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.529Z",
+      "updatedAt": "2025-08-31T04:35:01.530Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a76",
+      "name": "Wireless Bluetooth Headphones",
+      "description": "High-quality wireless headphones with noise cancellation",
+      "category": "Electronics",
+      "subcategory": "Audio",
+      "price": 2500,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 30,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a77",
+          "lastUpdated": "2025-08-31T04:35:01.582Z"
+        }
+      ],
+      "specifications": {
+        "color": "Black",
+        "brand": "TechSound",
+        "model": "WS-500",
+        "warranty": {
+          "duration": 12,
+          "unit": "months",
+          "terms": "1-year warranty on manufacturing defects"
+        },
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "wireless_headphones.jpg",
+          "originalName": "wireless_headphones.jpg",
+          "path": "/images/wireless_headphones.jpg",
+          "url": "https://example.com/images/wireless_headphones.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a78",
+          "uploadDate": "2025-08-31T04:35:01.582Z"
+        }
+      ],
+      "tags": [
+        "wireless",
+        "bluetooth",
+        "headphones",
+        "audio"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "wireless-bluetooth-headphones"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.582Z",
+      "updatedAt": "2025-08-31T04:35:01.583Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a7a",
+      "name": "Modern Wooden Dining Table",
+      "description": "Elegant 6-seater dining table made from sustainable wood",
+      "category": "Furniture",
+      "subcategory": "Dining",
+      "price": 15000,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 10,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a7b",
+          "lastUpdated": "2025-08-31T04:35:01.631Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 180,
+          "width": 90,
+          "height": 75,
+          "unit": "cm"
+        },
+        "color": "Natural Wood",
+        "material": "Teak Wood",
+        "brand": "Nepal Furniture Co.",
+        "warranty": {
+          "duration": 24,
+          "unit": "months",
+          "terms": "2-year warranty on structural integrity"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "dining_table.jpg",
+          "originalName": "dining_table.jpg",
+          "path": "/images/dining_table.jpg",
+          "url": "https://example.com/images/dining_table.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a7c",
+          "uploadDate": "2025-08-31T04:35:01.632Z"
+        }
+      ],
+      "tags": [
+        "dining",
+        "wooden",
+        "furniture",
+        "table"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "modern-wooden-dining-table"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.632Z",
+      "updatedAt": "2025-08-31T04:35:01.632Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a7e",
+      "name": "Traditional Dhaka Top",
+      "description": "Handwoven traditional Nepali dhaka top with intricate patterns",
+      "category": "Clothing",
+      "subcategory": "Ethnic Wear",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 50,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a7f",
+          "lastUpdated": "2025-08-31T04:35:01.681Z"
+        }
+      ],
+      "specifications": {
+        "color": "Multicolor",
+        "material": "Cotton",
+        "brand": "Nepali Textiles",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "dhaka_top.jpg",
+          "originalName": "dhaka_top.jpg",
+          "path": "/images/dhaka_top.jpg",
+          "url": "https://example.com/images/dhaka_top.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a80",
+          "uploadDate": "2025-08-31T04:35:01.681Z"
+        }
+      ],
+      "tags": [
+        "traditional",
+        "dhaka",
+        "ethnic",
+        "women"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "traditional-dhaka-top"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.682Z",
+      "updatedAt": "2025-08-31T04:35:01.682Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a82",
+      "name": "Handcrafted Leather Boots",
+      "description": "Premium leather boots made by skilled artisans in Nepal",
+      "category": "Footwear",
+      "subcategory": "Boots",
+      "price": 3500,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 25,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a83",
+          "lastUpdated": "2025-08-31T04:35:01.733Z"
+        }
+      ],
+      "specifications": {
+        "color": "Brown",
+        "material": "Genuine Leather",
+        "brand": "Nepal Leather Works",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "leather_boots.jpg",
+          "originalName": "leather_boots.jpg",
+          "path": "/images/leather_boots.jpg",
+          "url": "https://example.com/images/leather_boots.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a84",
+          "uploadDate": "2025-08-31T04:35:01.733Z"
+        }
+      ],
+      "tags": [
+        "leather",
+        "boots",
+        "handcrafted",
+        "footwear"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "handcrafted-leather-boots"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.733Z",
+      "updatedAt": "2025-08-31T04:35:01.734Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a86",
+      "name": "Pashmina Shawl",
+      "description": "Luxurious 100% pure pashmina shawl from Nepal",
+      "category": "Accessories",
+      "subcategory": "Scarves",
+      "price": 4500,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 40,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a87",
+          "lastUpdated": "2025-08-31T04:35:01.791Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 80,
+          "width": 200,
+          "unit": "cm"
+        },
+        "color": "Royal Blue",
+        "material": "100% Pashmina",
+        "brand": "Nepal Pashmina House",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "pashmina_shawl.jpg",
+          "originalName": "pashmina_shawl.jpg",
+          "path": "/images/pashmina_shawl.jpg",
+          "url": "https://example.com/images/pashmina_shawl.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a88",
+          "uploadDate": "2025-08-31T04:35:01.791Z"
+        }
+      ],
+      "tags": [
+        "pashmina",
+        "shawl",
+        "luxury",
+        "accessory"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "pashmina-shawl"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.791Z",
+      "updatedAt": "2025-08-31T04:35:01.792Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a8a",
+      "name": "Nepali Folk Tales",
+      "description": "Collection of traditional Nepali folk tales for all ages",
+      "category": "Books",
+      "subcategory": "Fiction",
+      "price": 500,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 100,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a8b",
+          "lastUpdated": "2025-08-31T04:35:01.854Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "folk_tales.jpg",
+          "originalName": "folk_tales.jpg",
+          "path": "/images/folk_tales.jpg",
+          "url": "https://example.com/images/folk_tales.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a8c",
+          "uploadDate": "2025-08-31T04:35:01.854Z"
+        }
+      ],
+      "tags": [
+        "folk tales",
+        "nepali",
+        "literature",
+        "stories"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "nepali-folk-tales"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.854Z",
+      "updatedAt": "2025-08-31T04:35:01.854Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a8e",
+      "name": "Yoga Mat",
+      "description": "Eco-friendly non-slip yoga mat for all types of yoga practice",
+      "category": "Sports",
+      "subcategory": "Yoga",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 60,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a8f",
+          "lastUpdated": "2025-08-31T04:35:01.904Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "length": 173,
+          "width": 61,
+          "unit": "cm"
+        },
+        "color": "Purple",
+        "material": "Natural Rubber",
+        "brand": "Nepal Sports Gear",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "yoga_mat.jpg",
+          "originalName": "yoga_mat.jpg",
+          "path": "/images/yoga_mat.jpg",
+          "url": "https://example.com/images/yoga_mat.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a90",
+          "uploadDate": "2025-08-31T04:35:01.905Z"
+        }
+      ],
+      "tags": [
+        "yoga",
+        "fitness",
+        "eco-friendly",
+        "sports"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "yoga-mat"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.905Z",
+      "updatedAt": "2025-08-31T04:35:01.905Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f542d87571ea6b8a92",
+      "name": "Handwoven Basket Set",
+      "description": "Set of 3 handwoven baskets made from locally sourced materials",
+      "category": "Home & Garden",
+      "subcategory": "Storage",
+      "price": 1800,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 35,
+          "reservedStock": 0,
+          "_id": "68b3d0f542d87571ea6b8a93",
+          "lastUpdated": "2025-08-31T04:35:01.955Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "unit": "cm"
+        },
+        "color": "Natural",
+        "material": "Bamboo and Grass",
+        "brand": "Nepal Handicrafts",
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "basket_set.jpg",
+          "originalName": "basket_set.jpg",
+          "path": "/images/basket_set.jpg",
+          "url": "https://example.com/images/basket_set.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f542d87571ea6b8a94",
+          "uploadDate": "2025-08-31T04:35:01.956Z"
+        }
+      ],
+      "tags": [
+        "handwoven",
+        "basket",
+        "storage",
+        "home"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "handwoven-basket-set"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:01.956Z",
+      "updatedAt": "2025-08-31T04:35:01.956Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f642d87571ea6b8a96",
+      "name": "Car Air Freshener",
+      "description": "Long-lasting aromatic car air freshener with traditional Nepali scents",
+      "category": "Automotive",
+      "subcategory": "Accessories",
+      "price": 300,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 200,
+          "reservedStock": 0,
+          "_id": "68b3d0f642d87571ea6b8a97",
+          "lastUpdated": "2025-08-31T04:35:02.006Z"
+        }
+      ],
+      "specifications": {
+        "color": "Green",
+        "brand": "Nepal Automotive",
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "air_freshener.jpg",
+          "originalName": "air_freshener.jpg",
+          "path": "/images/air_freshener.jpg",
+          "url": "https://example.com/images/air_freshener.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f642d87571ea6b8a98",
+          "uploadDate": "2025-08-31T04:35:02.007Z"
+        }
+      ],
+      "tags": [
+        "air freshener",
+        "aromatic",
+        "car",
+        "automotive"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "car-air-freshener"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:02.007Z",
+      "updatedAt": "2025-08-31T04:35:02.007Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f642d87571ea6b8a9a",
+      "name": "Himalayan Salt Soap",
+      "description": "Natural soap made with Himalayan salt and herbal extracts",
+      "category": "Health & Beauty",
+      "subcategory": "Skincare",
+      "price": 250,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 150,
+          "reservedStock": 0,
+          "_id": "68b3d0f642d87571ea6b8a9b",
+          "lastUpdated": "2025-08-31T04:35:02.056Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 150,
+          "unit": "g"
+        },
+        "brand": "Nepal Natural Care",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "salt_soap.jpg",
+          "originalName": "salt_soap.jpg",
+          "path": "/images/salt_soap.jpg",
+          "url": "https://example.com/images/salt_soap.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f642d87571ea6b8a9c",
+          "uploadDate": "2025-08-31T04:35:02.056Z"
+        }
+      ],
+      "tags": [
+        "himalayan",
+        "salt",
+        "soap",
+        "natural",
+        "skincare"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "himalayan-salt-soap"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:02.057Z",
+      "updatedAt": "2025-08-31T04:35:02.057Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f642d87571ea6b8a9e",
+      "name": "Organic Cardamom",
+      "description": "Premium quality organic cardamom pods from Nepal",
+      "category": "Spices & Herbs",
+      "subcategory": "Spices",
+      "price": 800,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 80,
+          "reservedStock": 0,
+          "_id": "68b3d0f642d87571ea6b8a9f",
+          "lastUpdated": "2025-08-31T04:35:02.111Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 100,
+          "unit": "g"
+        },
+        "color": "Green",
+        "brand": "Nepal Spices",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "cardamom.jpg",
+          "originalName": "cardamom.jpg",
+          "path": "/images/cardamom.jpg",
+          "url": "https://example.com/images/cardamom.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f642d87571ea6b8aa0",
+          "uploadDate": "2025-08-31T04:35:02.112Z"
+        }
+      ],
+      "tags": [
+        "cardamom",
+        "organic",
+        "spices",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "organic-cardamom"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:02.112Z",
+      "updatedAt": "2025-08-31T04:35:02.112Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f642d87571ea6b8aa2",
+      "name": "Basmati Rice",
+      "description": "Premium quality basmati rice imported from India",
+      "category": "Grains & Pulses",
+      "subcategory": "Rice",
+      "price": 150,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Koshi",
+          "district": "Biratnagar",
+          "stock": 500,
+          "reservedStock": 0,
+          "_id": "68b3d0f642d87571ea6b8aa3",
+          "lastUpdated": "2025-08-31T04:35:02.163Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 1000,
+          "unit": "g"
+        },
+        "brand": "Nepal Grains",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "basmati_rice.jpg",
+          "originalName": "basmati_rice.jpg",
+          "path": "/images/basmati_rice.jpg",
+          "url": "https://example.com/images/basmati_rice.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f642d87571ea6b8aa4",
+          "uploadDate": "2025-08-31T04:35:02.163Z"
+        }
+      ],
+      "tags": [
+        "basmati",
+        "rice",
+        "grains",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "basmati-rice"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:02.163Z",
+      "updatedAt": "2025-08-31T04:35:02.163Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f642d87571ea6b8aa6",
+      "name": "Himalayan Herbal Tea",
+      "description": "Blend of Himalayan herbs for a refreshing and healthy tea",
+      "category": "Beverages",
+      "subcategory": "Tea",
+      "price": 400,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Bagmati",
+          "district": "Kathmandu",
+          "stock": 120,
+          "reservedStock": 0,
+          "_id": "68b3d0f642d87571ea6b8aa7",
+          "lastUpdated": "2025-08-31T04:35:02.215Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 100,
+          "unit": "g"
+        },
+        "brand": "Nepal Tea House",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "herbal_tea.jpg",
+          "originalName": "herbal_tea.jpg",
+          "path": "/images/herbal_tea.jpg",
+          "url": "https://example.com/images/herbal_tea.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f642d87571ea6b8aa8",
+          "uploadDate": "2025-08-31T04:35:02.215Z"
+        }
+      ],
+      "tags": [
+        "herbal",
+        "tea",
+        "himalayan",
+        "healthy"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "himalayan-herbal-tea"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:02.215Z",
+      "updatedAt": "2025-08-31T04:35:02.215Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0f642d87571ea6b8aaa",
+      "name": "Mixed Dry Fruits",
+      "description": "Assorted premium dry fruits for healthy snacking",
+      "category": "Snacks & Sweets",
+      "subcategory": "Dry Fruits",
+      "price": 1200,
+      "currency": "NPR",
+      "vendorId": "68b3d0db74da8ca0c270fd33",
+      "availability": [
+        {
+          "province": "Gandaki",
+          "district": "Pokhara",
+          "stock": 90,
+          "reservedStock": 0,
+          "_id": "68b3d0f642d87571ea6b8aab",
+          "lastUpdated": "2025-08-31T04:35:02.270Z"
+        }
+      ],
+      "specifications": {
+        "weight": {
+          "value": 500,
+          "unit": "g"
+        },
+        "brand": "Nepal Nuts",
+        "dimensions": {
+          "unit": "cm"
+        }
+      },
+      "images": [
+        {
+          "filename": "dry_fruits.jpg",
+          "originalName": "dry_fruits.jpg",
+          "path": "/images/dry_fruits.jpg",
+          "url": "https://example.com/images/dry_fruits.jpg",
+          "isPrimary": true,
+          "_id": "68b3d0f642d87571ea6b8aac",
+          "uploadDate": "2025-08-31T04:35:02.270Z"
+        }
+      ],
+      "tags": [
+        "dry fruits",
+        "snacks",
+        "healthy",
+        "premium"
+      ],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "mixed-dry-fruits"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T04:35:02.270Z",
+      "updatedAt": "2025-08-31T04:35:02.271Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b4331303c7d757e4d5715f",
+      "name": "Diet Coke",
+      "description": "Diet coke® is the perfect balance of crisp and refreshing, with no sugar and no calories. Some say it is better in the can – shielded from light and ...",
+      "category": "Beverages",
+      "price": 190,
+      "currency": "INR",
+      "vendorId": "68b3d32cae90818023fde62d",
+      "availability": [
+        {
+          "centerId": "68b3d32cae90818023fde62d",
+          "province": "4",
+          "district": "39",
+          "stock": 500,
+          "reservedStock": 0,
+          "_id": "68b4331303c7d757e4d57160",
+          "lastUpdated": "2025-08-31T11:33:39.847Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "image_1",
+          "originalName": "image_1",
+          "path": "https://136975773.cdn6.editmysite.com/uploads/1/3/6/9/136975773/ABSYCBLIM6I5ECF7HKM73I3I.png",
+          "url": "https://136975773.cdn6.editmysite.com/uploads/1/3/6/9/136975773/ABSYCBLIM6I5ECF7HKM73I3I.png",
+          "isPrimary": true,
+          "_id": "68b4331303c7d757e4d57161",
+          "uploadDate": "2025-08-31T11:33:39.848Z"
+        }
+      ],
+      "tags": [],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "diet-coke"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T11:33:39.848Z",
+      "updatedAt": "2025-08-31T11:33:39.866Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b4350b03c7d757e4d571c9",
+      "name": "Monster Green",
+      "description": "Monster The Beast™ Unleashed Mean Green™ Flavored Hard Beverage Single Can, 16 fl oz - Gerbes",
+      "category": "Beverages",
+      "price": 250,
+      "currency": "INR",
+      "vendorId": "68b3d32cae90818023fde62d",
+      "availability": [
+        {
+          "centerId": "68b3d32cae90818023fde62d",
+          "province": "4",
+          "district": "39",
+          "stock": 400,
+          "reservedStock": 0,
+          "_id": "68b4350b03c7d757e4d571ca",
+          "lastUpdated": "2025-08-31T11:42:03.182Z"
+        }
+      ],
+      "specifications": {
+        "dimensions": {
+          "unit": "cm"
+        },
+        "weight": {
+          "unit": "kg"
+        }
+      },
+      "images": [
+        {
+          "filename": "image_1",
+          "originalName": "image_1",
+          "path": "https://www.kroger.com/product/images/xlarge/front/0081011713001",
+          "url": "https://www.kroger.com/product/images/xlarge/front/0081011713001",
+          "isPrimary": true,
+          "_id": "68b4350b03c7d757e4d571cb",
+          "uploadDate": "2025-08-31T11:42:03.182Z"
+        }
+      ],
+      "tags": [],
+      "status": "available",
+      "ratings": {
+        "average": 0,
+        "count": 0
+      },
+      "salesData": {
+        "totalSold": 0,
+        "revenue": 0
+      },
+      "seo": {
+        "keywords": [],
+        "slug": "monster-green"
+      },
+      "isActive": true,
+      "createdAt": "2025-08-31T11:42:03.182Z",
+      "updatedAt": "2025-08-31T11:42:03.184Z",
+      "__v": 0
+    }
+  ],
+  "conversations": [
+    {
+      "_id": "68b3d0db74da8ca0c270fd53",
+      "participants": [
+        {
+          "user": "68b3d0d774da8ca0c270fd1d",
+          "role": "CENTER",
+          "_id": "68b3d0db74da8ca0c270fd54",
+          "joinedAt": "2025-08-31T04:34:35.978Z",
+          "lastSeen": "2025-08-31T04:34:35.978Z"
+        },
+        {
+          "user": "68b3d0d974da8ca0c270fd27",
+          "role": "VENDOR",
+          "_id": "68b3d0db74da8ca0c270fd55",
+          "joinedAt": "2025-08-31T04:34:35.978Z",
+          "lastSeen": "2025-08-31T04:34:35.978Z"
+        }
+      ],
+      "conversationType": "VENDOR_CENTER",
+      "title": "Spice Order Discussion",
+      "lastMessage": {
+        "content": "Thank you for the quick response!",
+        "sender": "68b3d0d774da8ca0c270fd1d",
+        "timestamp": "2025-08-31T04:34:35.977Z",
+        "messageType": "text"
+      },
+      "isActive": true,
+      "isArchived": false,
+      "settings": {
+        "notifications": true,
+        "autoArchive": false,
+        "retentionDays": 365
+      },
+      "metadata": {
+        "totalMessages": 0,
+        "lastActivityAt": "2025-08-31T04:34:35.978Z"
+      },
+      "unreadCount": [],
+      "archivedBy": [],
+      "createdAt": "2025-08-31T04:34:35.978Z",
+      "updatedAt": "2025-08-31T04:34:35.979Z",
+      "__v": 0
+    }
+  ],
+  "messages": [
+    {
+      "_id": "68b3d0dc74da8ca0c270fd57",
+      "conversationId": "68b3d0db74da8ca0c270fd53",
+      "sender": "68b3d0d774da8ca0c270fd1d",
+      "receiver": "68b3d0d974da8ca0c270fd27",
+      "content": "Hello, we're interested in ordering turmeric powder in bulk.",
+      "messageType": "text",
+      "isRead": false,
+      "isEdited": false,
+      "isDeleted": false,
+      "priority": "MEDIUM",
+      "tags": [],
+      "attachments": [],
+      "reactions": [],
+      "createdAt": "2025-08-31T04:34:36.050Z",
+      "updatedAt": "2025-08-31T04:34:36.051Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0dc74da8ca0c270fd59",
+      "conversationId": "68b3d0db74da8ca0c270fd53",
+      "sender": "68b3d0d974da8ca0c270fd27",
+      "receiver": "68b3d0d774da8ca0c270fd1d",
+      "content": "Thank you for your interest! We can offer competitive prices for bulk orders. How many units are you looking for?",
+      "messageType": "text",
+      "isRead": false,
+      "isEdited": false,
+      "isDeleted": false,
+      "priority": "MEDIUM",
+      "tags": [],
+      "attachments": [],
+      "reactions": [],
+      "createdAt": "2025-08-31T04:34:36.120Z",
+      "updatedAt": "2025-08-31T04:34:36.120Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0dc74da8ca0c270fd5b",
+      "conversationId": "68b3d0db74da8ca0c270fd53",
+      "sender": "68b3d0d774da8ca0c270fd1d",
+      "receiver": "68b3d0d974da8ca0c270fd27",
+      "content": "We need around 100 units. What's your best price?",
+      "messageType": "text",
+      "isRead": false,
+      "isEdited": false,
+      "isDeleted": false,
+      "priority": "MEDIUM",
+      "tags": [],
+      "attachments": [],
+      "reactions": [],
+      "createdAt": "2025-08-31T04:34:36.189Z",
+      "updatedAt": "2025-08-31T04:34:36.189Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0dc74da8ca0c270fd5d",
+      "conversationId": "68b3d0db74da8ca0c270fd53",
+      "sender": "68b3d0d974da8ca0c270fd27",
+      "receiver": "68b3d0d774da8ca0c270fd1d",
+      "content": "For 100 units, we can offer NPR 200 per unit. This includes free delivery within Kathmandu.",
+      "messageType": "text",
+      "isRead": false,
+      "isEdited": false,
+      "isDeleted": false,
+      "priority": "MEDIUM",
+      "tags": [],
+      "attachments": [],
+      "reactions": [],
+      "createdAt": "2025-08-31T04:34:36.259Z",
+      "updatedAt": "2025-08-31T04:34:36.259Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0dc74da8ca0c270fd5f",
+      "conversationId": "68b3d0db74da8ca0c270fd53",
+      "sender": "68b3d0d774da8ca0c270fd1d",
+      "receiver": "68b3d0d974da8ca0c270fd27",
+      "content": "That sounds great! Thank you for the quick response!",
+      "messageType": "text",
+      "isRead": false,
+      "isEdited": false,
+      "isDeleted": false,
+      "priority": "MEDIUM",
+      "tags": [],
+      "attachments": [],
+      "reactions": [],
+      "createdAt": "2025-08-31T04:34:36.331Z",
+      "updatedAt": "2025-08-31T04:34:36.331Z",
+      "__v": 0
+    }
+  ],
+  "notifications": [
+    {
+      "_id": "68b3d0dc74da8ca0c270fd61",
+      "recipient": "68b3d0d974da8ca0c270fd27",
+      "type": "MESSAGE",
+      "title": "New Message",
+      "message": "You have a new message from Kathmandu Distribution Center",
+      "relatedId": null,
+      "isRead": false,
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:36.404Z",
+      "updatedAt": "2025-08-31T04:34:36.404Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0dc74da8ca0c270fd63",
+      "recipient": "68b3d0d774da8ca0c270fd1f",
+      "type": "MESSAGE",
+      "title": "New Message",
+      "message": "You have a new message from Trekking Gear Nepal",
+      "relatedId": null,
+      "isRead": false,
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:36.472Z",
+      "updatedAt": "2025-08-31T04:34:36.472Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0dc74da8ca0c270fd65",
+      "recipient": "68b3d0d674da8ca0c270fd1b",
+      "type": "SYSTEM",
+      "title": "System Update",
+      "message": "Database has been successfully seeded with sample data",
+      "isRead": true,
+      "isActive": true,
+      "createdAt": "2025-08-31T04:34:36.544Z",
+      "updatedAt": "2025-08-31T04:34:36.544Z",
+      "__v": 0,
+      "readAt": "2025-08-31T04:56:19.797Z"
+    },
+    {
+      "_id": "68b3d32cae90818023fde631",
+      "recipient": "68b3d0d674da8ca0c270fd1b",
+      "sender": "68b3d32cae90818023fde62d",
+      "type": "CENTER_APPLICATION",
+      "title": "New Center Application",
+      "message": "Lamjung Local Beverage Co. has applied to join the platform as a distribution center.",
+      "relatedId": "68b3d32cae90818023fde62d",
+      "onModel": "User",
+      "isRead": true,
+      "isActive": true,
+      "createdAt": "2025-08-31T04:44:28.757Z",
+      "updatedAt": "2025-08-31T04:44:28.757Z",
+      "__v": 0,
+      "readAt": "2025-08-31T04:56:19.797Z"
+    },
+    {
+      "_id": "68b3d364ae90818023fde67a",
+      "recipient": "68b3d32cae90818023fde62d",
+      "sender": "68b3d0d674da8ca0c270fd1b",
+      "type": "STATUS_UPDATE",
+      "title": "Application Approved",
+      "message": "Congratulations! Your center application has been approved. Your Center ID is: 68b3d32cae90818023fde62d. You can now access all center features.",
+      "relatedId": "68b3d32cae90818023fde62d",
+      "onModel": "User",
+      "isRead": false,
+      "isActive": true,
+      "createdAt": "2025-08-31T04:45:24.233Z",
+      "updatedAt": "2025-08-31T04:45:24.234Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d5e64e661441ed47e57f",
+      "recipient": "68b3d0d674da8ca0c270fd1b",
+      "sender": "68b3d5e64e661441ed47e57a",
+      "type": "VENDOR_APPLICATION",
+      "title": "New Vendor Application",
+      "message": "Beverage Industry Pvt.Ltd has applied to join the platform.",
+      "relatedId": "68b3d5e64e661441ed47e57a",
+      "onModel": "User",
+      "isRead": true,
+      "isActive": true,
+      "createdAt": "2025-08-31T04:56:06.948Z",
+      "updatedAt": "2025-08-31T04:56:06.948Z",
+      "__v": 0,
+      "readAt": "2025-08-31T04:56:19.797Z"
+    },
+    {
+      "_id": "68b3d5fe4e661441ed47e59d",
+      "recipient": "68b3d5e64e661441ed47e57a",
+      "sender": "68b3d0d674da8ca0c270fd1b",
+      "type": "STATUS_UPDATE",
+      "title": "Application Approved",
+      "message": "Congratulations! Your vendor application has been approved. Your Vendor ID is: 68b3d5e64e661441ed47e57a. You can now access all vendor features and start listing your products.",
+      "relatedId": "68b3d5e64e661441ed47e57a",
+      "onModel": "User",
+      "isRead": false,
+      "isActive": true,
+      "createdAt": "2025-08-31T04:56:30.022Z",
+      "updatedAt": "2025-08-31T04:56:30.023Z",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d7f54518531391725a35",
+      "recipient": "68b3d0d674da8ca0c270fd1b",
+      "sender": "68b3d7f54518531391725a31",
+      "type": "CENTER_APPLICATION",
+      "title": "New Center Application",
+      "message": "Home made crotches has applied to join the platform as a distribution center.",
+      "relatedId": "68b3d7f54518531391725a31",
+      "onModel": "User",
+      "isRead": true,
+      "isActive": true,
+      "createdAt": "2025-08-31T05:04:53.981Z",
+      "updatedAt": "2025-08-31T05:04:53.981Z",
+      "__v": 0,
+      "readAt": "2025-08-31T05:18:49.353Z"
+    },
+    {
+      "_id": "68b3d8174518531391725a87",
+      "recipient": "68b3d7f54518531391725a31",
+      "sender": "68b3d0d674da8ca0c270fd1b",
+      "type": "STATUS_UPDATE",
+      "title": "Application Approved",
+      "message": "Congratulations! Your center application has been approved. Your Center ID is: 68b3d7f54518531391725a31. You can now access all center features.",
+      "relatedId": "68b3d7f54518531391725a31",
+      "onModel": "User",
+      "isRead": false,
+      "isActive": true,
+      "createdAt": "2025-08-31T05:05:27.009Z",
+      "updatedAt": "2025-08-31T05:05:27.009Z",
+      "__v": 0
+    }
+  ],
+  "orders": [
+    {
+      "_id": "68b3d0dc74da8ca0c270fd67",
+      "centerId": "68b3d0d774da8ca0c270fd1d",
+      "vendorId": "68b3d0d974da8ca0c270fd27",
+      "items": [
+        {
+          "productId": "68b3d0db74da8ca0c270fd36",
+          "productName": "Organic Turmeric Powder",
+          "quantity": 50,
+          "unitPrice": 250,
+          "totalPrice": 12500,
+          "_id": "68b3d0dc74da8ca0c270fd68"
+        },
+        {
+          "productId": "68b3d0db74da8ca0c270fd3b",
+          "productName": "Himalayan Black Tea",
+          "quantity": 20,
+          "unitPrice": 800,
+          "totalPrice": 16000,
+          "_id": "68b3d0dc74da8ca0c270fd69"
+        }
+      ],
+      "orderSummary": {
+        "subtotal": 28500,
+        "tax": {
+          "rate": 13,
+          "amount": 3705
+        },
+        "shipping": {
+          "method": "Standard",
+          "cost": 500
+        },
+        "discount": {
+          "type": "percentage",
+          "value": 5,
+          "amount": 1425
+        },
+        "totalAmount": 31280,
+        "adminCommission": {
+          "amount": 0,
+          "percentage": 0
+        }
+      },
+      "status": "CONFIRMED",
+      "deliveryDetails": {
+        "expectedDate": "2025-09-07T04:34:36.615Z",
+        "address": {
+          "street": "123 Distribution Street",
+          "city": "Kathmandu",
+          "state": "Bagmati",
+          "pincode": "44600",
+          "country": "Nepal"
+        },
+        "instructions": "Please deliver during business hours"
+      },
+      "payment": {
+        "method": "Bank Transfer",
+        "status": "COMPLETED",
+        "transactionId": "TXN123456789",
+        "paidAmount": 31280,
+        "paidDate": "2025-08-31T04:34:36.615Z",
+        "dueDate": "2025-09-30T04:34:36.615Z"
+      },
+      "priority": "HIGH",
+      "tags": [
+        "spices",
+        "organic",
+        "bulk"
+      ],
+      "notes": "First order from this center",
+      "isActive": true,
+      "statusHistory": [],
+      "communication": [],
+      "attachments": [],
+      "createdAt": "2025-08-31T04:34:36.617Z",
+      "updatedAt": "2025-08-31T04:34:36.682Z",
+      "orderNumber": "ORD-000001",
+      "__v": 0
+    },
+    {
+      "_id": "68b3d0dc74da8ca0c270fd6c",
+      "centerId": "68b3d0d774da8ca0c270fd1f",
+      "vendorId": "68b3d0d974da8ca0c270fd2a",
+      "items": [
+        {
+          "productId": "68b3d0db74da8ca0c270fd3f",
+          "productName": "Trekking Backpack 40L",
+          "quantity": 10,
+          "unitPrice": 2500,
+          "totalPrice": 25000,
+          "specifications": {
+            "color": "Black",
+            "size": "40L"
+          },
+          "_id": "68b3d0dc74da8ca0c270fd6d"
+        }
+      ],
+      "orderSummary": {
+        "subtotal": 25000,
+        "tax": {
+          "rate": 13,
+          "amount": 3250
+        },
+        "shipping": {
+          "method": "Express",
+          "cost": 1000
+        },
+        "discount": {
+          "type": "fixed",
+          "value": 0,
+          "amount": 0
+        },
+        "totalAmount": 29250,
+        "adminCommission": {
+          "amount": 0,
+          "percentage": 0
+        }
+      },
+      "status": "PENDING",
+      "deliveryDetails": {
+        "expectedDate": "2025-09-05T04:34:36.752Z",
+        "address": {
+          "street": "456 Mountain View",
+          "city": "Pokhara",
+          "state": "Gandaki",
+          "pincode": "33700",
+          "country": "Nepal"
+        },
+        "instructions": "Deliver to the warehouse"
+      },
+      "payment": {
+        "method": "Credit Card",
+        "status": "PENDING",
+        "transactionId": null,
+        "paidAmount": 0,
+        "paidDate": null,
+        "dueDate": "2025-09-30T04:34:36.752Z"
+      },
+      "priority": "MEDIUM",
+      "tags": [
+        "trekking",
+        "outdoor"
+      ],
+      "notes": "Bulk order for staff",
+      "isActive": true,
+      "statusHistory": [],
+      "communication": [],
+      "attachments": [],
+      "createdAt": "2025-08-31T04:34:36.754Z",
+      "updatedAt": "2025-08-31T04:34:36.818Z",
+      "orderNumber": "ORD-000002",
+      "__v": 0
+    }
+  ]
+}

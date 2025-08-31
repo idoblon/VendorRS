@@ -10,6 +10,7 @@ const {
   validatePagination,
 } = require("../middleware/validation");
 const Product = require("../models/Product");
+const User = require("../models/User");
 const mongoose = require("mongoose");
 const fs = require("fs");
 const path = require("path");
@@ -114,6 +115,7 @@ router.get("/", authenticate, validatePagination, async (req, res) => {
 
     let products = await Product.find(query)
       .populate("vendorId", "name businessName email phone")
+      .populate("availability.centerId", "name location code")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -215,12 +217,12 @@ router.get("/:id", authenticate, validateObjectId("id"), async (req, res) => {
 });
 
 // @route   POST /api/products
-// @desc    Create new product (Vendor only)
-// @access  Private (Vendor)
+// @desc    Create new product (Center or Vendor)
+// @access  Private (Center or Vendor)
 router.post(
   "/",
   authenticate,
-  authorize("VENDOR"),
+  authorize("VENDOR", "CENTER"),
   requireApproval,
   validateProduct,
   async (req, res) => {
@@ -237,19 +239,32 @@ router.post(
         tags,
       } = req.body;
 
-      // Verify that all specified centers exist
-      const centerIds = availability.map((item) => item.centerId);
-      const existingCenters = await DistributionCenter.find({
-        _id: { $in: centerIds },
-        isActive: true,
-        status: "active",
-      });
-
-      if (existingCenters.length !== centerIds.length) {
-        return res.status(400).json({
-          success: false,
-          message: "One or more distribution centers are invalid or inactive",
+      // For centers creating products, validate that the center exists as a user
+      if (req.user.role === "CENTER") {
+        // Centers can only create products for themselves
+        const centerAvailability = availability.find(item => item.centerId === req.user._id.toString());
+        if (!centerAvailability) {
+          return res.status(400).json({
+            success: false,
+            message: "Center must include their own centerId in availability",
+          });
+        }
+      } else if (req.user.role === "VENDOR") {
+        // For vendors, validate that specified centers exist as users with CENTER role
+        const centerIds = availability.map((item) => item.centerId);
+        const existingCenters = await User.find({
+          _id: { $in: centerIds },
+          role: "CENTER",
+          isActive: true,
+          status: "APPROVED",
         });
+
+        if (existingCenters.length !== centerIds.length) {
+          return res.status(400).json({
+            success: false,
+            message: "One or more centers are invalid or inactive",
+          });
+        }
       }
 
       // Create product
@@ -329,11 +344,13 @@ router.put(
       if (subcategory) product.subcategory = subcategory;
       if (price) product.price = price;
       if (availability) {
-        // Verify centers exist
+        // Verify centers exist as users with CENTER role
         const centerIds = availability.map((item) => item.centerId);
-        const existingCenters = await DistributionCenter.find({
+        const existingCenters = await User.find({
           _id: { $in: centerIds },
+          role: "CENTER",
           isActive: true,
+          status: "APPROVED",
         });
 
         if (existingCenters.length === centerIds.length) {

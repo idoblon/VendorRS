@@ -210,9 +210,9 @@ router.post(
           filename: req.file.filename,
           originalName: req.file.originalname,
           path: req.file.path,
-          size: req.file.size
+          size: req.file.size,
         });
-        
+
         user.documents = user.documents || [];
         user.documents.push({
           filename: req.file.filename,
@@ -220,11 +220,11 @@ router.post(
           path: req.file.path,
           uploadDate: new Date(),
         });
-        
+
         console.log("Document metadata saved to user:", {
           userId: user._id,
           documentsCount: user.documents.length,
-          documents: user.documents
+          documents: user.documents,
         });
       } else {
         console.log("No file uploaded in this request");

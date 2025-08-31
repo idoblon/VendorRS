@@ -63,7 +63,7 @@ const addMoreProducts = async () => {
             filename: "wireless_headphones.jpg",
             originalName: "wireless_headphones.jpg",
             path: "/images/wireless_headphones.jpg",
-            url: "https://example.com/images/wireless_headphones.jpg",
+            url: "/image/placeholder.svg",
             isPrimary: true
           }
         ],
@@ -107,7 +107,7 @@ const addMoreProducts = async () => {
             filename: "dining_table.jpg",
             originalName: "dining_table.jpg",
             path: "/images/dining_table.jpg",
-            url: "https://example.com/images/dining_table.jpg",
+            url: "/image/placeholder.svg",
             isPrimary: true
           }
         ],
@@ -141,7 +141,7 @@ const addMoreProducts = async () => {
             filename: "dhaka_top.jpg",
             originalName: "dhaka_top.jpg",
             path: "/images/dhaka_top.jpg",
-            url: "https://example.com/images/dhaka_top.jpg",
+            url: "/image/placeholder.svg",
             isPrimary: true
           }
         ],
@@ -175,7 +175,7 @@ const addMoreProducts = async () => {
             filename: "leather_boots.jpg",
             originalName: "leather_boots.jpg",
             path: "/images/leather_boots.jpg",
-            url: "https://example.com/images/leather_boots.jpg",
+            url: "/image/placeholder.svg",
             isPrimary: true
           }
         ],
@@ -213,7 +213,7 @@ const addMoreProducts = async () => {
             filename: "pashmina_shawl.jpg",
             originalName: "pashmina_shawl.jpg",
             path: "/images/pashmina_shawl.jpg",
-            url: "https://example.com/images/pashmina_shawl.jpg",
+            url: "/image/placeholder.svg",
             isPrimary: true
           }
         ],
@@ -248,7 +248,7 @@ const addMoreProducts = async () => {
             filename: "folk_tales.jpg",
             originalName: "folk_tales.jpg",
             path: "/images/folk_tales.jpg",
-            url: "https://example.com/images/folk_tales.jpg",
+            url: "/image/placeholder.svg",
             isPrimary: true
           }
         ],
@@ -286,7 +286,7 @@ const addMoreProducts = async () => {
             filename: "yoga_mat.jpg",
             originalName: "yoga_mat.jpg",
             path: "/images/yoga_mat.jpg",
-            url: "https://example.com/images/yoga_mat.jpg",
+            url: "/image/placeholder.svg",
             isPrimary: true
           }
         ],
@@ -324,7 +324,7 @@ const addMoreProducts = async () => {
             filename: "basket_set.jpg",
             originalName: "basket_set.jpg",
             path: "/images/basket_set.jpg",
-            url: "https://example.com/images/basket_set.jpg",
+            url: "/image/placeholder.svg",
             isPrimary: true
           }
         ],
@@ -358,7 +358,7 @@ const addMoreProducts = async () => {
             filename: "air_freshener.jpg",
             originalName: "air_freshener.jpg",
             path: "/images/air_freshener.jpg",
-            url: "https://example.com/images/air_freshener.jpg",
+            url: "/image/placeholder.svg",
             isPrimary: true
           }
         ],
@@ -394,7 +394,7 @@ const addMoreProducts = async () => {
             filename: "salt_soap.jpg",
             originalName: "salt_soap.jpg",
             path: "/images/salt_soap.jpg",
-            url: "https://example.com/images/salt_soap.jpg",
+            url: "/image/placeholder.svg",
             isPrimary: true
           }
         ],
@@ -431,7 +431,7 @@ const addMoreProducts = async () => {
             filename: "cardamom.jpg",
             originalName: "cardamom.jpg",
             path: "/images/cardamom.jpg",
-            url: "https://example.com/images/cardamom.jpg",
+            url: "/image/placeholder.svg",
             isPrimary: true
           }
         ],
@@ -467,7 +467,7 @@ const addMoreProducts = async () => {
             filename: "basmati_rice.jpg",
             originalName: "basmati_rice.jpg",
             path: "/images/basmati_rice.jpg",
-            url: "https://example.com/images/basmati_rice.jpg",
+            url: "/image/placeholder.svg",
             isPrimary: true
           }
         ],
@@ -503,7 +503,7 @@ const addMoreProducts = async () => {
             filename: "herbal_tea.jpg",
             originalName: "herbal_tea.jpg",
             path: "/images/herbal_tea.jpg",
-            url: "https://example.com/images/herbal_tea.jpg",
+            url: "/image/placeholder.svg",
             isPrimary: true
           }
         ],
@@ -539,7 +539,7 @@ const addMoreProducts = async () => {
             filename: "dry_fruits.jpg",
             originalName: "dry_fruits.jpg",
             path: "/images/dry_fruits.jpg",
-            url: "https://example.com/images/dry_fruits.jpg",
+            url: "/image/placeholder.svg",
             isPrimary: true
           }
         ],

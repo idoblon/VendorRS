@@ -3,6 +3,8 @@ const { authenticate, authorize, requireApproval } = require('../middleware/auth
 const { validateOrder, validateObjectId, validatePagination } = require('../middleware/validation');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const User = require('../models/User');
+const Notification = require('../models/Notification');
 const { bubbleSort, sortByField } = require('../utils/sorting');
 
 const router = express.Router();
@@ -184,11 +186,11 @@ router.post('/', authenticate, authorize('CENTER'), requireApproval, validateOrd
     }
 
     // Verify stock availability at the center
-    const center = await User.findById(req.user.centerId); // Changed to use User model for center
+    const center = await User.findById(req.user.centerId); // Center is a user with CENTER role
     if (!center) {
       return res.status(400).json({
         success: false,
-        message: 'Distribution center not found'
+        message: 'Center not found'
       });
     }
 
@@ -425,7 +427,7 @@ router.put('/:id/status', authenticate, validateObjectId('id'), async (req, res)
       }
       
       // Decrease center's current orders count
-      await DistributionCenter.updateOne(
+      await User.updateOne(
         { _id: order.centerId },
         { $inc: { 'operationalDetails.currentOrders': -1 } }
       );
@@ -436,9 +438,9 @@ router.put('/:id/status', authenticate, validateObjectId('id'), async (req, res)
     } else if (status === 'DELIVERED') {
       // Update delivery date
       order.deliveryDetails.actualDate = new Date();
-      
+
       // Decrease center's current orders count
-      await DistributionCenter.updateOne(
+      await User.updateOne(
         { _id: order.centerId },
         { $inc: { 'operationalDetails.currentOrders': -1 } }
       );
@@ -666,7 +668,7 @@ router.get('/stats/overview', authenticate, async (req, res) => {
 // vendor product order
 router.post('/vendor/:vendorId/order', authenticate, async (req, res) => {
   try {
-    const { centerId, items, paymentMethod, shippingMethod, discount,vendorId } = req.body;
+    const { centerId, items, paymentMethod, shippingMethod, discount, vendorId, stripePaymentIntentId } = req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
@@ -782,7 +784,8 @@ router.post('/vendor/:vendorId/order', authenticate, async (req, res) => {
       payment: {
         method: paymentMethod,
         status: 'COMPLETED',
-        paidAmount: 0
+        paidAmount: finalTotalAmount,
+        stripePaymentIntentId: paymentMethod === 'Stripe' ? stripePaymentIntentId : undefined
       },
       status: 'PENDING',
       createdAt: new Date(),
@@ -795,6 +798,39 @@ router.post('/vendor/:vendorId/order', authenticate, async (req, res) => {
     });
 
     await order.save();
+
+    // Create notification for the center about the new order
+    try {
+      const notification = await Notification.create({
+        recipient: centerId,
+        sender: vendorId,
+        type: 'ORDER_UPDATE',
+        title: 'New Order Received',
+        message: `You have received a new order from ${vendor.businessName || vendor.name}. Order ID: ${order._id}. Total amount: ₹${finalTotalAmount.toFixed(2)}`,
+        relatedId: order._id,
+        onModel: 'Order'
+      });
+
+      console.log(`Notification created for center ${center.name} about order ${order._id}`);
+
+      // Emit socket event to notify center in real-time
+      const io = req.app.get('io'); // Get socket.io instance from app
+      if (io) {
+        io.to(`user_${centerId}`).emit('order_notification', {
+          orderId: order._id,
+          status: order.status,
+          message: `New order received from ${vendor.businessName || vendor.name}`,
+          from: vendor.name,
+          amount: finalTotalAmount,
+          itemsCount: validItems.length
+        });
+
+        console.log(`Real-time notification sent to center ${center.name} via socket`);
+      }
+    } catch (notificationError) {
+      console.error('Failed to create notification:', notificationError);
+      // Don't fail the order creation if notification fails
+    }
 
     res.status(201).json({
       success: true,

@@ -1,9 +1,10 @@
 // src/types/index.ts
 export interface User {
   id: string;
+  _id?: string;
   name: string;
   email: string;
-  role: "admin" | "vendor" | "user"; // or use the exported UserRole type if preferred
+  role: "admin" | "vendor" | "center" | "user"; // or use the exported UserRole type if preferred
 
   // Vendor-specific optional properties
   businessName?: string;
@@ -15,6 +16,10 @@ export interface User {
   status?: VendorStatus;
   bankDetails?: BankDetails;
   documents?: Document[];
+
+  // Center-specific optional properties
+  province?: string;
+  categories?: string[];
 }
 
 export interface BankDetails {
@@ -22,6 +27,7 @@ export interface BankDetails {
   accountNumber: string
   holderName: string
   ifscCode?: string
+  branch?: string
 }
 
 export interface Document {
