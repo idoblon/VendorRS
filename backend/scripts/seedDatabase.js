@@ -289,6 +289,19 @@ const seedCenters = async () => {
         categories: ["Clothing", "Footwear", "Accessories"],
         isActive: true,
       },
+      {
+        name: "Beverages factory",
+        email: "aryanshth3070@yopmail.com",
+        password: process.env.CENTER_PASSWORD || "Password@123",
+        phone: "+977 9801234572",
+        role: "CENTER",
+        status: "APPROVED",
+        panNumber: "PANC654321098",
+        province: "Bagmati",
+        district: "Kathmandu",
+        categories: ["Beverages"],
+        isActive: true,
+      },
     ];
 
     const centerUsers = [];

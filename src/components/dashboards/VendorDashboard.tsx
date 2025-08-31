@@ -91,6 +91,10 @@ export function VendorDashboard({
     cardholderName: "",
   });
 
+  // Payment state
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [isCreatingPaymentIntent, setIsCreatingPaymentIntent] = useState(false);
+
   // Orders state
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -736,23 +740,67 @@ export function VendorDashboard({
 
                     {!showPayment ? (
                       <Button
-                        onClick={() => {
-                          setShowPayment(true);
+                        onClick={async () => {
+                          setIsCreatingPaymentIntent(true);
+                          try {
+                            const response = await fetch('http://localhost:5000/api/payments/create-payment-intent', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({
+                                amount: totalAmount,
+                                currency: 'usd', // Use USD for better Stripe compatibility
+                              }),
+                            });
+
+                            const data = await response.json();
+
+                            if (!response.ok) {
+                              throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+                            }
+
+                            if (!data.clientSecret) {
+                              throw new Error('No client secret received from server');
+                            }
+
+                            setClientSecret(data.clientSecret);
+                            setShowPayment(true);
+                          } catch (error) {
+                            console.error('Error creating payment intent:', error);
+                            const errorMessage = error instanceof Error ? error.message : 'Failed to initialize payment. Please try again.';
+                            alert(`Payment initialization failed: ${errorMessage}`);
+                          } finally {
+                            setIsCreatingPaymentIntent(false);
+                          }
                         }}
                         className="w-full bg-green-600 hover:bg-green-700 text-white"
-                        disabled={cart.length === 0}
+                        disabled={cart.length === 0 || isCreatingPaymentIntent}
                       >
-                        Proceed to Payment (रू {totalAmount.toLocaleString()})
+                        {isCreatingPaymentIntent ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Initializing Payment...
+                          </>
+                        ) : (
+                          `Proceed to Payment (रू ${totalAmount.toLocaleString()})`
+                        )}
                       </Button>
-                    ) : (
-                      <Elements stripe={stripePromise}>
+                    ) : clientSecret ? (
+                      <Elements stripe={stripePromise} options={{ clientSecret }}>
                         <StripePaymentForm
                           key={totalAmount}  // Force remount on amount change
                           amount={totalAmount}
+                          currency="usd"
                           onSuccess={(paymentIntentId) => handlePayment(paymentIntentId)}
                           onError={(error) => alert(`Payment failed: ${error}`)}
                         />
                       </Elements>
+                    ) : (
+                      <div className="text-center py-4">
+                        <Loader2 className="h-6 w-6 animate-spin text-blue-600 mx-auto mb-2" />
+                        <p className="text-sm text-gray-600">Setting up payment...</p>
+                      </div>
                     )}
                   </div>
                 </div>

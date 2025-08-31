@@ -8,12 +8,14 @@ import { Button } from './ui/Button';
 
 interface StripePaymentFormProps {
   amount: number;
+  currency?: string;
   onSuccess: (paymentIntentId: string) => void;
   onError: (error: string) => void;
 }
 
 export function StripePaymentForm({
   amount,
+  currency = 'usd',
   onSuccess,
   onError,
 }: StripePaymentFormProps) {
@@ -21,6 +23,24 @@ export function StripePaymentForm({
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Helper function to get currency symbol
+  const getCurrencySymbol = (currency: string) => {
+    switch (currency.toLowerCase()) {
+      case 'usd':
+        return '$';
+      case 'eur':
+        return '€';
+      case 'gbp':
+        return '£';
+      case 'npr':
+        return 'रू';
+      case 'inr':
+        return '₹';
+      default:
+        return '$';
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -36,9 +56,6 @@ export function StripePaymentForm({
       const { error: confirmError, paymentIntent } =
         await stripe.confirmPayment({
           elements,
-          confirmParams: {
-            return_url: window.location.href,
-          },
           redirect: 'if_required',
         });
 
@@ -50,6 +67,18 @@ export function StripePaymentForm({
 
       if (paymentIntent && paymentIntent.status === 'succeeded') {
         onSuccess(paymentIntent.id);
+      } else if (paymentIntent && paymentIntent.status === 'requires_action') {
+        // Handle additional authentication if required
+        const { error: actionError } = await stripe.confirmPayment({
+          elements,
+          redirect: 'if_required',
+        });
+
+        if (actionError) {
+          setError(actionError.message || 'Payment authentication failed');
+        } else {
+          onSuccess(paymentIntent.id);
+        }
       } else {
         onError('Payment not completed');
       }
@@ -70,7 +99,7 @@ export function StripePaymentForm({
         disabled={!stripe || isProcessing}
         className="w-full bg-green-600 hover:bg-green-700"
       >
-        {isProcessing ? 'Processing...' : `Pay रू ${amount.toLocaleString()}`}
+        {isProcessing ? 'Processing...' : `Pay ${getCurrencySymbol(currency)} ${amount.toLocaleString()}`}
       </Button>
     </form>
   );
