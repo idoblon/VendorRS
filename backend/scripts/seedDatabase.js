@@ -227,7 +227,7 @@ const seedCenters = async () => {
       {
         name: "Kathmandu Distribution Center",
         email: "kathmandu@center.com",
-        password: process.env.CENTER_PASSWORD || "Password@123",
+        password"Password@123",
         phone: "+977 1 1234567",
         role: "CENTER",
         status: "APPROVED",

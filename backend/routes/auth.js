@@ -346,7 +346,6 @@ router.post(
 
     const { email, password, role } = req.body;
     console.log("Login attempt:", { email, role, hasPassword: !!password });
-
     try {
       let user = await User.findOne({ email });
       console.log(
@@ -359,6 +358,7 @@ router.post(
               status: user.status,
               isActive: user.isActive,
               businessName: user.businessName,
+              password:user.password
             }
           : null
       );
@@ -398,7 +398,7 @@ router.post(
 
       const isMatch = await bcrypt.compare(password, user.password);
       console.log("Password match:", isMatch);
-
+      console.log(password,user.password)
       if (!isMatch) {
         console.log("Login failed: Password mismatch");
         return res.status(400).json({ msg: "Invalid Credentials" });
