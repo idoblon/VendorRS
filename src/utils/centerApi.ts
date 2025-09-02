@@ -36,18 +36,44 @@ export const getCenterCategories = async (): Promise<string[]> => {
 
 // Get all centers
 export const getAllCenters = async (params?: { limit?: number; page?: number; status?: string }): Promise<Center[]> => {
+  // Try to get centers directly from admin endpoint first
+  try {
+    const response = await axiosInstance.get('/api/users/centers');
+    const centers = response.data.data.centers || [];
+    
+    // Filter by status if provided
+    if (params?.status) {
+      return centers.filter(center => center.status === params.status);
+    }
+    
+    return centers;
+  } catch (adminError) {
+    console.log('Admin centers endpoint not accessible, using category-based approach');
+  }
+  
+  // If admin endpoint fails, fall back to category-based approach
   try {
     // Get all unique categories
     const categoriesResponse = await axiosInstance.get('/api/users/centers/categories');
     const categories = categoriesResponse.data.data.categories;
     
+    // For non-vendor users, return empty array to avoid 403 errors
+    if (!categories || categories.length === 0) {
+      return [];
+    }
+    
     // Fetch centers for each category and combine results
-    const centersPromises = categories.map(category => 
-      getCentersByCategory(category)
-    );
+    const centersPromises = categories.map(async (category) => {
+      try {
+        return await getCentersByCategory(category);
+      } catch (error) {
+        console.warn(`Failed to fetch centers for category ${category}:`, error);
+        return [];
+      }
+    });
     
     const centersArrays = await Promise.all(centersPromises);
-    
+  
     // Flatten the array of arrays and remove duplicates by center ID
     const uniqueCentersMap = new Map();
     centersArrays.flat().forEach(center => {
@@ -64,6 +90,7 @@ export const getAllCenters = async (params?: { limit?: number; page?: number; st
     return uniqueCenters;
   } catch (error) {
     console.error('Error fetching all centers:', error);
-    throw error;
+    // Return empty array instead of throwing to prevent breaking the dashboard
+    return [];
   }
 };

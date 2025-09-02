@@ -5,7 +5,7 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
-const { bubbleSort, sortByField } = require('../utils/sorting');
+// Sorting is now implemented directly in the route handlers
 
 const router = express.Router();
 
@@ -65,7 +65,7 @@ router.get('/', authenticate, validatePagination, async (req, res) => {
 });
 
 // @route   GET /api/orders/sorted
-// @desc    Get orders sorted using bubble sort algorithm
+// @desc    Get orders sorted using efficient built-in algorithm
 // @access  Private
 router.get('/sorted', authenticate, async (req, res) => {
   try {
@@ -90,13 +90,28 @@ router.get('/sorted', authenticate, async (req, res) => {
     // Convert to plain objects for sorting
     const plainOrders = orders.map(order => order.toObject());
     
-    // Apply efficient sorting algorithm
+    // Apply direct JavaScript sorting
     const ascending = order.toLowerCase() !== 'desc';
-    const sortedOrders = sortByField(plainOrders, sortBy, ascending);
+    const sortedOrders = [...plainOrders].sort((a, b) => {
+      // Get values based on sortBy field (supports nested fields with dot notation)
+      const getNestedValue = (obj, path) => {
+        return path.split('.').reduce((o, key) => (o && o[key] !== undefined) ? o[key] : null, obj);
+      };
+      
+      const valueA = getNestedValue(a, sortBy);
+      const valueB = getNestedValue(b, sortBy);
+      
+      // Handle different data types
+      if (typeof valueA === 'string' && typeof valueB === 'string') {
+        return ascending ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+      } else {
+        return ascending ? valueA - valueB : valueB - valueA;
+      }
+    });
     
     res.json({
       success: true,
-      message: 'Orders sorted using efficient sorting algorithm',
+      message: 'Orders sorted using JavaScript built-in sort',
       sortingInfo: {
         algorithm: 'Built-in Sort',
         field: sortBy,
@@ -868,6 +883,257 @@ router.get('/vendor/:vendorId/orders', authenticate, async (req, res) => {
   }
 });
 
+// @route   GET /api/orders/centers/sales-ranking/:vendorId
+// @desc    Get centers ranked by total sales for a vendor using heap-based Top-K algorithm
+// @access  Private (Vendor)
+const { MinHeap, findTopCentersBySales } = require('../utils/minHeap');
+const mongoose = require('mongoose');
+
+router.get('/centers/sales-ranking/:vendorId', authenticate, async (req, res) => {
+  try {
+    const { vendorId } = req.params;
+
+    if (!vendorId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Vendor ID is required'
+      });
+    }
+
+    // Fetch all orders for the vendor with relevant statuses
+    const orders = await Order.find({
+      vendorId: vendorId,
+      isActive: true,
+      status: { $in: ['DELIVERED', 'SHIPPED', 'CONFIRMED'] }
+    }).lean();
+
+    // Fetch centers data (approved centers)
+    const centers = await mongoose.model('User').find({
+      role: 'CENTER',
+      status: 'APPROVED',
+      isActive: true
+    }).lean();
+
+    // Use heap-based Top-K algorithm to find top centers by sales
+    const topCenters = findTopCentersBySales(orders, centers, 10);
+
+    res.json({
+      success: true,
+      message: 'Centers ranked by total sales retrieved successfully using heap-based Top-K',
+      data: {
+        centers: topCenters,
+        totalCenters: topCenters.length
+      }
+    });
+
+  } catch (error) {
+    console.error('Get centers sales ranking error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch centers sales ranking',
+      error: error.message
+    });
+  }
+});
+
+// @route   GET /api/orders/admin/analytics
+// @desc    Get comprehensive analytics for admin dashboard using heap-based algorithm
+// @access  Private (Admin)
+router.get('/admin/analytics', authenticate, authorize('ADMIN'), async (req, res) => {
+  try {
+    // Fetch all approved centers
+    const centers = await User.find({
+      role: 'CENTER',
+      status: 'APPROVED',
+      isActive: true
+    }).lean();
+
+    // Fetch all orders with relevant statuses for performance calculation
+    const orders = await Order.find({
+      isActive: true,
+      status: { $in: ['DELIVERED', 'SHIPPED', 'CONFIRMED'] }
+    })
+    .populate('centerId', 'name businessName address district province')
+    .populate('vendorId', 'name businessName')
+    .lean();
+
+    // Calculate comprehensive analytics for each center
+    const centersAnalytics = centers.map(center => {
+      // Filter orders for this center
+      const centerOrders = orders.filter(order =>
+        order.centerId && order.centerId._id.toString() === center._id.toString()
+      );
+
+      // Calculate performance metrics
+      const totalOrders = centerOrders.length;
+      const totalRevenue = centerOrders.reduce((sum, order) => sum + (order.orderSummary?.totalAmount || 0), 0);
+      const totalCommission = centerOrders.reduce((sum, order) => sum + (order.adminCommission?.amount || 0), 0);
+      const totalProductsOrdered = centerOrders.reduce((sum, order) =>
+        sum + order.items.reduce((itemSum, item) => itemSum + (item.quantity || 0), 0), 0
+      );
+
+      // Calculate performance score based on multiple factors
+      const orderFrequency = totalOrders / Math.max(1, (Date.now() - new Date(center.createdAt).getTime()) / (1000 * 60 * 60 * 24 * 30)); // orders per month
+      const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+      const performanceScore = Math.min(100, (orderFrequency * 10) + (averageOrderValue / 1000) + (totalRevenue / 50000));
+
+      // Get last activity date
+      const lastOrder = centerOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+      const lastActivity = lastOrder ? lastOrder.createdAt : center.createdAt;
+
+      return {
+        ...center,
+        performanceScore: Math.round(performanceScore),
+        totalOrders,
+        totalRevenue,
+        totalCommission,
+        totalProductsOrdered,
+        averageOrderValue: Math.round(averageOrderValue),
+        lastActivity,
+        orderFrequency: Math.round(orderFrequency * 100) / 100
+      };
+    });
+
+    // Use heap-based algorithm to get top performing centers
+    const topCenters = findTopCentersBySales(orders, centers, 20);
+
+    // Calculate overall system statistics
+    const totalSystemOrders = orders.length;
+    const totalSystemRevenue = orders.reduce((sum, order) => sum + (order.orderSummary?.totalAmount || 0), 0);
+    const totalSystemCommission = orders.reduce((sum, order) => sum + (order.adminCommission?.amount || 0), 0);
+
+    // Get recent orders for activity feed
+    const recentOrders = await Order.find({
+      isActive: true
+    })
+    .populate('centerId', 'name businessName')
+    .populate('vendorId', 'name businessName')
+    .sort({ createdAt: -1 })
+    .limit(10)
+    .lean();
+
+    res.json({
+      success: true,
+      message: 'Admin analytics retrieved successfully using heap-based algorithm',
+      data: {
+        centersAnalytics: centersAnalytics.sort((a, b) => b.performanceScore - a.performanceScore),
+        topCenters,
+        systemStats: {
+          totalOrders: totalSystemOrders,
+          totalRevenue: totalSystemRevenue,
+          totalCommission: totalSystemCommission,
+          totalCenters: centers.length,
+          averageOrderValue: totalSystemOrders > 0 ? Math.round(totalSystemRevenue / totalSystemOrders) : 0
+        },
+        recentActivity: recentOrders.map(order => ({
+          id: order._id,
+          type: 'order',
+          description: `Order from ${order.centerId?.name || 'Unknown Center'} to ${order.vendorId?.businessName || 'Unknown Vendor'}`,
+          amount: order.orderSummary?.totalAmount || 0,
+          timestamp: order.createdAt,
+          status: order.status
+        }))
+      }
+    });
+
+  } catch (error) {
+    console.error('Get admin analytics error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch admin analytics',
+      error: error.message
+    });
+  }
+});
+
+// @route   GET /api/orders/centers/performance
+// @desc    Get centers performance data for vendors (similar to admin analytics but accessible to vendors)
+// @access  Private (Vendor)
+router.get('/centers/performance', authenticate, async (req, res) => {
+  try {
+    // Fetch all approved centers
+    const centers = await User.find({
+      role: 'CENTER',
+      status: 'APPROVED',
+      isActive: true
+    }).lean();
+
+    // Fetch all orders with relevant statuses for performance calculation
+    const orders = await Order.find({
+      isActive: true,
+      status: { $in: ['DELIVERED', 'SHIPPED', 'CONFIRMED'] }
+    })
+    .populate('centerId', 'name businessName address district province')
+    .populate('vendorId', 'name businessName')
+    .lean();
+
+    // Calculate comprehensive analytics for each center
+    const centersAnalytics = centers.map(center => {
+      // Filter orders for this center
+      const centerOrders = orders.filter(order =>
+        order.centerId && order.centerId._id.toString() === center._id.toString()
+      );
+
+      // Calculate performance metrics
+      const totalOrders = centerOrders.length;
+      const totalRevenue = centerOrders.reduce((sum, order) => sum + (order.orderSummary?.totalAmount || 0), 0);
+      const totalCommission = centerOrders.reduce((sum, order) => sum + (order.adminCommission?.amount || 0), 0);
+      const totalProductsOrdered = centerOrders.reduce((sum, order) =>
+        sum + order.items.reduce((itemSum, item) => itemSum + (item.quantity || 0), 0), 0
+      );
+
+      // Calculate performance score based on multiple factors
+      const orderFrequency = totalOrders / Math.max(1, (Date.now() - new Date(center.createdAt).getTime()) / (1000 * 60 * 60 * 24 * 30)); // orders per month
+      const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+      const performanceScore = Math.min(100, (orderFrequency * 10) + (averageOrderValue / 1000) + (totalRevenue / 50000));
+
+      // Get last activity date
+      const lastOrder = centerOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+      const lastActivity = lastOrder ? lastOrder.createdAt : center.createdAt;
+
+      return {
+        _id: center._id,
+        name: center.name,
+        businessName: center.businessName,
+        location: center.address?.city || center.district || 'Unknown',
+        district: center.district,
+        province: center.province,
+        status: center.status,
+        performanceScore: Math.round(performanceScore),
+        totalOrders,
+        totalRevenue,
+        totalCommission,
+        totalProductsOrdered,
+        averageOrderValue: Math.round(averageOrderValue),
+        lastActivity,
+        orderFrequency: Math.round(orderFrequency * 100) / 100
+      };
+    });
+
+    // Sort centers by total revenue (descending) and take top 10
+    const topCentersByRevenue = centersAnalytics
+      .sort((a, b) => b.totalRevenue - a.totalRevenue)
+      .slice(0, 10);
+
+    res.json({
+      success: true,
+      message: 'Centers performance data retrieved successfully',
+      data: {
+        centers: topCentersByRevenue,
+        totalCenters: topCentersByRevenue.length
+      }
+    });
+
+  } catch (error) {
+    console.error('Get centers performance error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch centers performance data',
+      error: error.message
+    });
+  }
+});
+
 router.get("/analytics/:vendorId", async (req, res) => {
   const { vendorId } = req.params;
 
@@ -878,10 +1144,10 @@ router.get("/analytics/:vendorId", async (req, res) => {
   const totalOrdersPlaced = orders.length;
 
   const totalAmountSpent = orders.reduce((sum, order) => sum + order.orderSummary.totalAmount, 0);
-  
+
   // Calculate total discounts received
   const totalDiscounts = orders.reduce((sum, order) => sum + (order.orderSummary.discount?.amount || 0), 0);
-  
+
   // Calculate total commission paid to admins
   const totalCommissionPaid = orders.reduce((sum, order) => sum + (order.adminCommission?.amount || 0), 0);
 

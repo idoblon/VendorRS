@@ -27,7 +27,13 @@ import {
   getVendorOrders,
   getOrderDetails,
   getUserDocuments,
+  getCentersSalesRanking,
+  getVendorTopCentersAnalytics,
+  getCentersPerformance,
 } from "../../utils/vendorApi";
+
+import { findTopCentersByRevenueFromAnalytics, CenterRevenueData } from "../../utils/minHeap";
+import axiosInstance from "../../utils/axios";
 import { StripePaymentForm } from "../StripePaymentForm";
 
 // Initialize Stripe
@@ -35,6 +41,7 @@ const stripePromise = loadStripe("pk_test_51RryGpRwaX8v4ksQ7mwWIl0XuOrw5G3AWBHWA
 import {
   getCentersByCategory,
   getCenterCategories,
+  getAllCenters,
   Center,
 } from "../../utils/centerApi";
 import {
@@ -62,6 +69,18 @@ export function VendorDashboard({
   const [showNotifications, setShowNotifications] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
 
+
+
+  // Top Admin Centers state for marketplace
+  const [topAdminCenters, setTopAdminCenters] = useState<CenterRevenueData[]>([]);
+  const [isLoadingAdminCenters, setIsLoadingAdminCenters] = useState(false);
+  const [adminCentersError, setAdminCentersError] = useState<string | null>(null);
+
+  // Admin Analytics state
+  const [adminAnalytics, setAdminAnalytics] = useState<CenterRevenueData[]>([]);
+  const [isLoadingAdminAnalytics, setIsLoadingAdminAnalytics] = useState(false);
+  const [adminAnalyticsError, setAdminAnalyticsError] = useState<string | null>(null);
+
   // Search state
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -78,7 +97,6 @@ export function VendorDashboard({
   // Product state
   const [products, setProducts] = useState<Product[]>([]);
   const [productCategories, setProductCategories] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [productError, setProductError] = useState<string | null>(null);
 
@@ -119,6 +137,8 @@ export function VendorDashboard({
     Product[]
   >([]);
   const [isLoadingCardProducts, setIsLoadingCardProducts] = useState(false);
+
+
 
   // Backend base URL for images
   const BACKEND_BASE_URL = "http://localhost:5000";
@@ -221,7 +241,17 @@ export function VendorDashboard({
           ],
   };
 
-  // Remove all mock products and images - ensure products are fetched from API only
+  // State for centers and center categories
+  const [centers, setCenters] = useState<Center[]>([]);
+  const [centerCategories, setCenterCategories] = useState<string[]>([]);
+  const [isLoadingCenters, setIsLoadingCenters] = useState(false);
+  const [centerError, setCenterError] = useState<string | null>(null);
+
+
+
+  const [productsByCategoryAndCenter, setProductsByCategoryAndCenter] = useState<Record<string, Record<string, Product[]>>>({});
+
+  // Fetch products from all centers and categories
   useEffect(() => {
     const fetchProductData = async () => {
       try {
@@ -232,13 +262,41 @@ export function VendorDashboard({
         const categories = await getProductCategories();
         setProductCategories(categories);
 
+        // Fetch center categories and centers (optional for vendors)
+        setIsLoadingCenters(true);
+        setCenterError(null);
+        try {
+          const centerCats = await getCenterCategories();
+          setCenterCategories(centerCats);
+          
+          const allCenters = await getAllCenters();
+          setCenters(allCenters);
+        } catch (centerError) {
+          console.warn('Could not fetch center data, continuing without centers:', centerError);
+          setCenterCategories([]);
+          setCenters([]);
+        }
+
+        // Create a structure to hold products by category and center
+        const productsByCategory: Record<string, Record<string, Product[]>> = {};
+        
+        // Initialize the structure with all categories
+        categories.forEach(category => {
+          productsByCategory[category] = {};
+          // Only initialize with centers if we have center data
+          if (centers.length > 0) {
+            centers.forEach(center => {
+              productsByCategory[category][center._id] = [];
+            });
+          }
+        });
+
         // Fetch ALL products from all centers without any filters
         const productsData = await getProducts();
         const fetchedProducts = productsData.products || [];
 
-        // Filter out any mock or placeholder products if any (e.g., by checking vendorId or image URLs)
+        // Filter out any mock or placeholder products
         const filteredProducts = fetchedProducts.filter((product) => {
-          // Remove products with placeholder images or mock vendor names
           if (!product.vendorId) return false;
           if (!product.images || product.images.length === 0) return false;
           if (product.images.some((img) => img.url.includes("placeholder.svg")))
@@ -248,6 +306,38 @@ export function VendorDashboard({
           return true;
         });
 
+        // Organize products by category and center
+        filteredProducts.forEach(product => {
+          const category = product.category;
+          
+          if (product.availability && product.availability.length > 0) {
+            product.availability.forEach(avail => {
+              const centerId = typeof avail.centerId === 'object' ? avail.centerId._id : avail.centerId;
+              
+              // Ensure category exists in the structure
+              if (!productsByCategory[category]) {
+                productsByCategory[category] = {};
+              }
+              
+              // Add product to the appropriate category and center
+              if (!productsByCategory[category][centerId]) {
+                productsByCategory[category][centerId] = [];
+              }
+              productsByCategory[category][centerId].push(product);
+            });
+          } else {
+            // If no availability data, still organize by category with a default center
+            if (!productsByCategory[category]) {
+              productsByCategory[category] = {};
+            }
+            if (!productsByCategory[category]['default']) {
+              productsByCategory[category]['default'] = [];
+            }
+            productsByCategory[category]['default'].push(product);
+          }
+        });
+
+        setProductsByCategoryAndCenter(productsByCategory);
         setProducts(filteredProducts);
       } catch (error: unknown) {
         console.error("Error fetching product data:", error);
@@ -258,6 +348,7 @@ export function VendorDashboard({
         );
       } finally {
         setIsLoadingProducts(false);
+        setIsLoadingCenters(false);
       }
     };
 
@@ -283,10 +374,77 @@ export function VendorDashboard({
     fetchUserDocuments();
   }, []);
 
-  // Filter products by category - show all if no category selected
-  const filteredProducts = selectedCategory
-    ? products.filter((product) => product.category === selectedCategory)
-    : products;
+
+  // Fetch admin analytics data when marketplace tab is active
+  useEffect(() => {
+    if (activeTab === "marketplace") {
+      fetchAdminAnalytics();
+    }
+  }, [activeTab]);
+
+  // Fetch vendor analytics data
+  const fetchAdminAnalytics = async () => {
+    setIsLoadingAdminCenters(true);
+    setAdminCentersError(null);
+
+    try {
+      // Fetch centers performance data using the new API
+      const centersPerformanceData = await getCentersPerformance();
+
+      // Use findTopCentersByRevenueFromAnalytics with centersPerformanceData, K=4
+      const topAdminCentersData = findTopCentersByRevenueFromAnalytics(centersPerformanceData, 4);
+      setTopAdminCenters(topAdminCentersData);
+    } catch (error: unknown) {
+      console.error("Error fetching centers performance data:", error);
+      setAdminCentersError(
+        error instanceof Error ? error.message : "Failed to load centers performance data"
+      );
+    } finally {
+      setIsLoadingAdminCenters(false);
+    }
+  };
+
+  // Remove old topCenters fetching and state usage as replaced by admin analytics
+  // Commenting out or removing the old useEffect for topCenters fetching
+  /*
+  useEffect(() => {
+    const fetchTopCenters = async () => {
+      if (activeTab !== "top-centers") return;
+
+      setIsLoadingTopCenters(true);
+      setTopCentersError(null);
+
+      try {
+        // Fetch vendor orders and centers
+        const [vendorOrders, allCenters] = await Promise.all([
+          getVendorOrders(user.id),
+          getAllCenters(),
+        ]);
+
+        // Compute top centers using heap-based algorithm
+        const topCentersData = findTopCentersBySales(vendorOrders, allCenters, 10);
+        setTopCenters(topCentersData);
+      } catch (error: unknown) {
+        console.error("Error fetching top centers data:", error);
+        setTopCentersError(
+          error instanceof Error ? error.message : "Failed to load top centers"
+        );
+      } finally {
+        setIsLoadingTopCenters(false);
+      }
+    };
+
+    fetchTopCenters();
+  }, [activeTab, user.id]);
+  };
+  */
+
+
+
+
+
+
+
 
   // Handle search functionality
   const handleSearch = async () => {
@@ -298,6 +456,7 @@ export function VendorDashboard({
 
     setIsSearching(true);
     setSearchError(null);
+    setCenterSearchError(null);
 
     try {
       console.log("🔍 Starting search for:", searchTerm);
@@ -942,6 +1101,8 @@ export function VendorDashboard({
     </div>
   );
 
+
+
   // Render filtered products by card click
   const renderFilteredProductsByCard = () => {
     if (isLoadingCardProducts) {
@@ -1079,162 +1240,185 @@ export function VendorDashboard({
     );
   };
 
+  // Render products by category and center
+  const renderProductsByCategoryAndCenter = () => {
+    if (isLoadingProducts || isLoadingCenters) {
+      return (
+        <div className="flex items-center justify-center p-8">
+          <Loader2 className="h-8 w-8 animate-spin text-orange-600 mr-2" />
+          <p>Loading products from all centers...</p>
+        </div>
+      );
+    }
+
+    if (productError || centerError) {
+      return (
+        <div className="flex items-start space-x-3 p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
+          <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
+          <div>
+            <h4 className="font-medium text-amber-800">Error</h4>
+            <p className="text-sm text-amber-700 mt-1">{productError || centerError}</p>
+          </div>
+        </div>
+      );
+    }
+
+    // Show all categories and centers
+    const categoriesToShow = productCategories;
+    const centersToShow = centers;
+
+    return (
+      <div className="space-y-8">
+        {/* Display products by category */}
+        {categoriesToShow.map((category) => {
+          // Check if this category has any products in the selected centers
+          const hasProductsInCategory = centersToShow.some(center => {
+            const centerProducts = productsByCategoryAndCenter[category]?.[center._id] || [];
+            return centerProducts.length > 0;
+          });
+
+          if (!hasProductsInCategory) return null;
+
+          return (
+            <Card key={category} className="p-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">{category}</h3>
+              
+              {/* Display products by center within this category */}
+              <div className="space-y-6">
+                {centersToShow.map((center) => {
+                  const centerProducts = productsByCategoryAndCenter[category]?.[center._id] || [];
+                  
+                  if (centerProducts.length === 0) return null;
+                  
+                  return (
+                    <div key={`${category}-${center._id}`} className="border-t pt-4 mt-4 first:border-t-0 first:pt-0 first:mt-0">
+                      <h4 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
+                        <MapPin className="h-4 w-4 mr-1 text-orange-500" />
+                        {center.name}
+                        <span className="text-sm font-normal text-gray-500 ml-2">({centerProducts.length} products)</span>
+                      </h4>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {centerProducts.map((product) => (
+                          <div
+                            key={`${product._id}-${center._id}`}
+                            className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                          >
+                            <div className="aspect-w-16 aspect-h-9 bg-gray-200">
+                              {product.images && product.images.length > 0 ? (
+                                <Image
+                                  key={product.images[0].url}
+                                  src={
+                                    product.images[0].url &&
+                                    !product.images[0].url.includes("placeholder.svg") &&
+                                    !product.images[0].url.startsWith("/image/")
+                                      ? `http://localhost:5000${product.images[0].url}`
+                                      : `/placeholder.svg?height=200&width=200&query=${encodeURIComponent(product.name)}`
+                                  }
+                                  alt={product.name}
+                                  className="w-full h-48 object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                  <Package className="h-12 w-12 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="p-4">
+                              <div className="flex items-start justify-between mb-2">
+                                <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">
+                                  {product.name}
+                                </h4>
+                                <span className="text-sm font-bold text-blue-600 ml-2">
+                                  रू {product.price.toLocaleString()}
+                                </span>
+                              </div>
+
+                              <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                                {product.description}
+                              </p>
+
+                              <div className="flex items-center justify-between mb-3">
+                                <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                                  {product.category || "Uncategorized"}
+                                </span>
+                                <span
+                                  className={`text-xs px-2 py-1 rounded ${
+                                    product.status === "available"
+                                      ? "bg-green-100 text-green-800"
+                                      : product.status === "out_of_stock"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : "bg-red-100 text-red-800"
+                                  }`}
+                                >
+                                  {product.status.replace("_", " ").toUpperCase()}
+                                </span>
+                              </div>
+
+                              <Button
+                                size="sm"
+                                className="w-full"
+                                disabled={product.status !== "available"}
+                                onClick={() => addToCart(product)}
+                              >
+                                {product.status === "available"
+                                  ? "Add to Cart"
+                                  : "Unavailable"}
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          );
+        })}
+
+
+      </div>
+    );
+  };
+
   // Render marketplace content
   const renderMarketplace = () => (
     <div className="space-y-6">
       {/* Analytics Cards Section */}
       {renderAnalyticsCards()}
 
+      {/* Top Centers Section - displays top centers from AdminDashboard analytics using minHeap algorithm */}
+      <div className="space-y-4 mt-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Top Centers
+          </h3>
+          <span className="text-sm text-gray-500">
+            Top centers by total revenue
+          </span>
+        </div>
+        {renderTopCentersContent()}
+      </div>
+
       {/* Show filtered products when card is clicked */}
       {clickedCard ? (
         <Card className="p-6">{renderFilteredProductsByCard()}</Card>
-      ) : (
+      ) : searchResults.length > 0 || searchError ? (
         <>
           {/* Search Results */}
           {renderSearchResults()}
-
-          {/* Products Section */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-gray-900">
-                {selectedCategory
-                  ? `${selectedCategory} Products`
-                  : "All Products from All Centers"}
-              </h3>
-              <div className="flex items-center space-x-4">
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">All Categories</option>
-                  {productCategories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {productError && (
-              <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
-                <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
-                <div>
-                  <h4 className="font-medium text-red-800">Error</h4>
-                  <p className="text-sm text-red-700 mt-1">{productError}</p>
-                </div>
-              </div>
-            )}
-
-            {isLoadingProducts ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-                <span className="ml-2 text-gray-600">Loading products...</span>
-              </div>
-            ) : filteredProducts.length === 0 ? (
-              <div className="text-center py-12">
-                <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h4 className="text-lg font-medium text-gray-900 mb-2">
-                  No Products Available
-                </h4>
-                <p className="text-gray-500">
-                  {selectedCategory
-                    ? `No products available in ${selectedCategory} category`
-                    : "No products available from any center"}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-8">
-                {/* Show all products in a single grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filteredProducts.map((product) => (
-                    <div
-                      key={product._id}
-                      className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200"
-                    >
-                      <div className="aspect-w-16 aspect-h-9 bg-gray-200">
-                        {product.images && product.images.length > 0 ? (
-                          <Image
-                            key={product.images[0].url}
-                            src={
-                              product.images[0].url
-                                ? `http://localhost:5000${product.images[0].url}`
-                                : "/image/placeholder.svg"
-                            }
-                            alt={product.name}
-                            className="w-full h-48 object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                            <Package className="h-12 w-12 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">
-                            {product.name}
-                          </h4>
-                          <span className="text-sm font-bold text-blue-600 ml-2">
-                            रू {product.price.toLocaleString()}
-                          </span>
-                        </div>
-
-                        <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-                          {product.description}
-                        </p>
-
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
-                            {product.category || "Uncategorized"}
-                          </span>
-                          <span
-                            className={`text-xs px-2 py-1 rounded ${
-                              product.status === "available"
-                                ? "bg-green-100 text-green-800"
-                                : product.status === "out_of_stock"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {product.status.replace("_", " ").toUpperCase()}
-                          </span>
-                        </div>
-
-                <div className="text-xs text-gray-500 mb-3">
-                  <p className="flex items-center">
-                    <Users className="h-3 w-3 mr-1" />
-                    {product.availability && product.availability.length > 0
-                      ? typeof product.availability[0].centerId === "object" &&
-                        product.availability[0].centerId?.name
-                        ? product.availability[0].centerId.name
-                        : product.vendorId?.businessName || "Unknown Center"
-                      : product.vendorId?.businessName || "Unknown Center"}
-                  </p>
-                </div>
-
-                        <Button
-                          size="sm"
-                          className="w-full"
-                          disabled={product.status !== "available"}
-                          onClick={() => addToCart(product)}
-                        >
-                          {product.status === "available"
-                            ? "Add to Cart"
-                            : "Unavailable"}
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </Card>
+        </>
+      ) : (
+        <>
+          {/* Products by Category and Center */}
+          {renderProductsByCategoryAndCenter()}
         </>
       )}
     </div>
   );
+
+
 
   // Render order status badge
   const renderOrderStatusBadge = (status: OrderStatus) => {
@@ -1387,6 +1571,132 @@ export function VendorDashboard({
           </ul>
         </div>
       </Card>
+    );
+  };
+
+  // Render top centers content (without header for marketplace integration)
+  const renderTopCentersContent = () => {
+    if (isLoadingAdminCenters) {
+      return (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+          <span className="ml-2 text-gray-600">Loading top centers...</span>
+        </div>
+      );
+    }
+
+    if (adminCentersError) {
+      return (
+        <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+          <div>
+            <h4 className="font-medium text-red-800">Error</h4>
+            <p className="text-sm text-red-700 mt-1">{adminCentersError}</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (topAdminCenters.length === 0) {
+      return (
+        <div className="text-center py-8">
+          <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+          <h4 className="text-sm font-medium text-gray-900 mb-1">
+            No Top Centers Data
+          </h4>
+          <p className="text-gray-500 text-sm">No centers performance data available.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {topAdminCenters.map((center, index) => (
+          <Card key={center.centerId} className="p-4 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between mb-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                index === 0 ? 'bg-yellow-100 text-yellow-800' :
+                index === 1 ? 'bg-gray-100 text-gray-800' :
+                index === 2 ? 'bg-orange-100 text-orange-800' :
+                'bg-blue-100 text-blue-800'
+              }`}>
+                {index + 1}
+              </div>
+              <TrendingUp className="h-5 w-5 text-green-600" />
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">
+                {center.centerName}
+              </h4>
+              <p className="text-xs text-gray-500 flex items-center">
+                <MapPin className="h-3 w-3 mr-1" />
+                {center.centerLocation || 'Location not available'}
+              </p>
+              <div className="pt-2 border-t">
+                <p className="text-xs text-gray-500">Total Revenue</p>
+                <p className="text-lg font-bold text-green-600">
+                  रू {center.totalRevenue.toLocaleString()}
+                </p>
+              </div>
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>{center.orderCount} orders</span>
+                <span>Avg: रू {center.averageOrderValue.toLocaleString()}</span>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    );
+  };
+
+  // Render top centers
+  const renderTopCenters = () => {
+    if (isLoadingAdminCenters) {
+      return (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <span className="ml-2 text-gray-600">Loading top centers...</span>
+        </div>
+      );
+    }
+
+    if (adminCentersError) {
+      return (
+        <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
+          <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+          <div>
+            <h4 className="font-medium text-red-800">Error</h4>
+            <p className="text-sm text-red-700 mt-1">{adminCentersError}</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (topAdminCenters.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <TrendingUp className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h4 className="text-lg font-medium text-gray-900 mb-2">
+            No Top Centers Data
+          </h4>
+          <p className="text-gray-500">No centers performance data available.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-semibold text-gray-900">
+            Top Performing Centers
+          </h3>
+          <span className="text-sm text-gray-500">
+            Based on sales performance
+          </span>
+        </div>
+
+        {renderTopCentersContent()}
+      </div>
     );
   };
 
@@ -1663,6 +1973,7 @@ export function VendorDashboard({
               {[
                 { id: "marketplace", label: "Marketplace", icon: Package },
                 { id: "orders", label: "My Orders", icon: ShoppingCart },
+                { id: "top-centers", label: "Top Centers", icon: TrendingUp },
                 { id: "profile", label: "My Profile", icon: Users },
               ].map((tab) => (
                 <button
@@ -1679,8 +1990,9 @@ export function VendorDashboard({
                 </button>
               ))}
             </nav>
+            {/* Removed rendering of Top Centers content */}
 
-            {/* Search Field */}
+            {/* Search Field */}  
             {activeTab === "marketplace" && (
               <div className="flex items-center space-x-2">
                 <div className="relative">
@@ -1729,10 +2041,15 @@ export function VendorDashboard({
       </div>
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === "marketplace" && renderMarketplace()}
-        {activeTab === "orders" &&
-          (selectedOrder ? renderOrderDetails() : renderOrdersList())}
-        {activeTab === "profile" && renderProfile()}
+      {activeTab === "marketplace" && (
+        <>
+          {renderMarketplace()}
+        </>
+      )}
+      {activeTab === "orders" &&
+        (selectedOrder ? renderOrderDetails() : renderOrdersList())}
+      {activeTab === "top-centers" && renderTopCenters()}
+      {activeTab === "profile" && renderProfile()}
       </div>
 
       {/* MessageBox component */}

@@ -36,11 +36,11 @@ const App = () => {
           },
         });
 
-        const data = await response.data;
+        const data = response.data;
 
         if (response.status === 200 && data.success) {
-          // Fix: Access user directly from data, not data.data.user
-          const user = data.user;
+          // Access user from data.data.user as per API response structure
+          const user = data.data.user;
           if (user?.role) {
             user.role = user.role.toLowerCase() as UserRole;
           }
