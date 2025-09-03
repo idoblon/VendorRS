@@ -2,7 +2,7 @@ const express = require('express');
 const { authenticate, authorize } = require('../middleware/auth');
 const Order = require('../models/Order');
 const User = require('../models/User');
-const { findTopCentersBySales } = require('../utils/minHeap');
+const { findTopCentersByRevenue } = require('../utils/minHeap');
 
 const router = express.Router();
 
@@ -43,7 +43,7 @@ router.get('/vendor/analytics/:vendorId', authenticate, authorize('VENDOR'), asy
     }).lean();
 
     // Use heap-based Top-K algorithm to find top centers by sales
-    const topCenters = findTopCentersBySales(orders, centers, 10);
+    const topCenters = findTopCentersByRevenue(orders, centers, 10);
 
     res.json({
       success: true,

@@ -886,7 +886,7 @@ router.get('/vendor/:vendorId/orders', authenticate, async (req, res) => {
 // @route   GET /api/orders/centers/sales-ranking/:vendorId
 // @desc    Get centers ranked by total sales for a vendor using heap-based Top-K algorithm
 // @access  Private (Vendor)
-const { MinHeap, findTopCentersBySales } = require('../utils/minHeap');
+const { MinHeap, findTopCentersByRevenue } = require('../utils/minHeap');
 const mongoose = require('mongoose');
 
 router.get('/centers/sales-ranking/:vendorId', authenticate, async (req, res) => {
@@ -915,7 +915,7 @@ router.get('/centers/sales-ranking/:vendorId', authenticate, async (req, res) =>
     }).lean();
 
     // Use heap-based Top-K algorithm to find top centers by sales
-    const topCenters = findTopCentersBySales(orders, centers, 10);
+    const topCenters = findTopCentersByRevenue(orders, centers, 10);
 
     res.json({
       success: true,
@@ -995,7 +995,7 @@ router.get('/admin/analytics', authenticate, authorize('ADMIN'), async (req, res
     });
 
     // Use heap-based algorithm to get top performing centers
-    const topCenters = findTopCentersBySales(orders, centers, 20);
+    const topCenters = findTopCentersByRevenue(orders, centers, 20);
 
     // Calculate overall system statistics
     const totalSystemOrders = orders.length;
@@ -1110,10 +1110,8 @@ router.get('/centers/performance', authenticate, async (req, res) => {
       };
     });
 
-    // Sort centers by total revenue (descending) and take top 10
-    const topCentersByRevenue = centersAnalytics
-      .sort((a, b) => b.totalRevenue - a.totalRevenue)
-      .slice(0, 10);
+    // Use heap-based algorithm to get top performing centers by revenue
+    const topCentersByRevenue = findTopCentersByRevenue(orders, centers, 10);
 
     res.json({
       success: true,

@@ -32,12 +32,14 @@ import {
   getCentersPerformance,
 } from "../../utils/vendorApi";
 
-import { findTopCentersByRevenueFromAnalytics, CenterRevenueData } from "../../utils/minHeap";
+import { findTopCentersByRevenue } from "../../utils/minHeap";
 import axiosInstance from "../../utils/axios";
 import { StripePaymentForm } from "../StripePaymentForm";
 
 // Initialize Stripe
-const stripePromise = loadStripe("pk_test_51RryGpRwaX8v4ksQ7mwWIl0XuOrw5G3AWBHWAv7FypjMOsWBbrCrHM4YsEpBSBcZ6LI7u3CznXhdxgD8hnyP5hos00s8QuykF7");
+const stripePromise = loadStripe(
+  "pk_test_51RryGpRwaX8v4ksQ7mwWIl0XuOrw5G3AWBHWAv7FypjMOsWBbrCrHM4YsEpBSBcZ6LI7u3CznXhdxgD8hnyP5hos00s8QuykF7"
+);
 import {
   getCentersByCategory,
   getCenterCategories,
@@ -69,17 +71,19 @@ export function VendorDashboard({
   const [showNotifications, setShowNotifications] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
 
-
-
   // Top Admin Centers state for marketplace
-  const [topAdminCenters, setTopAdminCenters] = useState<CenterRevenueData[]>([]);
+  const [topAdminCenters, setTopAdminCenters] = useState<any[]>([]);
   const [isLoadingAdminCenters, setIsLoadingAdminCenters] = useState(false);
-  const [adminCentersError, setAdminCentersError] = useState<string | null>(null);
+  const [adminCentersError, setAdminCentersError] = useState<string | null>(
+    null
+  );
 
   // Admin Analytics state
-  const [adminAnalytics, setAdminAnalytics] = useState<CenterRevenueData[]>([]);
+  const [adminAnalytics, setAdminAnalytics] = useState<any[]>([]);
   const [isLoadingAdminAnalytics, setIsLoadingAdminAnalytics] = useState(false);
-  const [adminAnalyticsError, setAdminAnalyticsError] = useState<string | null>(null);
+  const [adminAnalyticsError, setAdminAnalyticsError] = useState<string | null>(
+    null
+  );
 
   // Search state
   const [searchTerm, setSearchTerm] = useState("");
@@ -137,8 +141,6 @@ export function VendorDashboard({
     Product[]
   >([]);
   const [isLoadingCardProducts, setIsLoadingCardProducts] = useState(false);
-
-
 
   // Backend base URL for images
   const BACKEND_BASE_URL = "http://localhost:5000";
@@ -247,9 +249,8 @@ export function VendorDashboard({
   const [isLoadingCenters, setIsLoadingCenters] = useState(false);
   const [centerError, setCenterError] = useState<string | null>(null);
 
-
-
-  const [productsByCategoryAndCenter, setProductsByCategoryAndCenter] = useState<Record<string, Record<string, Product[]>>>({});
+  const [productsByCategoryAndCenter, setProductsByCategoryAndCenter] =
+    useState<Record<string, Record<string, Product[]>>>({});
 
   // Fetch products from all centers and categories
   useEffect(() => {
@@ -268,24 +269,30 @@ export function VendorDashboard({
         try {
           const centerCats = await getCenterCategories();
           setCenterCategories(centerCats);
-          
+
           const allCenters = await getAllCenters();
           setCenters(allCenters);
         } catch (centerError) {
-          console.warn('Could not fetch center data, continuing without centers:', centerError);
+          console.warn(
+            "Could not fetch center data, continuing without centers:",
+            centerError
+          );
           setCenterCategories([]);
           setCenters([]);
         }
 
         // Create a structure to hold products by category and center
-        const productsByCategory: Record<string, Record<string, Product[]>> = {};
-        
+        const productsByCategory: Record<
+          string,
+          Record<string, Product[]>
+        > = {};
+
         // Initialize the structure with all categories
-        categories.forEach(category => {
+        categories.forEach((category) => {
           productsByCategory[category] = {};
           // Only initialize with centers if we have center data
           if (centers.length > 0) {
-            centers.forEach(center => {
+            centers.forEach((center) => {
               productsByCategory[category][center._id] = [];
             });
           }
@@ -301,24 +308,31 @@ export function VendorDashboard({
           if (!product.images || product.images.length === 0) return false;
           if (product.images.some((img) => img.url.includes("placeholder.svg")))
             return false;
-          if ((product.vendorId?.businessName ?? "").toLowerCase().includes("mock"))
+          if (
+            (product.vendorId?.businessName ?? "")
+              .toLowerCase()
+              .includes("mock")
+          )
             return false;
           return true;
         });
 
         // Organize products by category and center
-        filteredProducts.forEach(product => {
+        filteredProducts.forEach((product) => {
           const category = product.category;
-          
+
           if (product.availability && product.availability.length > 0) {
-            product.availability.forEach(avail => {
-              const centerId = typeof avail.centerId === 'object' ? avail.centerId._id : avail.centerId;
-              
+            product.availability.forEach((avail) => {
+              const centerId =
+                typeof avail.centerId === "object"
+                  ? avail.centerId._id
+                  : avail.centerId;
+
               // Ensure category exists in the structure
               if (!productsByCategory[category]) {
                 productsByCategory[category] = {};
               }
-              
+
               // Add product to the appropriate category and center
               if (!productsByCategory[category][centerId]) {
                 productsByCategory[category][centerId] = [];
@@ -330,10 +344,10 @@ export function VendorDashboard({
             if (!productsByCategory[category]) {
               productsByCategory[category] = {};
             }
-            if (!productsByCategory[category]['default']) {
-              productsByCategory[category]['default'] = [];
+            if (!productsByCategory[category]["default"]) {
+              productsByCategory[category]["default"] = [];
             }
-            productsByCategory[category]['default'].push(product);
+            productsByCategory[category]["default"].push(product);
           }
         });
 
@@ -374,7 +388,6 @@ export function VendorDashboard({
     fetchUserDocuments();
   }, []);
 
-
   // Fetch admin analytics data when marketplace tab is active
   useEffect(() => {
     if (activeTab === "marketplace") {
@@ -388,63 +401,27 @@ export function VendorDashboard({
     setAdminCentersError(null);
 
     try {
-      // Fetch centers performance data using the new API
-      const centersPerformanceData = await getCentersPerformance();
+      // Fetch vendor orders and all centers to compute top centers by revenue
+      const [vendorOrders, allCenters] = await Promise.all([
+        getVendorOrders(user.id),
+        getAllCenters(),
+      ]);
+      console.log(vendorOrders, allCenters);
+      // Use heap-based algorithm to find top centers by revenue
+      const topCenters = findTopCentersByRevenue(vendorOrders, allCenters, 4);
 
-      // Use findTopCentersByRevenueFromAnalytics with centersPerformanceData, K=4
-      const topAdminCentersData = findTopCentersByRevenueFromAnalytics(centersPerformanceData, 4);
-      setTopAdminCenters(topAdminCentersData);
+      setTopAdminCenters(topCenters);
     } catch (error: unknown) {
-      console.error("Error fetching centers performance data:", error);
+      console.error("Error fetching admin analytics data:", error);
       setAdminCentersError(
-        error instanceof Error ? error.message : "Failed to load centers performance data"
+        error instanceof Error
+          ? error.message
+          : "Failed to load admin analytics data"
       );
     } finally {
       setIsLoadingAdminCenters(false);
     }
   };
-
-  // Remove old topCenters fetching and state usage as replaced by admin analytics
-  // Commenting out or removing the old useEffect for topCenters fetching
-  /*
-  useEffect(() => {
-    const fetchTopCenters = async () => {
-      if (activeTab !== "top-centers") return;
-
-      setIsLoadingTopCenters(true);
-      setTopCentersError(null);
-
-      try {
-        // Fetch vendor orders and centers
-        const [vendorOrders, allCenters] = await Promise.all([
-          getVendorOrders(user.id),
-          getAllCenters(),
-        ]);
-
-        // Compute top centers using heap-based algorithm
-        const topCentersData = findTopCentersBySales(vendorOrders, allCenters, 10);
-        setTopCenters(topCentersData);
-      } catch (error: unknown) {
-        console.error("Error fetching top centers data:", error);
-        setTopCentersError(
-          error instanceof Error ? error.message : "Failed to load top centers"
-        );
-      } finally {
-        setIsLoadingTopCenters(false);
-      }
-    };
-
-    fetchTopCenters();
-  }, [activeTab, user.id]);
-  };
-  */
-
-
-
-
-
-
-
 
   // Handle search functionality
   const handleSearch = async () => {
@@ -791,7 +768,9 @@ export function VendorDashboard({
                               !item.images[0].url.includes("placeholder.svg") &&
                               !item.images[0].url.startsWith("/image/")
                                 ? `http://localhost:5000${item.images[0].url}`
-                                : `/placeholder.svg?height=200&width=200&query=${encodeURIComponent(item.name)}`
+                                : `/placeholder.svg?height=200&width=200&query=${encodeURIComponent(
+                                    item.name
+                                  )}`
                             }
                             alt={item.name}
                             className="w-12 h-12 object-cover"
@@ -903,34 +882,49 @@ export function VendorDashboard({
                         onClick={async () => {
                           setIsCreatingPaymentIntent(true);
                           try {
-                            const response = await fetch('http://localhost:5000/api/payments/create-payment-intent', {
-                              method: 'POST',
-                              headers: {
-                                'Content-Type': 'application/json',
-                                
-                              },
-                              body: JSON.stringify({
-                                amount: totalAmount,
-                                currency: 'usd', // Use USD for better Stripe compatibility
-                              }),
-                            });
+                            const response = await fetch(
+                              "http://localhost:5000/api/payments/create-payment-intent",
+                              {
+                                method: "POST",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                  amount: totalAmount,
+                                  currency: "usd", // Use USD for better Stripe compatibility
+                                }),
+                              }
+                            );
 
                             const data = await response.json();
 
                             if (!response.ok) {
-                              throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+                              throw new Error(
+                                data.message ||
+                                  `HTTP ${response.status}: ${response.statusText}`
+                              );
                             }
 
                             if (!data.clientSecret) {
-                              throw new Error('No client secret received from server');
+                              throw new Error(
+                                "No client secret received from server"
+                              );
                             }
 
                             setClientSecret(data.clientSecret);
                             setShowPayment(true);
                           } catch (error) {
-                            console.error('Error creating payment intent:', error);
-                            const errorMessage = error instanceof Error ? error.message : 'Failed to initialize payment. Please try again.';
-                            alert(`Payment initialization failed: ${errorMessage}`);
+                            console.error(
+                              "Error creating payment intent:",
+                              error
+                            );
+                            const errorMessage =
+                              error instanceof Error
+                                ? error.message
+                                : "Failed to initialize payment. Please try again.";
+                            alert(
+                              `Payment initialization failed: ${errorMessage}`
+                            );
                           } finally {
                             setIsCreatingPaymentIntent(false);
                           }
@@ -948,19 +942,26 @@ export function VendorDashboard({
                         )}
                       </Button>
                     ) : clientSecret ? (
-                      <Elements stripe={stripePromise} options={{ clientSecret }}>
+                      <Elements
+                        stripe={stripePromise}
+                        options={{ clientSecret }}
+                      >
                         <StripePaymentForm
-                          key={totalAmount}  // Force remount on amount change
+                          key={totalAmount} // Force remount on amount change
                           amount={totalAmount}
                           currency="usd"
-                          onSuccess={(paymentIntentId) => handlePayment(paymentIntentId)}
+                          onSuccess={(paymentIntentId) =>
+                            handlePayment(paymentIntentId)
+                          }
                           onError={(error) => alert(`Payment failed: ${error}`)}
                         />
                       </Elements>
                     ) : (
                       <div className="text-center py-4">
                         <Loader2 className="h-6 w-6 animate-spin text-blue-600 mx-auto mb-2" />
-                        <p className="text-sm text-gray-600">Setting up payment...</p>
+                        <p className="text-sm text-gray-600">
+                          Setting up payment...
+                        </p>
                       </div>
                     )}
                   </div>
@@ -1021,16 +1022,16 @@ export function VendorDashboard({
                       : product.vendorId?.businessName || "Unknown Center"
                     : product.vendorId?.businessName || "Unknown Center"}
                 </p>
-<Button
-  size="sm"
-  className="w-full"
-  disabled={product.status !== "available"}
-  onClick={() => addToCart(product)}
->
-  {product.status === "available"
-    ? "Add to Cart"
-    : "Unavailable"}
-</Button>
+                <Button
+                  size="sm"
+                  className="w-full"
+                  disabled={product.status !== "available"}
+                  onClick={() => addToCart(product)}
+                >
+                  {product.status === "available"
+                    ? "Add to Cart"
+                    : "Unavailable"}
+                </Button>
               </div>
             ))}
           </div>
@@ -1101,8 +1102,6 @@ export function VendorDashboard({
     </div>
   );
 
-
-
   // Render filtered products by card click
   const renderFilteredProductsByCard = () => {
     if (isLoadingCardProducts) {
@@ -1160,24 +1159,26 @@ export function VendorDashboard({
               className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200"
             >
               <div className="aspect-w-16 aspect-h-9 bg-gray-200">
-                        {product.images && product.images.length > 0 ? (
-                          <Image
-                            key={product.images[0].url}
-                            src={
-                              product.images[0].url &&
-                              !product.images[0].url.includes("placeholder.svg") &&
-                              !product.images[0].url.startsWith("/image/")
-                                ? `http://localhost:5000${product.images[0].url}`
-                                : `/placeholder.svg?height=200&width=200&query=${encodeURIComponent(product.name)}`
-                            }
-                            alt={product.name}
-                            className="w-full h-48 object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                            <Package className="h-12 w-12 text-gray-400" />
-                          </div>
-                        )}
+                {product.images && product.images.length > 0 ? (
+                  <Image
+                    key={product.images[0].url}
+                    src={
+                      product.images[0].url &&
+                      !product.images[0].url.includes("placeholder.svg") &&
+                      !product.images[0].url.startsWith("/image/")
+                        ? `http://localhost:5000${product.images[0].url}`
+                        : `/placeholder.svg?height=200&width=200&query=${encodeURIComponent(
+                            product.name
+                          )}`
+                    }
+                    alt={product.name}
+                    className="w-full h-48 object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                    <Package className="h-12 w-12 text-gray-400" />
+                  </div>
+                )}
               </div>
               <div className="p-4">
                 <div className="flex items-start justify-between mb-2">
@@ -1257,7 +1258,9 @@ export function VendorDashboard({
           <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
           <div>
             <h4 className="font-medium text-amber-800">Error</h4>
-            <p className="text-sm text-amber-700 mt-1">{productError || centerError}</p>
+            <p className="text-sm text-amber-700 mt-1">
+              {productError || centerError}
+            </p>
           </div>
         </div>
       );
@@ -1272,8 +1275,9 @@ export function VendorDashboard({
         {/* Display products by category */}
         {categoriesToShow.map((category) => {
           // Check if this category has any products in the selected centers
-          const hasProductsInCategory = centersToShow.some(center => {
-            const centerProducts = productsByCategoryAndCenter[category]?.[center._id] || [];
+          const hasProductsInCategory = centersToShow.some((center) => {
+            const centerProducts =
+              productsByCategoryAndCenter[category]?.[center._id] || [];
             return centerProducts.length > 0;
           });
 
@@ -1281,23 +1285,31 @@ export function VendorDashboard({
 
           return (
             <Card key={category} className="p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">{category}</h3>
-              
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                {category}
+              </h3>
+
               {/* Display products by center within this category */}
               <div className="space-y-6">
                 {centersToShow.map((center) => {
-                  const centerProducts = productsByCategoryAndCenter[category]?.[center._id] || [];
-                  
+                  const centerProducts =
+                    productsByCategoryAndCenter[category]?.[center._id] || [];
+
                   if (centerProducts.length === 0) return null;
-                  
+
                   return (
-                    <div key={`${category}-${center._id}`} className="border-t pt-4 mt-4 first:border-t-0 first:pt-0 first:mt-0">
+                    <div
+                      key={`${category}-${center._id}`}
+                      className="border-t pt-4 mt-4 first:border-t-0 first:pt-0 first:mt-0"
+                    >
                       <h4 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
                         <MapPin className="h-4 w-4 mr-1 text-orange-500" />
                         {center.name}
-                        <span className="text-sm font-normal text-gray-500 ml-2">({centerProducts.length} products)</span>
+                        <span className="text-sm font-normal text-gray-500 ml-2">
+                          ({centerProducts.length} products)
+                        </span>
                       </h4>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {centerProducts.map((product) => (
                           <div
@@ -1310,10 +1322,14 @@ export function VendorDashboard({
                                   key={product.images[0].url}
                                   src={
                                     product.images[0].url &&
-                                    !product.images[0].url.includes("placeholder.svg") &&
+                                    !product.images[0].url.includes(
+                                      "placeholder.svg"
+                                    ) &&
                                     !product.images[0].url.startsWith("/image/")
                                       ? `http://localhost:5000${product.images[0].url}`
-                                      : `/placeholder.svg?height=200&width=200&query=${encodeURIComponent(product.name)}`
+                                      : `/placeholder.svg?height=200&width=200&query=${encodeURIComponent(
+                                          product.name
+                                        )}`
                                   }
                                   alt={product.name}
                                   className="w-full h-48 object-cover"
@@ -1351,7 +1367,9 @@ export function VendorDashboard({
                                       : "bg-red-100 text-red-800"
                                   }`}
                                 >
-                                  {product.status.replace("_", " ").toUpperCase()}
+                                  {product.status
+                                    .replace("_", " ")
+                                    .toUpperCase()}
                                 </span>
                               </div>
 
@@ -1376,8 +1394,6 @@ export function VendorDashboard({
             </Card>
           );
         })}
-
-
       </div>
     );
   };
@@ -1391,12 +1407,7 @@ export function VendorDashboard({
       {/* Top Centers Section - displays top centers from AdminDashboard analytics using minHeap algorithm */}
       <div className="space-y-4 mt-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Top Centers
-          </h3>
-          <span className="text-sm text-gray-500">
-            Top centers by total revenue
-          </span>
+          <h3 className="text-lg font-semibold text-gray-900">Top Centers</h3>
         </div>
         {renderTopCentersContent()}
       </div>
@@ -1417,8 +1428,6 @@ export function VendorDashboard({
       )}
     </div>
   );
-
-
 
   // Render order status badge
   const renderOrderStatusBadge = (status: OrderStatus) => {
@@ -1604,7 +1613,9 @@ export function VendorDashboard({
           <h4 className="text-sm font-medium text-gray-900 mb-1">
             No Top Centers Data
           </h4>
-          <p className="text-gray-500 text-sm">No centers performance data available.</p>
+          <p className="text-gray-500 text-sm">
+            No centers performance data available.
+          </p>
         </div>
       );
     }
@@ -1612,14 +1623,22 @@ export function VendorDashboard({
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {topAdminCenters.map((center, index) => (
-          <Card key={center.centerId} className="p-4 hover:shadow-lg transition-shadow">
+          <Card
+            key={center.centerId}
+            className="p-4 hover:shadow-lg transition-shadow"
+          >
             <div className="flex items-center justify-between mb-3">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                index === 0 ? 'bg-yellow-100 text-yellow-800' :
-                index === 1 ? 'bg-gray-100 text-gray-800' :
-                index === 2 ? 'bg-orange-100 text-orange-800' :
-                'bg-blue-100 text-blue-800'
-              }`}>
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                  index === 0
+                    ? "bg-yellow-100 text-yellow-800"
+                    : index === 1
+                    ? "bg-gray-100 text-gray-800"
+                    : index === 2
+                    ? "bg-orange-100 text-orange-800"
+                    : "bg-blue-100 text-blue-800"
+                }`}
+              >
                 {index + 1}
               </div>
               <TrendingUp className="h-5 w-5 text-green-600" />
@@ -1630,7 +1649,7 @@ export function VendorDashboard({
               </h4>
               <p className="text-xs text-gray-500 flex items-center">
                 <MapPin className="h-3 w-3 mr-1" />
-                {center.centerLocation || 'Location not available'}
+                {center.centerLocation || "Location not available"}
               </p>
               <div className="pt-2 border-t">
                 <p className="text-xs text-gray-500">Total Revenue</p>
@@ -1679,7 +1698,9 @@ export function VendorDashboard({
           <h4 className="text-lg font-medium text-gray-900 mb-2">
             No Top Centers Data
           </h4>
-          <p className="text-gray-500">No centers performance data available.</p>
+          <p className="text-gray-500">
+            No centers performance data available.
+          </p>
         </div>
       );
     }
@@ -1973,7 +1994,6 @@ export function VendorDashboard({
               {[
                 { id: "marketplace", label: "Marketplace", icon: Package },
                 { id: "orders", label: "My Orders", icon: ShoppingCart },
-                { id: "top-centers", label: "Top Centers", icon: TrendingUp },
                 { id: "profile", label: "My Profile", icon: Users },
               ].map((tab) => (
                 <button
@@ -1992,7 +2012,7 @@ export function VendorDashboard({
             </nav>
             {/* Removed rendering of Top Centers content */}
 
-            {/* Search Field */}  
+            {/* Search Field */}
             {activeTab === "marketplace" && (
               <div className="flex items-center space-x-2">
                 <div className="relative">
@@ -2041,15 +2061,11 @@ export function VendorDashboard({
       </div>
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {activeTab === "marketplace" && (
-        <>
-          {renderMarketplace()}
-        </>
-      )}
-      {activeTab === "orders" &&
-        (selectedOrder ? renderOrderDetails() : renderOrdersList())}
-      {activeTab === "top-centers" && renderTopCenters()}
-      {activeTab === "profile" && renderProfile()}
+        {activeTab === "marketplace" && <>{renderMarketplace()}</>}
+        {activeTab === "orders" &&
+          (selectedOrder ? renderOrderDetails() : renderOrdersList())}
+        {activeTab === "top-centers" && renderTopCenters()}
+        {activeTab === "profile" && renderProfile()}
       </div>
 
       {/* MessageBox component */}
